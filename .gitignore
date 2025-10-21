@@ -1,3 +1,14 @@
+# Python / Django
+__pycache__/
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+
+# IDEs
+.vscode/
+.idea/
+
 venv/
 node_modules/
 .env
