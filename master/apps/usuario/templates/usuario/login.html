@@ -1,0 +1,27 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Iniciar sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/src/global.css' %}">
+</head>
+<body>
+  <main>
+    <h1>Iniciar sesión</h1>
+
+    {% if messages %}
+      <ul class="messages">{% for m in messages %}<li>{{ m }}</li>{% endfor %}</ul>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Entrar</button>
+    </form>
+
+    <p class="mt"><small>¿No tenés cuenta?</small> <a href="{% url 'register' %}">Crear una cuenta</a></p>
+  </main>
+</body>
+</html>

@@ -1,16 +1,31 @@
-# Python / Django
+
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
 db.sqlite3
+local_settings.py
+*.sqlite3
+
+env/
+venv/
+.venv/
+ENV/
+
 media/
 staticfiles/
 
-# IDEs
+static/css/src/output.css
+
+
+.env
+.env.*
+
+
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
 
-venv/
+
 node_modules/
-.env
-
-master/master/static/css/src/output.css
+package-lock.json

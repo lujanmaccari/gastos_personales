@@ -1,0 +1,62 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Crear cuenta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/src/global.css' %}">
+</head>
+<body>
+  <main>
+    <h1>Crear cuenta</h1>
+
+    {# Errores no asociados a un campo (por ejemplo, validaciones cruzadas) #}
+    {% if form.non_field_errors %}
+      <ul class="messages">
+        {% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+      {{ form.username }}
+      {% if form.username.errors %}
+        <ul class="messages">
+          {% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+      {{ form.email }}
+      {% if form.email.errors %}
+        <ul class="messages">
+          {% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+      {{ form.password1 }}
+      {% if form.password1.errors %}
+        <ul class="messages">
+          {% for e in form.password1.errors %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+      {{ form.password2 }}
+      {% if form.password2.errors %}
+        <ul class="messages">
+          {% for e in form.password2.errors %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <button type="submit">Registrarme</button>
+    </form>
+
+    <p class="mt"><small>¿Ya tenés cuenta?</small> <a href="{% url 'login' %}">Iniciar sesión</a></p>
+  </main>
+</body>
+</html>

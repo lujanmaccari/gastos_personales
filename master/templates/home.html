@@ -1,0 +1,17 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Inicio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/src/global.css' %}">
+</head>
+<body>
+  <main>
+    <h1>Bienvenido, {{ user.username }}</h1>
+    <p class="mt">Estás dentro de tu cuenta.</p>
+    <p class="mt"><a href="{% url 'logout' %}">Cerrar sesión</a></p>
+  </main>
+</body>
+</html>
