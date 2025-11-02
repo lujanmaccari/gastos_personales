@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class PresupuestoConfig(AppConfig):
+class IngresoConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.presupuesto'
+    name = 'apps.ingreso'

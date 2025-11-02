@@ -41,9 +41,9 @@ DJANGO_APPS = [
 
 LOCAL_APPS = [
     'apps.usuario',
+    'apps.ingreso',
     'apps.categoria',
     'apps.gasto',
-    'apps.presupuesto',
     'apps.inicio',
     'apps.perfil',
     'apps.simulador',
