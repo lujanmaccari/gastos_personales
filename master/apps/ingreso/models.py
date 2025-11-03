@@ -2,10 +2,9 @@ from django.db import models
 
 # Create your models here.
 class Ingreso(models.Model):
-    # Falta agregar campo moneda como FK
-    
     usuario = models.ForeignKey('usuario.Usuario', on_delete=models.CASCADE)
     fuente = models.ForeignKey('ingreso.Fuente', on_delete=models.SET_NULL, null=True)
+    moneda = models.ForeignKey('usuario.Moneda', on_delete=models.SET_NULL, null=True, blank=True)
     fecha = models.DateField()
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField(blank=True, null=True)
