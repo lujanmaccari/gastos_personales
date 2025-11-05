@@ -24,7 +24,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
 
 
-def logout_then_login(request):
+def logout_view(request):
     logout(request)                           # cierra la sesión siempre
     messages.success(request, "Sesión cerrada correctamente.")
     return redirect("login")                  # redirige al login

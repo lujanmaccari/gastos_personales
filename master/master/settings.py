@@ -44,9 +44,9 @@ LOCAL_APPS = [
     'apps.ingreso',
     'apps.categoria',
     'apps.gasto',
-    'apps.inicio',
     'apps.perfil',
     'apps.simulador',
+    'apps.dashboard'
 ]
 
 THIRD_PARTY_APPS = [

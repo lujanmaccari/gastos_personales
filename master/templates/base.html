@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    {% load static %}
+    <link rel="icon" type="image/x-icon" href="{% static 'images/image.png' %}">
+    <link rel="stylesheet" href="{% static 'css/src/output.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/src/global.css' %}" />
+    <title>
+      {% block title %}
+       Gastos Personales
+      {% endblock %}
+    </title>
+  </head>
+
+  <body class="m-0 flex">
+    {% block navbar %}
+      {% if request.path != '/login/' and request.path != '/registro/' %}
+        <aside class="fixed top-0 left-0 h-screen w-20 text-white z-50">
+          {% include 'layout/sidebar.html' %}
+        </aside>
+      {% endif %}
+    {% endblock %}
+
+    <main class="{% if request.path != '/login/' and request.path != '/registro/' %}ml-20 flex-1 min-h-screen px-6 pt-6 space-y-4 {% endif %}flex-1 min-h-screen">
+      {% if request.path != '/login/' and request.path != '/registro/' %}
+        <h1 class="text-2xl font-bold text-gray-800 cursor-default">
+          {% block sectionTitle %}
+
+          {% endblock %}
+        </h1>
+      {% endif %} {% block content %}
+
+      {% endblock %}
+
+      
+    </main>
+
+    <div id="modal-content"></div>
+  </body>
+</html>
