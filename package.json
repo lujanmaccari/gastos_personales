@@ -10,14 +10,20 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",
+    "daisyui": "^5.4.5",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.14"
+    "tailwindcss": "^3.4.10"
   },
-  "dependencies": {
-    "daisyui": "^5.3.1"
-  }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lujanmaccari/gastos_personales.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lujanmaccari/gastos_personales/issues"
+  },
+  "homepage": "https://github.com/lujanmaccari/gastos_personales#readme",
+  "description": ""
 }

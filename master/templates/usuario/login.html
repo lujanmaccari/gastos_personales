@@ -1,27 +1,116 @@
 {% load static %}
 <!doctype html>
-<html lang="es">
+<html lang="es" class="light">
 <head>
-  <meta charset="utf-8">
-  <title>Iniciar sesión</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/src/global.css' %}">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iniciar sesión - SpendWise</title>
+
+  <!-- Tailwind desde CDN (puedes cambiarlo por tu build local luego) -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+  <!-- Configuración Tailwind personalizada -->
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#47b4eb",
+            "background-light": "#E0F7FA",
+            "background-dark": "#111c21",
+            "violet-start": "#a8b5e5",
+            "celeste-end": "#d4e6f1",
+          },
+          fontFamily: {
+            display: ["Manrope", "sans-serif"],
+          },
+          borderRadius: {
+            DEFAULT: "0.5rem",
+            lg: "1rem",
+            xl: "1.5rem",
+            full: "9999px",
+          },
+        },
+      },
+    };
+  </script>
 </head>
-<body>
-  <main>
-    <h1>Iniciar sesión</h1>
 
-    {% if messages %}
-      <ul class="messages">{% for m in messages %}<li>{{ m }}</li>{% endfor %}</ul>
-    {% endif %}
+<body class="font-display bg-gradient-to-br from-violet-start to-celeste-end min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-4xl flex flex-col md:flex-row bg-white/70 dark:bg-background-dark/50 rounded-xl shadow-lg overflow-hidden mx-4">
+    
+    <!-- Formulario -->
+    <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+      <div class="flex items-center gap-4 text-[#0e171b] dark:text-white mb-6">
+        <div class="size-8 text-primary">
+          <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold leading-tight tracking-[-0.015em]">SpendWise</h2>
+      </div>
 
-    <form method="post" novalidate>
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Entrar</button>
-    </form>
+      <h1 class="text-3xl font-bold text-[#0e171b] dark:text-white mb-6">Iniciar Sesión</h1>
 
-    <p class="mt"><small>¿No tenés cuenta?</small> <a href="{% url 'register' %}">Crear una cuenta</a></p>
-  </main>
+      <!-- Mensajes Django -->
+      {% if messages %}
+        <ul class="mb-4 space-y-2">
+          {% for m in messages %}
+            <li class="text-sm text-red-600 bg-red-100 px-3 py-2 rounded-lg">{{ m }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <!-- Formulario -->
+      <form method="post" novalidate class="flex flex-col gap-4">
+        {% csrf_token %}
+        {% for field in form %}
+          <div>
+            <label for="{{ field.id_for_label }}" class="input block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {{ field.label }}
+            </label>
+            {{ field }}
+            {% if field.errors %}
+              <p class="text-sm text-red-500 mt-1">{{ field.errors|striptags }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <a href="#" class="text-sm text-primary hover:underline text-right">¿Olvidaste tu contraseña?</a>
+
+        <button type="submit"
+          class="w-full h-12 px-4 bg-primary text-white font-bold rounded-xl mt-4 hover:bg-sky-500 transition">
+          Iniciar sesión
+        </button>
+
+        <a href="{% url 'register' %}"
+          class="w-full h-12 px-4 flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-[#0e171b] dark:text-white font-bold rounded-xl mt-2 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+          Crear cuenta nueva
+        </a>
+      </form>
+    </div>
+
+    <!-- Panel lateral -->
+    <div class="hidden md:flex w-1/2 bg-primary/20 dark:bg-primary/10 p-8 items-center justify-center">
+      <div class="flex flex-col items-center text-center">
+        <div class="relative mb-4">
+          <svg class="size-48" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#d4e6f1" stroke-width="4"></circle>
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#a8b5e5"
+                    stroke-dasharray="75,25" stroke-dashoffset="25" stroke-width="4"></circle>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-5xl">savings</span>
+          </div>
+        </div>
+        <p class="text-xl font-bold text-[#0e171b] dark:text-white">Gestioná tus finanzas fácilmente</p>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
