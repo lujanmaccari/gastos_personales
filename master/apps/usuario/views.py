@@ -21,7 +21,7 @@ class RegisterView(CreateView):
         return form_class
 
 class HomeView(LoginRequiredMixin, TemplateView):
-    template_name = "home.html"
+    template_name = "dashboard/home.html"
 
 
 def logout_view(request):
