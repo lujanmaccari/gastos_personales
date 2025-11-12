@@ -1,7 +1,6 @@
-
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario
+from apps.usuario.models import Usuario, Moneda
 
 @admin.register(Usuario)
 class CustomUserAdmin(UserAdmin): # campos q se muestran en la lista principal
@@ -25,3 +24,7 @@ class CustomUserAdmin(UserAdmin): # campos q se muestran en la lista principal
     )
 
     ordering = ("username",)
+
+@admin.register(Moneda)
+class MonedaAdmin(admin.ModelAdmin):
+    list_display = ('moneda', 'abreviatura')

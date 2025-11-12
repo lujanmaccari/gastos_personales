@@ -1,14 +1,50 @@
 {% extends 'layout/frame.html' %}
 
-{% block title %}
-  Ingreso
+{% block title %}Ingresos{% endblock %}
+{% block sectionTitle %}Ingresos{% endblock %}
+
+{% block nuevo_modal_url %}
+  {% url 'ingresos_create' %}
 {% endblock %}
 
-{% block sectionTitle %}
-Ingreso
-{% endblock %}
-
-{% load static %}
 {% block contenido_tabla %}
-  <p class="mt">Estás dentro de tu Ingreso.</p>
+  {% if ingresos %}
+    <div class="w-full bg-white shadow-lg rounded-2xl p-6">
+      <table class="w-full table-auto border-collapse">
+        <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="py-3 px-4 text-center">Fecha</th>
+            <th class="py-3 px-4 text-center">Fuente</th>
+            <th class="py-3 px-4 text-center">Monto</th>
+            <th class="py-3 px-4 text-center">Descripción</th>
+            <th class="py-3 px-4 text-center">Acciones</th>
+          </tr>
+        </thead>
+        
+        <tbody class="text-gray-700">
+          {% for ingreso in ingresos %}
+          
+          <tr class="border-b hover:bg-gray-100 transition">
+            <td class="py-2 px-4 text-center">{{ ingreso.fecha }}</td>
+
+            <td class="py-2 px-4 text-center">{{ ingreso.fuente }}</td>
+
+            <td class="py-2 px-4 font-semibold text-blue-500 text-center">{{ ingreso.moneda.abreviatura|default:"$" }} {{ ingreso.monto }}</td>
+            <td class="py-2 px-4 text-center">{{ ingreso.descripcion|default:"&ndash;"|safe }}</td>
+
+            <td class="py-2 px-4 text-center space-x-2">
+              <a href="{% url 'ingresos_update' ingreso.id %}" 
+                class="text-blue-500 hover:underline">Editar</a>
+              <a href="{% url 'ingresos_delete' ingreso.id %}" 
+                class="text-red-500 hover:underline">Eliminar</a>
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-gray-500 mt-4">Aún no registraste ingresos.</p>
+  {% endif %}
 {% endblock %}
