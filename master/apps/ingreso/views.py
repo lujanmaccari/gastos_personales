@@ -13,7 +13,7 @@ class IngresoListView(LoginRequiredMixin, ListView):
         return Ingreso.objects.filter(usuario=self.request.user).order_by('-fecha')
 
 class IngresoFieldsMixin:
-    fields = ['fecha', 'fuente', 'monto', 'moneda', 'descripcion']
+    fields = ['fecha', 'fuente', 'monto', 'descripcion']
 
 class IngresoCreateView(LoginRequiredMixin, IngresoFieldsMixin, CreateView):
     """Permite crear un nuevo ingreso asignado al usuario logueado."""
