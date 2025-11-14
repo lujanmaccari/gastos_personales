@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Gasto(models.Model):
+    usuario = models.ForeignKey('usuario.Usuario', on_delete=models.CASCADE)
     categoria = models.ForeignKey('categoria.Categoria', on_delete=models.CASCADE)
     moneda = models.ForeignKey('usuario.Moneda', on_delete=models.SET_NULL, null=True)
     fecha = models.DateField()
