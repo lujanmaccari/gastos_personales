@@ -1,14 +1,50 @@
 {% extends 'layout/frame.html' %}
 
-{% block title %}
-  Gasto
+{% block title %}Gastos{% endblock %}
+{% block sectionTitle %}Gastos{% endblock %}
+
+{% block nuevo_modal_url %}
+  {% url 'gastos_create' %}
 {% endblock %}
 
-{% block sectionTitle %}
-Gasto
-{% endblock %}
-
-{% load static %}
 {% block contenido_tabla %}
-  <p class="mt">Estás dentro de tu Gasto.</p>
+  {% if gastos %}
+    <div class="w-full bg-white shadow-lg rounded-2xl p-6">
+      <table class="w-full table-auto border-collapse">
+        <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="py-3 px-4 text-center">Fecha</th>
+            <th class="py-3 px-4 text-center">Categoría</th>
+            <th class="py-3 px-4 text-center">Monto</th>
+            <th class="py-3 px-4 text-center">Descripción</th>
+            <th class="py-3 px-4 text-center">Acciones</th>
+          </tr>
+        </thead>
+        
+        <tbody class="text-gray-700">
+          {% for gasto in gastos %}
+          
+          <tr class="border-b hover:bg-gray-100 transition">
+            <td class="py-2 px-4 text-center">{{ gasto.fecha }}</td>
+
+            <td class="py-2 px-4 text-center">{{ gasto.categoria }}</td>
+
+            <td class="py-2 px-4 font-semibold text-blue-500 text-center">{{ gasto.monto }}</td>
+            <td class="py-2 px-4 text-center">{{ gasto.descripcion|default:"&ndash;"|safe }}</td>
+
+            <td class="py-2 px-4 text-center space-x-2">
+              <a href="{% url 'gastos_update' gasto.id %}" 
+                class="text-blue-500 hover:underline">Editar</a>
+              <a href="{% url 'gastos_delete' gasto.id %}" 
+                class="text-red-500 hover:underline">Eliminar</a>
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-gray-500 mt-4">Aún no registraste gastos.</p>
+  {% endif %}
 {% endblock %}

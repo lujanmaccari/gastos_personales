@@ -3,14 +3,20 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Ingreso
 
-class IngresoListView(LoginRequiredMixin, ListView):
+class UserIngresoQuerysetMixin:
+    """Filtra los ingresos para que cada usuario solo vea los suyos."""
+    def get_queryset(self):
+        return Ingreso.objects.filter(usuario=self.request.user)
+
+class IngresoListView(LoginRequiredMixin, UserIngresoQuerysetMixin, ListView):
     """Lista los ingresos del usuario logueado, ordenados por fecha."""
     model = Ingreso
     template_name = 'ingreso/ingreso.html'
     context_object_name = 'ingresos'
 
     def get_queryset(self):
-        return Ingreso.objects.filter(usuario=self.request.user).order_by('-fecha')
+        queryset = super().get_queryset()
+        return queryset.order_by('-fecha') 
 
 class IngresoFieldsMixin:
     fields = ['fecha', 'fuente', 'monto', 'descripcion']
@@ -27,11 +33,6 @@ class IngresoCreateView(LoginRequiredMixin, IngresoFieldsMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('ingresos')
-
-class UserIngresoQuerysetMixin:
-    """Filtra los ingresos para que cada usuario solo vea los suyos."""
-    def get_queryset(self):
-        return Ingreso.objects.filter(usuario=self.request.user)
 
 class IngresoUpdateView(LoginRequiredMixin, UserIngresoQuerysetMixin, IngresoFieldsMixin, UpdateView):
     """Permite editar un ingreso existente del usuario logueado."""
