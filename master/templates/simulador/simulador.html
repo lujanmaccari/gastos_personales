@@ -5,10 +5,127 @@
 {% endblock %}
 
 {% block sectionTitle %}
-Simulador de ahorro
+  Simulador de ahorro
 {% endblock %}
 
 {% load static %}
 {% block contenido_tabla %}
-  <p class="mt">Estás dentro de tu Simulador de ahorro.</p>
+  <div class="w-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-10">
+      <button class="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-sm text-gray-700 shadow-sm border border-gray-200 hover:bg-gray-50 transition">
+        Reiniciar simulación
+        <span class="text-lg">↻</span>
+      </button>
+    </div>
+
+    <!-- Grid principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Panel izquierdo -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+        <h2 class="text-xl font-semibold mb-6">Ajusta tus variables</h2>
+
+        <!-- Ingresos -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-gray-700">Ingresos Mensuales</p>
+            <p class="font-semibold">$3,500</p>
+          </div>
+          <input type="range" min="2000" max="8000" value="3500" class="w-full h-2 rounded-full accent-[#4BA3E3]" />
+        </div>
+
+        <!-- Gastos -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-gray-700">Gastos Mensuales</p>
+            <p class="font-semibold">$2,000</p>
+          </div>
+          <input type="range" min="500" max="5000" value="2000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#4BA3E3]" />
+        </div>
+
+        <!-- Meta -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-gray-700">Meta de Ahorro</p>
+            <p class="font-semibold">$10,000</p>
+          </div>
+          <input type="range" min="2000" max="20000" value="10000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#4BA3E3]" />
+        </div>
+      </div>
+
+      <!-- Panel derecho -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+        <h2 class="text-xl font-semibold mb-6">Proyección de Saldo Futuro</h2>
+        <canvas id="chart" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="mt-10 bg-[#DDF1FF] border border-[#B7E2FF] rounded-2xl p-6 flex items-start gap-4">
+      <div class="text-[#4BA3E3] text-2xl">💡</div>
+      <div>
+        <p class="font-semibold text-[#0E171B]">Insights de Ahorro</p>
+        <p class="text-gray-700 mt-1">
+          En <span class="font-semibold text-[#4BA3E3]">3 meses</span> podrías ahorrar
+          <span class="font-semibold text-[#4BA3E3]">$4,500</span> si reducís un
+          <span class="font-semibold text-[#4BA3E3]">10%</span> tus gastos de ocio.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    const ctx = document.getElementById('chart')
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mes 1', 'Mes 2', 'Mes 3', 'Mes 4', 'Mes 5', 'Mes 6', 'Mes 7', 'Mes 8', 'Mes 9', 'Mes 10', 'Mes 11', 'Mes 12'],
+        datasets: [
+          {
+            label: '',
+            data: [2000, 3500, 5000, 6500, 8000, 9500, 11000, 12500, 14000, 15500, 17000, 18500],
+            borderColor: '#4BA3E3',
+            backgroundColor: 'rgba(75,163,227,0.25)',
+            borderWidth: 3,
+            tension: 0.35,
+            pointBackgroundColor: '#FFFFFF',
+            pointBorderColor: '#4BA3E3',
+            pointBorderWidth: 2,
+            pointRadius: 4
+          }
+        ]
+      },
+    
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            grid: {
+              color: '#E5EAF0'
+            },
+            ticks: {
+              color: '#6B7280',
+              callback: (v) => `$${v / 1000}k`
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: '#6B7280'
+            }
+          }
+        }
+      }
+    })
+  </script>
 {% endblock %}

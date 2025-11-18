@@ -30,3 +30,4 @@ Thumbs.db
 node_modules/
 package-lock.json
 master/static/css/src/output.css
+master/static/css/src/output.css

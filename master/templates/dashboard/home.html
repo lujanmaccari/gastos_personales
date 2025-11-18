@@ -5,11 +5,102 @@
 {% endblock %}
 
 {% block sectionTitle %}
-  Dashboard
+  Hola Luján 👋, este mes llevás gastado $23.450
 {% endblock %}
 
 {% load static %}
+
 {% block contenido_tabla %}
-  <h1>Bienvenido, {{ user.username }}</h1>
-  <p class="mt">Estás dentro de tu cuenta.</p>
+  <div class="flex flex-col w-full">
+    <!-- TARJETAS + DONUT -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <!-- TARJETAS -->
+      <div class="lg:col-span-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- CARD 1 -->
+          <div class="flex flex-col gap-2 rounded-xl p-6 bg-white/70 dark:bg-background-dark/50 shadow-sm">
+            <p class="text-[#0e171b] text-base font-medium">Total de ingresos 💰</p>
+            <div class="flex items-baseline gap-2">
+              <p class="text-[#0e171b] text-3xl font-bold">$50,000</p>
+              <div class="flex items-center gap-1 text-green-500">
+                <span class="material-symbols-outlined text-base">arrow_upward</span>
+                <span class="text-sm font-medium">5%</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">vs. mes pasado</p>
+          </div>
+
+          <!-- CARD 2 -->
+          <div class="flex flex-col gap-2 rounded-xl p-6 bg-white/70 dark:bg-background-dark/50 shadow-sm">
+            <p class="text-[#0e171b] text-base font-medium">Total de gastos 💸</p>
+            <div class="flex items-baseline gap-2">
+              <p class="text-[#0e171b] text-3xl font-bold">$23,450</p>
+              <div class="flex items-center gap-1 text-red-500">
+                <span class="material-symbols-outlined text-base">arrow_upward</span>
+                <span class="text-sm font-medium">12%</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">vs. mes pasado</p>
+          </div>
+
+          <!-- CARD 3 -->
+          <div class="flex flex-col gap-2 rounded-xl p-6 bg-white/70 dark:bg-background-dark/50 shadow-sm">
+            <p class="text-[#0e171b] text-base font-medium">Balance mensual ⚖️</p>
+            <div class="flex items-baseline gap-2">
+              <p class="text-[#0e171b] text-3xl font-bold">$26,550</p>
+              <div class="flex items-center gap-1 text-green-500">
+                <span class="material-symbols-outlined text-base">arrow_downward</span>
+                <span class="text-sm font-medium">8%</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">vs. mes pasado</p>
+          </div>
+
+          <div class="flex flex-col gap-2 rounded-xl p-6 bg-white/70 dark:bg-background-dark/50 shadow-sm">
+            <p class="text-[#0e171b] text-base font-medium">Top categoría del mes ⚖️</p>
+            <div class="flex items-baseline gap-2">
+              <p class="text-[#0e171b] text-3xl font-bold">Comida</p>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">vs. mes pasado</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DONUT CHART -->
+    </div>
+
+    <!-- GRAFICO -->
+    <div class="mt-8 flex flex-col gap-2 rounded-xl border border-primary/20 p-6 bg-white/70 dark:bg-background-dark/50 shadow-sm">
+      <p class="text-[#0e171b] text-lg font-bold">Evolución de Gastos</p>
+
+      <div class="flex gap-1 items-baseline">
+        <p class="text-gray-600 dark:text-gray-400">Últimos 6 meses</p>
+        <p class="text-green-600 dark:text-green-400 font-medium">+5%</p>
+      </div>
+
+      <div class="flex max-h-[240px] flex-col gap-4 py-2">
+        <svg fill="none" viewBox="-3 0 478 110" preserveAspectRatio="none" width="100%" height="100%">
+          <path d="M0 80C18 80 18 20 36 20C54 20 54 35 72 35C90 35 90 70 109 70C127 70 127 25 145 25C163 25 163 75 182 75C200 75 200 50 218 50C236 50 236 40 254 40C272 40 272 88 290 88C308 88 308 105 327 105C345 105 345 5 363 5C381 5 381 60 399 60C418 60 418 100 436 100C454 100 454 15 472 15V105H0V80Z" fill="url(#grad)"></path>
+
+          <path d="M0 80C18 80 18 20 36 20C54 20 54 35 72 35C90 35 90 70 109 70C127 70 127 25 145 25C163 25 163 75 182 75C200 75 200 50 218 50C236 50 236 40 254 40C272 40 272 88 290 88C308 88 308 105 327 105C345 105 345 5 363 5C381 5 381 60 399 60C418 60 418 100 436 100C454 100 454 15 472 15" stroke="#47b4eb" stroke-width="3" stroke-linecap="round"></path>
+
+          <defs>
+            <linearGradient id="grad" x1="236" x2="236" y1="1" y2="110" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#47b4eb" stop-opacity="0.3" />
+              <stop offset="1" stop-color="#47b4eb" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <div class="flex justify-around">
+          <p class="text-gray-500 dark:text-gray-400 text-sm font-bold">Ene</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm font-bold">Feb</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm font-bold">Mar</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm font-bold">Abr</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm font-bold">May</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm font-bold">Jun</p>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
