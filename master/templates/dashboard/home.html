@@ -6,8 +6,6 @@
 
 {% block sectionTitle %}
   Hola {{ request.user }} 👋, este mes llevás gastado ${{ total_gastos_mes }}
-  {{ ultimos_meses }}
-  {{ valores_gastos_mensuales }}
 {% endblock %}
 
 {% load static %}
@@ -110,7 +108,7 @@
       <div class="w-full flex flex-col gap-4 py-2">
         <!-- TARJETA DEL GRAFICO -->
         <div class="w-full">
-          <canvas id="gastosChart" height="110"></canvas>
+          <canvas id="gastosChart" height="50"></canvas>
         </div>
 
         <!-- Meses debajo -->
