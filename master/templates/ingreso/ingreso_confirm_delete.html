@@ -1,24 +1,118 @@
 {% extends 'layout/frame.html' %}
 
-{% block title %}Eliminar ingreso{% endblock %}
-{% block sectionTitle %}Eliminar ingreso{% endblock %}
+{% block title %}Eliminar Ingreso{% endblock %}
+{% block sectionTitle %}Eliminar Ingreso{% endblock %}
+
+{% block nuevo_modal_url %}{% endblock %}
 
 {% block contenido_tabla %}
-<div class="flex flex-col items-center justify-center bg-white shadow-lg rounded-2xl p-8 max-w-md mx-auto text-center">
-    <p class="text-gray-700 mb-6">¿Estás seguro de que querés eliminar el ingreso de 
-    <span class="font-semibold text-blue-500">${{ object.monto }}</span> del 
-    <span class="font-semibold">{{ object.fecha }}</span>?
-    </p>
-
-    <form method="post" class="flex gap-4">
-    {% csrf_token %}
-    <a href="{% url 'ingresos' %}" 
-        class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition">
-        Cancelar
-    </a>
+<div class="max-w-lg mx-auto">
     
-    <button type="submit" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition"> Eliminar
-    </button>
-    </form>
+    <!-- Card de Confirmación -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        
+        <!-- Header con advertencia -->
+        <div class="bg-gradient-to-r from-red-500 to-red-600 p-6 text-red-800">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+            <i class="fas fa-exclamation-triangle text-3xl"></i>
+            </div>
+            <div>
+            <h2 class="text-2xl font-bold">Confirmar Eliminación</h2>
+            <p class="text-red-500 text-sm font-semibold">Esta acción no se puede deshacer.</p>
+            </div>
+        </div>
+        </div>
+
+        <!-- Contenido -->
+        <div class="p-4">
+        
+        <!-- Detalles del Ingreso -->
+        <div class="mb-3 p-5 bg-gray-50 rounded-lg border border-gray-200">
+            <p class="text-sm text-gray-600 mb-3">Estás a punto de eliminar el siguiente ingreso:</p>
+            
+            <div class="space-y-3">
+            <!-- Monto -->
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">
+                <i class="fas fa-dollar-sign text-gray-400 mr-2"></i>
+                Monto:
+                </span>
+                <span class="text-2xl font-bold text-gray-900">
+                ${{ object.monto|floatformat:2 }}
+                </span>
+            </div>
+
+            <!-- Fecha -->
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">
+                <i class="fas fa-calendar text-gray-400 mr-2"></i>
+                Fecha:
+                </span>
+                <span class="font-semibold text-gray-900">
+                {{ object.fecha|date:"d/m/Y" }}
+                </span>
+            </div>
+
+            <!-- Fuente -->
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">
+                <i class="fas fa-briefcase text-gray-400 mr-2"></i>
+                Fuente:
+                </span>
+                <span class="font-semibold text-gray-900">
+                {{ object.fuente.nombre }}
+                </span>
+            </div>
+
+            <!-- Descripción (si existe) -->
+            {% if object.descripcion %}
+            <div class="pt-2 border-t border-gray-200">
+                <span class="text-sm text-gray-600 block mb-1">
+                <i class="fas fa-align-left text-gray-400 mr-2"></i>
+                Descripción:
+                </span>
+                <p class="text-sm text-gray-700 italic">
+                "{{ object.descripcion|truncatewords:20 }}"
+                </p>
+            </div>
+            {% endif %}
+            </div>
+        </div>
+
+        <!-- Advertencia -->
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex gap-3">
+
+            <div class="text-sm text-red-800">
+                <p class="font-medium mb-1">⚠️ Advertencia:</p>
+                <p>Una vez eliminado, este registro no podrá ser recuperado. Tus estadísticas y totales se actualizarán automáticamente.</p>
+            </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Confirmación -->
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="flex gap-3">
+            <a href="{% url 'ingresos' %}" 
+                class="flex-1 btn bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition py-3 text-center">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Cancelar
+            </a>
+            
+            <button type="submit" 
+                    class="flex-1 btn bg-red-500 hover:bg-red-600 text-white transition py-3 shadow-lg shadow-red-500/30">
+                <i class="fas fa-trash mr-2"></i>
+                Eliminar Definitivamente
+            </button>
+            </div>
+        </form>
+
+        </div>
+
+    </div>
+
 </div>
 {% endblock %}
