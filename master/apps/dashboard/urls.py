@@ -1,7 +1,6 @@
 from django.urls import path
-from django.contrib.auth.decorators import login_required
-from .views import home
+from .views import DashboardView
 
 urlpatterns = [
-    path('dashboard/', login_required(home), name='dashboard'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
 ]
