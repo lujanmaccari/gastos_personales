@@ -1,14 +1,95 @@
-{% extends 'layout/frame.html' %}
-
-{% block title %}
-  Perfil
-{% endblock %}
-
-{% block sectionTitle %}
-Perfil
-{% endblock %}
-
+{% extends "layout/frame.html" %}
 {% load static %}
+
+{% block title %}Mi Perfil{% endblock %}
+{% block sectionTitle %}Perfil{% endblock %}
+
 {% block contenido_tabla %}
-  <p class="mt">Estás dentro de tu Perfil.</p>
-{% endblock %}
+
+<div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+   
+    <div class="flex items-center gap-4">
+      {% if perfil.avatar %}
+        <div class="rounded-full w-32 h-32 bg-cover bg-center" style="background-image: url('{{ perfil.avatar.url }}')"></div>
+      {% else %}
+        <div class="w-32 h-32 rounded-full bg-slate-200 flex items-center justify-center text-3xl">👤</div>
+      {% endif %}
+      <div>
+        <p class="text-2xl font-bold leading-tight">{{ request.user.get_full_name|default:request.user.username }}</p>
+        <p class="text-sm text-gray-600">{{ request.user.email }}</p>
+      </div>
+    </div>
+
+   
+    <div class="flex items-center">
+      <a href="{% url 'perfil_edit' %}"
+         id="perfil-edit-btn"
+         class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold shadow-md hover:bg-indigo-700 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.232 5.232l3.536 3.536M4 20l7.775-1.021a2 2 0 001.611-.989l7.87-11.263a1 1 0 00-.878-1.558L6.5 4.75a2 2 0 00-1.75 1.5L4 20z"/>
+        </svg>
+        <span class="hidden sm:inline">Editar Perfil</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+
+    <style>
+    
+      .perfil-edit-important { background-color: #4F46E5 !important; color: white !important; }
+    </style>
+  </div>
+
+ 
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+    <div class="lg:col-span-2 space-y-8">
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-4">Información Personal</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div><p class="text-sm text-gray-600 mb-2">Usuario</p><p class="font-medium">{{ request.user.username }}</p></div>
+          <div><p class="text-sm text-gray-600 mb-2">Nombre</p><p class="font-medium">{{ request.user.first_name }} {{ request.user.last_name }}</p></div>
+          <div><p class="text-sm text-gray-600 mb-2">Email</p><p class="font-medium">{{ request.user.email }}</p></div>
+          <div><p class="text-sm text-gray-600 mb-2">Contraseña</p><p class="font-medium">••••••••</p></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-4">Límites de Presupuesto</h2>
+        <p class="text-sm text-gray-600 mb-4">Establece un límite de gasto mensual para recibir alertas.</p>
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <p class="font-medium">Límite de Gasto Mensual</p>
+            <p class="text-primary text-lg font-bold">{{ perfil.limite_gasto_mensual }}%</p>
+          </div>
+          <input id="limitRange" class="w-full h-2 bg-slate-200 rounded-lg" type="range" min="0" max="100" value="{{ perfil.limite_gasto_mensual }}" />
+        </div>
+        <div class="flex justify-end mt-6">
+          <a href="{% url 'perfil_edit' %}" class="px-6 py-2 rounded-lg bg-indigo-600 text-white font-bold">Editar</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-8">
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-xl font-bold mb-4">Preferencias</h2>
+        <p class="font-medium">Moneda: {{ perfil.get_moneda_display }}</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="w-full rounded-lg h-10 px-4 bg-indigo-100 text-indigo-800 font-semibold">Cerrar Sesión</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const range = document.getElementById('limitRange');
+  if (range) range.addEventListener('input', (e)=>{/* opcional */});
+</script>
+{% endblock contenido_tabla %}

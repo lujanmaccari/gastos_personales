@@ -1,7 +1,9 @@
 from django.urls import path
-from django.contrib.auth.decorators import login_required
-from .views import perfil
+from .views import PerfilDetailView, PerfilUpdateView
 
-urlpatterns = [    
-    path('perfil/', login_required(perfil), name='perfil'),
+app_name = "perfil"
+
+urlpatterns = [
+    path("", PerfilDetailView.as_view(), name="perfil_detail"),
+    path("editar/", PerfilUpdateView.as_view(), name="perfil_edit"),
 ]

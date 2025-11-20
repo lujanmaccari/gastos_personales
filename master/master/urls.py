@@ -16,8 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth.views import LoginView # usuario
-from apps.usuario.views import RegisterView, HomeView, logout_view # usuario
+from django.contrib.auth.views import LoginView
+from apps.usuario.views import RegisterView, HomeView, logout_view
+from apps.perfil.views import PerfilDetailView, PerfilUpdateView
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
@@ -26,10 +29,15 @@ urlpatterns = [
     path("", include("apps.dashboard.urls")),
     path("", include("apps.gasto.urls")),
     path("", include("apps.ingreso.urls")),
-    path("", include("apps.perfil.urls")),
+    path("perfil/", PerfilDetailView.as_view(), name="perfil_detail"),
+    path("perfil/editar/", PerfilUpdateView.as_view(), name="perfil_edit"),
     path("", include("apps.simulador.urls")),
     path("", include("apps.usuario.urls")),
-
-
-
+    path("login/", LoginView.as_view(template_name="usuario/login.html"), name="login"),
+    path("logout/", logout_view, name="logout"), 
+    path("register/", RegisterView.as_view(), name="register"),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# las subidas de avatar redirigen a media/avatars/lalala.jpg y django las busca en MEDIA_ROOT = base_dir/media
