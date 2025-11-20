@@ -2,28 +2,109 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Gasto
+from apps.categoria.models import Categoria
+from datetime import datetime
 
-# Create your views here.
+# Importar utilidades
+from apps.utils.calculations import calcular_variacion_mensual, calcular_distribucion_por_campo, calcular_saldo_mensual, asignar_colores
+from apps.utils.filters import aplicar_filtros_basicos, aplicar_busqueda, obtener_valores_filtros
+
+
 class UserGastoQuerysetMixin:
     """Filtra los gastos para que cada usuario solo vea los suyos."""
     def get_queryset(self):
         return Gasto.objects.filter(usuario=self.request.user)
 
+
 class GastoListView(LoginRequiredMixin, UserGastoQuerysetMixin, ListView):
-    """Lista los gastos del usuario logueado, ordenados por fecha."""
+    """Vista principal de Gastos con:
+    - Búsqueda de gastos, 
+    - Lista de gastos con filtros,
+    - Distribución de gastos por categoría."""
     model = Gasto
     template_name = 'gasto/gasto.html'
     context_object_name = 'gastos'
+    paginate_by = 10
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.order_by('-fecha') 
+        queryset = super().get_queryset().select_related('categoria', 'moneda', 'usuario')
+        
+        # Aplicar búsqueda
+        queryset = aplicar_busqueda(
+            queryset, 
+            self.request, 
+            ['descripcion', 'categoria__nombre']
+        )
+        
+        # Aplicar filtros básicos (fecha, monto)
+        queryset = aplicar_filtros_basicos(queryset, self.request)
+        
+        # Filtro específico de Gasto: categoría
+        categoria_id = self.request.GET.get('categoria')
+        if categoria_id:
+            queryset = queryset.filter(categoria_id=categoria_id)
+        
+        return queryset.order_by('-fecha')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        hoy = datetime.now()
+        
+        # Calcular variación mensual de gastos
+        variacion = calcular_variacion_mensual(Gasto, usuario)
+        
+        # Calcular distribución por categoría (solo mes actual)
+        gastos_por_categoria, total_grafico = calcular_distribucion_por_campo(
+            Gasto,
+            usuario,
+            'categoria__nombre',
+            mes_actual=True
+        )
+        
+        # Asignar colores específicos para gastos
+        gastos_por_categoria = asignar_colores(gastos_por_categoria, [
+            '#F97316',  # Naranja
+            '#3B82F6',  # Azul
+            '#10B981',  # Verde
+            '#A855F7',  # Violeta
+            '#EF4444',  # Rojo
+            '#F59E0B',  # Amarillo
+            '#06B6D4',  # Cian
+            '#EC4899',  # Rosa
+        ])
+        
+        # Calcular saldo mensual
+        saldo_info = calcular_saldo_mensual(usuario)
+        
+        # Obtener valores de filtros
+        valores_filtros = obtener_valores_filtros(
+            self.request,
+            ['categoria', 'fecha', 'monto_min', 'monto_max']
+        )
+        
+        context.update({
+            'total_gastos_mensual': variacion['total_mes_actual'],
+            'variacion_porcentual': variacion['variacion_porcentual'],
+            'mes_nombre': hoy.strftime('%B'),
+            'gastos_por_categoria': gastos_por_categoria,
+            'total_general_grafico': total_grafico,
+            'categorias_disponibles': Categoria.objects.all(),
+            'cantidad_gastos': self.get_queryset().count(),
+            'saldo_restante': saldo_info['saldo'],
+            'total_ingresos_mensual': saldo_info['total_ingresos'],
+            'moneda': usuario.moneda.abreviatura if usuario.moneda else 'ARS',
+            **valores_filtros
+        })
+        
+        return context
+
 
 class GastoFieldsMixin:
-    fields = ['fecha', 'monto', 'descripcion', 'categoria']
+    fields = ['fecha', 'categoria', 'monto', 'descripcion']
+
 
 class GastoCreateView(LoginRequiredMixin, GastoFieldsMixin, CreateView):
-    """Permite crear un nuevo gasto asignado al usuario logueado."""
     model = Gasto
     template_name = 'gasto/gasto_form.html'
 
@@ -35,16 +116,16 @@ class GastoCreateView(LoginRequiredMixin, GastoFieldsMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('gastos')
 
+
 class GastoUpdateView(LoginRequiredMixin, UserGastoQuerysetMixin, GastoFieldsMixin, UpdateView):
-    """Permite editar un gasto existente del usuario logueado."""
     model = Gasto
     template_name = 'gasto/gasto_form.html'
 
     def get_success_url(self):
         return reverse_lazy('gastos')
 
+
 class GastoDeleteView(LoginRequiredMixin, UserGastoQuerysetMixin, DeleteView):
-    """Permite eliminar un gasto existente del usuario logueado."""
     model = Gasto
     template_name = 'gasto/gasto_confirm_delete.html'
 

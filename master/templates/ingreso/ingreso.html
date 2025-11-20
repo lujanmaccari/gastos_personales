@@ -19,7 +19,7 @@
 
       <!-- Card 1: Total Ingresos Mensual -->
       <div class="p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-gray-600 text-sm font-medium mb-3">
+        <p class="text-gray-900 text-lg font-bold mb-6">
           Total Ingresos ({{ mes_nombre }})
         </p>
 
@@ -61,13 +61,29 @@
           </div>
         </div>
 
-        <!-- Lista de Fuentes con Porcentajes -->
+        <!-- Lista de Fuentes con Porcentajes e Íconos -->
         <div class="flex flex-col gap-2">
           {% for item in ingresos_por_fuente %}
           <div class="flex justify-between items-center hover:bg-gray-50 p-2 rounded-lg transition-colors">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full" style="background-color: {{ item.color }};"></span>
-              <span class="text-gray-700 text-sm">{{ item.fuente }}</span>
+              
+              <!-- Ícono según la fuente -->
+              {% if item.fuente == "Sueldo" or item.fuente == "Salario" %}
+                <i class="fas fa-briefcase text-cyan-500 text-sm"></i>
+              {% elif item.fuente == "Freelance" %}
+                <i class="fas fa-laptop-code text-amber-500 text-sm"></i>
+              {% elif item.fuente == "Devoluciones" or item.fuente == "Devolución" %}
+                <i class="fas fa-undo text-lime-500 text-sm"></i>
+              {% elif item.fuente == "Inversiones" %}
+                <i class="fas fa-chart-line text-blue-500 text-sm"></i>
+              {% elif item.fuente == "Bonificación" or item.fuente == "Bono" %}
+                <i class="fas fa-gift text-purple-500 text-sm"></i>
+              {% else %}
+                <i class="fas fa-dollar-sign text-gray-500 text-sm"></i>
+              {% endif %}
+              
+              <span class="text-gray-700 text-sm font-medium">{{ item.fuente }}</span>
             </div>
             <span class="font-semibold text-gray-900 text-sm">{{ item.porcentaje }}%</span>
           </div>
@@ -196,23 +212,54 @@
               <th class="px-4 py-3 text-left text-gray-600 font-medium">Fuente</th>
               <th class="px-4 py-3 text-left text-gray-600 font-medium">Moneda</th>
               <th class="px-4 py-3 text-right text-gray-600 font-medium">Monto</th>
-              <th class="px-4 py-3 text-left  text-gray-600 font-medium">Descripción</th>
-              <th class="px-4 py-3 text-center  text-gray-600 font-medium">Acciones</th>
+              <th class="px-4 py-3 text-left text-gray-600 font-medium">Descripción</th>
+              <th class="px-4 py-3 text-center text-gray-600 font-medium">Acciones</th>
             </tr>
           </thead>
 
           <tbody>
             {% for ingreso in ingresos %}
             <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+              
               <!-- Fecha -->
               <td class="px-4 py-4 text-gray-600">
                 {{ ingreso.fecha|date:"d/m/Y" }}
               </td>
 
-              <!-- Fuente con ícono -->
+              <!-- Fuente con Badge e Ícono -->
               <td class="px-4 py-4">
                 <div class="flex items-center gap-2">
-                  <span class="text-gray-900 font-medium">{{ ingreso.fuente.nombre }}</span>
+                  {% if ingreso.fuente.nombre == "Sueldo" or ingreso.fuente.nombre == "Salario" %}
+                    <i class="fas fa-briefcase text-cyan-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-cyan-800 bg-cyan-100">
+                      {{ ingreso.fuente.nombre }}
+                    </span>
+                  {% elif ingreso.fuente.nombre == "Freelance" %}
+                    <i class="fas fa-laptop-code text-amber-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-amber-800 bg-amber-100">
+                      {{ ingreso.fuente.nombre }}
+                    </span>
+                  {% elif "Devoluc" in ingreso.fuente.nombre %}
+                    <i class="fas fa-undo text-lime-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-lime-800 bg-lime-100">
+                      {{ ingreso.fuente.nombre }}
+                    </span>
+                  {% elif ingreso.fuente.nombre == "Inversiones" %}
+                    <i class="fas fa-chart-line text-blue-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100">
+                      {{ ingreso.fuente.nombre }}
+                    </span>
+                  {% elif "Bon" in ingreso.fuente.nombre %}
+                    <i class="fas fa-gift text-purple-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-purple-800 bg-purple-100">
+                      {{ ingreso.fuente.nombre }}
+                    </span>
+                  {% else %}
+                    <i class="fas fa-dollar-sign text-gray-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-gray-800 bg-gray-100">
+                      {{ ingreso.fuente.nombre }}
+                    </span>
+                  {% endif %}
                 </div>
               </td>
 
@@ -227,16 +274,21 @@
               </td>
 
               <!-- Descripción -->
-                <td class="px-4 py-3 text-gray-600">
+              <td class="px-4 py-3 text-gray-600">
                 {{ ingreso.descripcion|default:"—"|truncatewords:8 }}
               </td>
 
+              <!-- Acciones -->
               <td class="px-4 py-3">
                 <div class="flex justify-center gap-3">
-                  <a href="{% url 'ingresos_update' ingreso.id %}" class="text-blue-500 hover:text-blue-700">
+                  <a href="{% url 'ingresos_update' ingreso.id %}" 
+                    class="text-blue-500 hover:text-blue-700 transition"
+                    title="Editar">
                     <i class="fas fa-edit"></i>
                   </a>
-                  <a href="{% url 'ingresos_delete' ingreso.id %}" class="text-red-500 hover:text-red-700">
+                  <a href="{% url 'ingresos_delete' ingreso.id %}" 
+                    class="text-red-500 hover:text-red-700 transition"
+                    title="Eliminar">
                     <i class="fas fa-trash"></i>
                   </a>
                 </div>
@@ -306,13 +358,12 @@
     const ctx = document.getElementById('fuentesChart');
     
     if (ctx) {
-      // Colores del gráfico (coinciden con el mock)
       const colores = [
-        '#06B6D4',  // Cyan (Sueldo)
-        '#F59E0B',  // Amarillo (Freelance)
-        '#84CC16',  // Lima (Devoluciones)
+        '#06B6D4',  // Cyan
+        '#F59E0B',  // Amarillo 
+        '#84CC16',  // Lima
         '#3B82F6',  // Azul
-        '#8B5CF6',  // Púrpura
+        '#8B5CF6',  // Violeta
         '#EF4444',  // Rojo
       ];
       
@@ -343,7 +394,25 @@
             responsive: true,
             maintainAspectRatio: true,
             plugins: {
-              legend: { display: false },
+              legend: { 
+                display: true,
+                position: 'bottom',
+                labels: {
+                  padding: 15,
+                  font: {
+                    size: 12
+                  },
+                  generateLabels: function(chart) {
+                    const data = chart.data;
+                    return data.labels.map((label, i) => ({
+                      text: label,
+                      fillStyle: data.datasets[0].backgroundColor[i],
+                      hidden: false,
+                      index: i
+                    }));
+                  }
+                }
+              },
               tooltip: {
                 callbacks: {
                   label: function(context) {
@@ -355,7 +424,7 @@
                 }
               }
             },
-            cutout: '75%'
+            cutout: '70%'
           }
         });
       }

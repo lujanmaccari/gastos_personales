@@ -1,50 +1,402 @@
 {% extends 'layout/frame.html' %}
 
 {% block title %}Gastos{% endblock %}
-{% block sectionTitle %}Gastos{% endblock %}
+{% block sectionTitle %}Mis Gastos{% endblock %}
 
 {% block nuevo_modal_url %}
   {% url 'gastos_create' %}
 {% endblock %}
 
 {% block contenido_tabla %}
-  {% if gastos %}
-    <div class="w-full bg-white shadow-lg rounded-2xl p-6">
-      <table class="w-full table-auto border-collapse">
-        <thead class="bg-gray-100 text-gray-700">
-          <tr>
-            <th class="py-3 px-4 text-center">Fecha</th>
-            <th class="py-3 px-4 text-center">Categoría</th>
-            <th class="py-3 px-4 text-center">Monto</th>
-            <th class="py-3 px-4 text-center">Descripción</th>
-            <th class="py-3 px-4 text-center">Acciones</th>
-          </tr>
-        </thead>
-        
-        <tbody class="text-gray-700">
-          {% for gasto in gastos %}
-          
-          <tr class="border-b hover:bg-gray-100 transition">
-            <td class="py-2 px-4 text-center">{{ gasto.fecha }}</td>
 
-            <td class="py-2 px-4 text-center">{{ gasto.categoria }}</td>
+<div class="w-full space-y-4">
 
-            <td class="py-2 px-4 font-semibold text-blue-500 text-center">{{ gasto.monto }}</td>
-            <td class="py-2 px-4 text-center">{{ gasto.descripcion|default:"&ndash;"|safe }}</td>
-
-            <td class="py-2 px-4 text-center space-x-2">
-              <a href="{% url 'gastos_update' gasto.id %}" 
-                class="text-blue-500 hover:underline">Editar</a>
-              <a href="{% url 'gastos_delete' gasto.id %}" 
-                class="text-red-500 hover:underline">Eliminar</a>
-            </td>
-
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <!-- SECCIÓN: BÚSQUEDA Y FILTROS -->
+  <div class="flex flex-col lg:flex-row gap-4">
+    
+    <!-- Barra de Búsqueda -->
+    <div class="flex-grow">
+      <form method="get" action="{% url 'gastos' %}" class="w-full">
+        <label class="flex flex-col h-12 w-full">
+          <div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+            <div class="flex bg-gray-100 items-center justify-center pl-4 rounded-l-xl border-r-0">
+              <i class="fas fa-search text-gray-500"></i>
+            </div>
+            <input 
+              type="text"
+              name="search"
+              value="{{ search_query }}"
+              class="form-input flex w-full min-w-0 flex-1 rounded-r-xl focus:outline-0 focus:ring-2 focus:ring-blue-500 border-none bg-gray-100 h-full placeholder:text-gray-500 px-4 text-base"
+              placeholder="Buscar gastos..."/>
+          </div>
+        </label>
+      </form>
     </div>
-  {% else %}
-    <p class="text-gray-500 mt-4">Aún no registraste gastos.</p>
-  {% endif %}
+
+    <!-- Botones de Filtros -->
+    <div class="flex gap-3 flex-wrap">
+      <button 
+        onclick="toggleFiltros()"
+        class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-gray-100 hover:bg-gray-200 px-4 transition">
+        <i class="fas fa-filter text-gray-700"></i>
+        <p class="text-gray-900 text-sm font-medium">Filtros</p>
+      </button>
+      
+    </div>
+  </div>
+
+  <!-- Panel de Filtros Colapsable -->
+  <div id="filtrosPanel" class="hidden">
+    <form method="get" action="{% url 'gastos' %}" class="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        
+        <!-- Filtro: Categoría -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+          <select 
+            name="categoria"
+            class="input w-full bg-gray-50 border-gray-300 rounded-xl">
+            <option value="">Todas</option>
+            {% for categoria in categorias_disponibles %}
+            <option value="{{ categoria.id }}" 
+              {% if filtro_categoria == categoria.id|stringformat:"s" %}selected{% endif %}>
+              {{ categoria.nombre }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Filtro: Fecha -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+          <input 
+            type="date"
+            name="fecha"
+            value="{{ filtro_fecha }}"
+            class="input w-full bg-gray-50 border-gray-300 rounded-xl"/>
+        </div>
+
+        <!-- Filtro: Monto Mínimo -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Monto mín.</label>
+          <input 
+            type="number"
+            step="0.01"
+            name="monto_min"
+            value="{{ filtro_monto_min }}"
+            placeholder="Ej: 10"
+            class="input w-full bg-gray-50 border-gray-300 rounded-xl"/>
+        </div>
+
+        <!-- Filtro: Monto Máximo -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Monto máx.</label>
+          <input 
+            type="number"
+            step="0.01"
+            name="monto_max"
+            value="{{ filtro_monto_max }}"
+            placeholder="Ej: 100"
+            class="input w-full bg-gray-50 border-gray-300 rounded-xl"/>
+        </div>
+
+      </div>
+
+      <!-- Boton del formulario -->
+      <div class="flex gap-3 mt-4 justify-end">
+        <button 
+          type="submit"
+          class="btn bg-blue-500 hover:bg-blue-600 text-white px-6">
+          <i class="fas fa-search mr-2"></i> Aplicar
+        </button>
+        
+        {% if search_query or filtro_categoria or filtro_fecha or filtro_monto_min or filtro_monto_max %}
+        <a 
+          href="{% url 'gastos' %}"
+          class="btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-6">
+          <i class="fas fa-times mr-2"></i> Limpiar
+        </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- SECCIÓN: TABLA Y GRÁFICO -->
+  <div class="flex flex-col lg:flex-row gap-6">
+
+    <!-- TABLA DE GASTOS (Izquierda - 2/3) -->
+    <div class="flex-grow w-full lg:w-2/3">
+      {% if gastos %}
+      <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Fecha</th>
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Categoría</th>
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Descripción</th>
+              <th class="px-4 py-3 text-right text-gray-600 text-sm font-medium">Monto</th>
+              <th class="px-4 py-3 text-center text-gray-600 font-medium">Acciones</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            {% for gasto in gastos %}
+            <tr class="border-t border-gray-200 hover:bg-gray-50 transition-colors">
+              
+              <!-- Fecha -->
+              <td class="px-4 py-4 text-gray-500 text-sm">
+                {{ gasto.fecha|date:"d/m/Y" }}
+              </td>
+
+              <!-- Categoría con Badge -->
+              <td class="px-4 py-4 text-sm">
+                <div class="flex items-center gap-2">
+                  <!-- Ícono según categoría -->
+                  {% if gasto.categoria.nombre == "Comida" %}
+                    <i class="fas fa-utensils text-orange-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-orange-800 bg-orange-100">
+                      {{ gasto.categoria.nombre }}
+                    </span>
+                  {% elif gasto.categoria.nombre == "Transporte" %}
+                    <i class="fas fa-bus text-blue-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100">
+                      {{ gasto.categoria.nombre }}
+                    </span>
+                  {% elif gasto.categoria.nombre == "Ocio" %}
+                    <i class="fas fa-film text-green-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-green-800 bg-green-100">
+                      {{ gasto.categoria.nombre }}
+                    </span>
+                  {% elif gasto.categoria.nombre == "Compras" %}
+                    <i class="fas fa-shopping-bag text-purple-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-purple-800 bg-purple-100">
+                      {{ gasto.categoria.nombre }}
+                    </span>
+                  {% elif gasto.categoria.nombre == "Hogar" %}
+                    <i class="fas fa-home text-red-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-red-800 bg-red-100">
+                      {{ gasto.categoria.nombre }}
+                    </span>
+                  {% else %}
+                    <i class="fas fa-circle text-gray-500"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-gray-800 bg-gray-100">
+                      {{ gasto.categoria.nombre }}
+                    </span>
+                  {% endif %}
+                </div>
+              </td>
+
+              <!-- Descripción -->
+              <td class="px-4 py-4 text-gray-700 text-sm">
+                {{ gasto.descripcion|default:"—"|truncatewords:10 }}
+              </td>
+
+              <!-- Monto -->
+              <td class="px-4 py-4 text-gray-500 text-sm text-right font-medium">
+                ${{ gasto.monto|floatformat:2 }}
+              </td>
+
+              <!-- Acciones -->
+              <td class="px-4 py-3">
+                <div class="flex justify-center gap-3">
+                  <a href="{% url 'gastos_update' gasto.id %}" 
+                    class="text-blue-500 hover:text-blue-700 transition"
+                    title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="{% url 'gastos_delete' gasto.id %}" 
+                    class="text-red-500 hover:text-red-700 transition"
+                    title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      {% if is_paginated %}
+      <div class="mt-4 flex justify-center">
+        <div class="flex gap-2">
+          {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}" 
+            class="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 transition">
+            Anterior
+          </a>
+          {% endif %}
+          
+          <span class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+          </span>
+          
+          {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}" 
+            class="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 transition">
+            Siguiente
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% else %}
+      <!-- Estado vacío -->
+      <div class="text-center py-16 bg-white border border-gray-200 rounded-xl">
+        <i class="fas fa-receipt text-gray-300 text-6xl mb-4"></i>
+        <p class="text-gray-500 text-lg mb-4">No hay gastos registrados</p>
+        <a href="{% url 'gastos_create' %}" 
+          class="btn bg-blue-500 hover:bg-blue-600 text-white px-6 inline-flex items-center gap-2">
+          <i class="fas fa-plus"></i>
+          <span>Registrar primer gasto</span>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- GRÁFICO POR CATEGORÍA (Derecha - 1/3) -->
+    <div class="w-full lg:w-1/3">
+      <div class="flex flex-col gap-4 p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
+        
+        <p class="text-gray-900 text-xl font-bold">Gastos por Categoría</p>
+
+        <!-- Gráfico Circular -->
+        <div class="relative w-full aspect-square flex items-center justify-center">
+          <canvas id="categoriasChart" class="w-full h-full"></canvas>
+          
+          <!-- Total en el centro -->
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span class="text-gray-500 text-sm">Total</span>
+            <span class="text-gray-900 text-2xl font-bold">
+              ${{ total_general_grafico|floatformat:2 }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Lista de Categorías -->
+        <div class="flex flex-col gap-2 mt-2">
+          {% for item in gastos_por_categoria %}
+          <div class="flex justify-between items-center text-sm hover:bg-gray-100 p-2 rounded-lg transition-colors cursor-pointer">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full" style="background-color: {{ item.color }};"></span>
+              <span class="text-gray-700">{{ item.categoria }}</span>
+            </div>
+            <span class="font-medium text-gray-900">{{ item.porcentaje }}%</span>
+          </div>
+          {% empty %}
+          <p class="text-gray-500 text-center text-sm py-4">
+            Sin datos disponibles
+          </p>
+          {% endfor %}
+        </div>
+
+      </div>
+
+      <!-- Paginación -->
+      {% if is_paginated %}
+      <div class="mt-4 flex justify-center">
+        <div class="flex gap-2">
+          {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}" 
+            class="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 transition">
+            Anterior
+          </a>
+          {% endif %}
+          
+          <span class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+          </span>
+          
+          {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}" 
+            class="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 transition">
+            Siguiente
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+  // Toggle de filtros
+  function toggleFiltros() {
+    const panel = document.getElementById('filtrosPanel');
+    panel.classList.toggle('hidden');
+  }
+
+  // Configurar gráfico de dona
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('categoriasChart');
+    
+    if (ctx) {
+      const colores = [
+        '#F97316',  // Naranja
+        '#3B82F6',  // Azul
+        '#10B981',  // Verde
+        '#A855F7',  // Violeta
+        '#EF4444',  // Rojo
+        '#F59E0B',  // Amarillo
+        '#06B6D4',  // Cian
+        '#EC4899',  // Rosa
+      ];
+      
+      const categoriasData = [
+        {% for item in gastos_por_categoria %}
+        {
+          categoria: '{{ item.categoria }}',
+          total: parseFloat('{{ item.total }}'),
+          porcentaje: parseFloat('{{ item.porcentaje }}')
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ];
+      
+      if (categoriasData.length > 0) {
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: categoriasData.map(item => item.categoria),
+            datasets: [{
+              data: categoriasData.map(item => item.total),
+              backgroundColor: colores.slice(0, categoriasData.length),
+              borderWidth: 4,
+              borderColor: '#fff',
+              hoverOffset: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.parsed || 0;
+                    const percentage = categoriasData[context.dataIndex].porcentaje;
+                    return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                  }
+                }
+              }
+            },
+            cutout: '75%'
+          }
+        });
+      }
+    }
+  });
+</script>
+
 {% endblock %}

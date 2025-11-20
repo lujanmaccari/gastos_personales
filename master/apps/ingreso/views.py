@@ -3,9 +3,11 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.ingreso.models import Ingreso, Fuente
 from apps.usuario.models import Moneda
-from django.db.models import Sum, Count
 from datetime import datetime
-from decimal import Decimal
+
+# Importar utilidades
+from apps.utils.calculations import calcular_variacion_mensual, calcular_distribucion_por_campo, asignar_colores
+from apps.utils.filters import aplicar_filtros_basicos, obtener_valores_filtros
 
 class UserIngresoQuerysetMixin:
     """Filtra los ingresos para que cada usuario solo vea los suyos."""
@@ -26,112 +28,64 @@ class IngresoListView(LoginRequiredMixin, UserIngresoQuerysetMixin, ListView):
     def get_queryset(self):
         queryset = super().get_queryset().select_related('fuente', 'moneda', 'usuario')
         
-        # Obtener parámetros de filtrado
-        fuente_id = self.request.GET.get('fuente')
-        fecha = self.request.GET.get('fecha')
-        moneda = self.request.GET.get('moneda')
-        monto_min = self.request.GET.get('monto_min')
-        monto_max = self.request.GET.get('monto_max')
+        # Aplicar filtros básicos (fecha, monto)
+        queryset = aplicar_filtros_basicos(queryset, self.request)
         
-        # Filtros
-        if fuente_id: 
+        # Filtros específicos de Ingreso
+        fuente_id = self.request.GET.get('fuente')
+        if fuente_id:
             queryset = queryset.filter(fuente_id=fuente_id)
         
-        if fecha:
-            queryset = queryset.filter(fecha=fecha)
-            
+        moneda = self.request.GET.get('moneda')
         if moneda:
             queryset = queryset.filter(moneda__abreviatura=moneda)
-            
-        if monto_min:
-            queryset = queryset.filter(monto__gte=monto_min)
-            
-        if monto_max:
-            queryset = queryset.filter(monto__lte=monto_max)
         
-        # Ordenar por fecha descendente
-        return queryset.order_by('-fecha') 
+        return queryset.order_by('-fecha')
     
     def get_context_data(self, **kwargs):
-        """Agrega datos para el dashboard de ingresos"""
         context = super().get_context_data(**kwargs)
         usuario = self.request.user
-
-        # Obtener mes y año actual
         hoy = datetime.now()
-        mes_actual = hoy.month
-        año_actual = hoy.year
         
-        # TOTAL INGRESOS MENSUAL
-        ingresos_mes_actual = Ingreso.objects.filter(
-            usuario=usuario,
-            fecha__month=mes_actual,
-            fecha__year=año_actual
-        ).aggregate(total=Sum('monto'))['total'] or Decimal('0.00')
+        # Calcular variación mensual
+        variacion = calcular_variacion_mensual(Ingreso, usuario)
         
-        # Calcular mes anterior para comparación
-        mes_anterior = mes_actual - 1 if mes_actual > 1 else 12
-        año_mes_anterior = año_actual if mes_actual > 1 else año_actual - 1
+        # Calcular distribución por fuente (total general, no mensual)
+        ingresos_por_fuente, total_general = calcular_distribucion_por_campo(
+            Ingreso, 
+            usuario, 
+            'fuente__nombre',
+            mes_actual=False  # Total general
+        )
         
-        ingresos_mes_anterior = Ingreso.objects.filter(
-            usuario=usuario,
-            fecha__month=mes_anterior,
-            fecha__year=año_mes_anterior
-        ).aggregate(total=Sum('monto'))['total'] or Decimal('0.00')
+        # Asignar colores
+        ingresos_por_fuente = asignar_colores(ingresos_por_fuente, [
+            '#06B6D4',  # Cyan
+            '#F59E0B',  # Amarillo
+            '#84CC16',  # Lima
+            '#3B82F6',  # Azul
+            '#8B5CF6',  # Violeta
+            '#EF4444',  # Rojo
+        ])
         
-        # Calcular porcentaje de variación
-        if ingresos_mes_anterior > 0:
-            variacion_porcentual = ((ingresos_mes_actual - ingresos_mes_anterior) / ingresos_mes_anterior) * 100
-        else:
-            variacion_porcentual = 100 if ingresos_mes_actual > 0 else 0
-            
-        # INGRESOS POR FUENTE
-        ingresos_por_fuente = Ingreso.objects.filter(
-            usuario=usuario
-        ).values('fuente__nombre').annotate(
-            total=Sum('monto'),
-            cantidad=Count('id')
-        ).order_by('-total')
+        # Obtener valores de filtros
+        valores_filtros = obtener_valores_filtros(
+            self.request, 
+            ['fuente', 'fecha', 'moneda', 'monto_min', 'monto_max']
+        )
         
-        # Calcular total general para porcentajes
-        total_general = sum(item['total'] for item in ingresos_por_fuente)
-        
-        # Agregar porcentajes
-        ingresos_por_fuente_con_porcentaje = []
-        for item in ingresos_por_fuente:
-            porcentaje = (item['total'] / total_general * 100) if total_general > 0 else 0
-            ingresos_por_fuente_con_porcentaje.append({
-                'fuente': item['fuente__nombre'],
-                'total': item['total'],
-                'cantidad': item['cantidad'],
-                'porcentaje': round(porcentaje, 1)
-            })
-        
-        # LISTA DE FUENTES PARA EL FILTRO
-        fuentes_disponibles = Fuente.objects.all()
-        
-        # LISTA DE MONEDAS PARA EL FILTRO
-        monedas_disponibles = Moneda.objects.all()
-        
-        # AGREGAR TODO AL CONTEXTO
         context.update({
-            'total_ingresos_mensual': ingresos_mes_actual,
-            'variacion_porcentual': round(variacion_porcentual, 1),
+            'total_ingresos_mensual': variacion['total_mes_actual'],
+            'variacion_porcentual': variacion['variacion_porcentual'],
             'mes_nombre': hoy.strftime('%B'),
-            'ingresos_por_fuente': ingresos_por_fuente_con_porcentaje,
-            'total_general': total_general or Decimal('0.00'),
-            'fuentes_disponibles': fuentes_disponibles,
+            'ingresos_por_fuente': ingresos_por_fuente,
+            'total_general': total_general,
+            'fuentes_disponibles': Fuente.objects.all(),
+            'monedas_disponibles': Moneda.objects.all(),
             'moneda': usuario.moneda.abreviatura if usuario.moneda else '$',
-            'monedas_disponibles': monedas_disponibles,
-            
-            # Mantener los valores de los filtros en el template
-            'filtro_fuente': self.request.GET.get('fuente', ''),
-            'filtro_fecha': self.request.GET.get('fecha', ''),
-            'filtro_moneda': self.request.GET.get('moneda', ''),
-            'filtro_monto_min': self.request.GET.get('monto_min', ''),
-            'filtro_monto_max': self.request.GET.get('monto_max', ''),
+            **valores_filtros
         })
-        
+
         return context
 
 class IngresoFieldsMixin:

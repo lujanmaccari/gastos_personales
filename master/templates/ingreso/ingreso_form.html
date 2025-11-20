@@ -101,23 +101,18 @@
 
             </div>
 
-            <!-- Campo: Descripción -->
+            <!-- Campo: Descripción (textarea) -->
             <div>
             <label for="{{ form.descripcion.id_for_label }}" 
                     class="block text-sm font-medium text-gray-700 mb-2">
                 Descripción
             </label>
-            <select 
+            <textarea 
                 name="{{ form.descripcion.name }}"
                 id="{{ form.descripcion.id_for_label }}"
-                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none">
-                <option value="">Seleccionar descripción</option>
-                <option value="Sueldo mensual" {% if form.descripcion.value == "Sueldo mensual" %}selected{% endif %}>Sueldo mensual</option>
-                <option value="Proyecto freelance" {% if form.descripcion.value == "Proyecto freelance" %}selected{% endif %}>Proyecto freelance</option>
-                <option value="Venta" {% if form.descripcion.value == "Venta" %}selected{% endif %}>Venta</option>
-                <option value="Devolución" {% if form.descripcion.value == "Devolución" %}selected{% endif %}>Devolución</option>
-                <option value="Otro" {% if form.descripcion.value == "Otro" %}selected{% endif %}>Otro</option>
-            </select>
+                rows="3"
+                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                placeholder="Agregar descripción opcional...">{{ form.descripcion.value|default:'' }}</textarea>
             {% if form.descripcion.errors %}
                 <p class="mt-2 text-sm text-red-600">{{ form.descripcion.errors.0 }}</p>
             {% endif %}
