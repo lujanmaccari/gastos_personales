@@ -36,4 +36,4 @@ class SessionAuth:
 # from ninja.security import django_auth
 
 # Exportar para uso en otros módulos
-# session_auth = django_auth
+session_auth =  SessionAuth()

@@ -3,7 +3,7 @@ from typing import List
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum, Q
 from .models import Gasto
-from ingreso.models import Ingreso
+from apps.ingreso.models import Ingreso
 from .schemas import (
     GastoCreateSchema,
     GastoUpdateSchema,
