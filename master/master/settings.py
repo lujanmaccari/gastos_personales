@@ -50,7 +50,7 @@ LOCAL_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    'ninja'
+    'django-ninja'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

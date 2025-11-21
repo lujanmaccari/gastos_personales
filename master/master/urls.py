@@ -21,6 +21,7 @@ from apps.usuario.views import RegisterView, HomeView, logout_view
 from apps.perfil.views import PerfilDetailView, PerfilUpdateView
 from django.conf.urls.static import static
 from django.conf import settings
+from api.api import api
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
@@ -36,6 +37,9 @@ urlpatterns = [
     path("login/", LoginView.as_view(template_name="usuario/login.html"), name="login"),
     path("logout/", logout_view, name="logout"), 
     path("register/", RegisterView.as_view(), name="register"),
+    
+    # API
+    path('api/', api.urls)
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
