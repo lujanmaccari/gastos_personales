@@ -1,7 +1,7 @@
 from django.urls import path
-from django.contrib.auth.decorators import login_required
-from .views import simulador_ahorro
+from .views import SimuladorView, SimuladorCalculoView
 
 urlpatterns = [
-    path('simulador_ahorro/', login_required(simulador_ahorro), name='simulador_ahorro'),
+    path("simulador/", SimuladorView.as_view(), name="simulador"),
+    path("calcular/", SimuladorCalculoView.as_view(), name="simulador-calcular"),
 ]
