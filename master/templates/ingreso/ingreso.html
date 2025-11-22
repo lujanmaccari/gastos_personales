@@ -19,7 +19,7 @@
 
       <!-- Card 1: Total Ingresos Mensual -->
       <div class="p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-gray-900 text-lg font-bold mb-6">
+        <p class="text-gray-600 text-sm font-medium mb-3">
           Total Ingresos ({{ mes_nombre }})
         </p>
 
@@ -67,22 +67,7 @@
           <div class="flex justify-between items-center hover:bg-gray-50 p-2 rounded-lg transition-colors">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full" style="background-color: {{ item.color }};"></span>
-              
-              <!-- Ícono según la fuente -->
-              {% if item.fuente == "Sueldo" or item.fuente == "Salario" %}
-                <i class="fas fa-briefcase text-cyan-500 text-sm"></i>
-              {% elif item.fuente == "Freelance" %}
-                <i class="fas fa-laptop-code text-amber-500 text-sm"></i>
-              {% elif item.fuente == "Devoluciones" or item.fuente == "Devolución" %}
-                <i class="fas fa-undo text-lime-500 text-sm"></i>
-              {% elif item.fuente == "Inversiones" %}
-                <i class="fas fa-chart-line text-blue-500 text-sm"></i>
-              {% elif item.fuente == "Bonificación" or item.fuente == "Bono" %}
-                <i class="fas fa-gift text-purple-500 text-sm"></i>
-              {% else %}
-                <i class="fas fa-dollar-sign text-gray-500 text-sm"></i>
-              {% endif %}
-              
+              <i class="{{ item.icono }} {{ item.color_icono }} text-sm"></i>
               <span class="text-gray-700 text-sm font-medium">{{ item.fuente }}</span>
             </div>
             <span class="font-semibold text-gray-900 text-sm">{{ item.porcentaje }}%</span>
@@ -125,8 +110,7 @@
                 type="date" 
                 name="fecha" 
                 value="{{ filtro_fecha }}"
-                class="input w-full bg-gray-50 border-gray-300"
-                placeholder="mm/dd/yyyy"/>
+                class="input w-full bg-gray-50 border-gray-300"/>
             </div>
 
             <!-- Filtro: Fuente -->
@@ -226,41 +210,18 @@
                 {{ ingreso.fecha|date:"d/m/Y" }}
               </td>
 
-              <!-- Fuente con Badge e Ícono -->
+              <!-- Fuente con Badge e Ícono (desde el backend) -->
               <td class="px-4 py-4">
-                <div class="flex items-center gap-2">
-                  {% if ingreso.fuente.nombre == "Sueldo" or ingreso.fuente.nombre == "Salario" %}
-                    <i class="fas fa-briefcase text-cyan-500"></i>
-                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-cyan-800 bg-cyan-100">
+                {% for item in ingresos_por_fuente %}
+                  {% if item.fuente == ingreso.fuente.nombre %}
+                  <div class="flex items-center gap-2">
+                    <i class="{{ item.icono }} {{ item.color_icono }}"></i>
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium {{ item.color_badge }}">
                       {{ ingreso.fuente.nombre }}
                     </span>
-                  {% elif ingreso.fuente.nombre == "Freelance" %}
-                    <i class="fas fa-laptop-code text-amber-500"></i>
-                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-amber-800 bg-amber-100">
-                      {{ ingreso.fuente.nombre }}
-                    </span>
-                  {% elif "Devoluc" in ingreso.fuente.nombre %}
-                    <i class="fas fa-undo text-lime-500"></i>
-                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-lime-800 bg-lime-100">
-                      {{ ingreso.fuente.nombre }}
-                    </span>
-                  {% elif ingreso.fuente.nombre == "Inversiones" %}
-                    <i class="fas fa-chart-line text-blue-500"></i>
-                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100">
-                      {{ ingreso.fuente.nombre }}
-                    </span>
-                  {% elif "Bon" in ingreso.fuente.nombre %}
-                    <i class="fas fa-gift text-purple-500"></i>
-                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-purple-800 bg-purple-100">
-                      {{ ingreso.fuente.nombre }}
-                    </span>
-                  {% else %}
-                    <i class="fas fa-dollar-sign text-gray-500"></i>
-                    <span class="rounded-lg px-3 py-1 text-sm font-medium text-gray-800 bg-gray-100">
-                      {{ ingreso.fuente.nombre }}
-                    </span>
+                  </div>
                   {% endif %}
-                </div>
+                {% endfor %}
               </td>
 
               <!-- Moneda -->
@@ -358,21 +319,14 @@
     const ctx = document.getElementById('fuentesChart');
     
     if (ctx) {
-      const colores = [
-        '#06B6D4',  // Cyan
-        '#F59E0B',  // Amarillo 
-        '#84CC16',  // Lima
-        '#3B82F6',  // Azul
-        '#8B5CF6',  // Violeta
-        '#EF4444',  // Rojo
-      ];
-      
+      // Datos desde Django (con colores asignados desde el backend)
       const fuentesData = [
         {% for item in ingresos_por_fuente %}
         {
           fuente: '{{ item.fuente }}',
           total: parseFloat('{{ item.total }}'),
-          porcentaje: parseFloat('{{ item.porcentaje }}')
+          porcentaje: parseFloat('{{ item.porcentaje }}'),
+          color: '{{ item.color }}'
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
       ];
@@ -384,7 +338,7 @@
             labels: fuentesData.map(item => item.fuente),
             datasets: [{
               data: fuentesData.map(item => item.total),
-              backgroundColor: colores.slice(0, fuentesData.length),
+              backgroundColor: fuentesData.map(item => item.color),
               borderWidth: 4,
               borderColor: '#fff',
               hoverOffset: 8
@@ -393,26 +347,11 @@
           options: {
             responsive: true,
             maintainAspectRatio: true,
+            layout: {
+              padding: 0
+            },
             plugins: {
-              legend: { 
-                display: true,
-                position: 'bottom',
-                labels: {
-                  padding: 15,
-                  font: {
-                    size: 12
-                  },
-                  generateLabels: function(chart) {
-                    const data = chart.data;
-                    return data.labels.map((label, i) => ({
-                      text: label,
-                      fillStyle: data.datasets[0].backgroundColor[i],
-                      hidden: false,
-                      index: i
-                    }));
-                  }
-                }
-              },
+              legend: { display: false },
               tooltip: {
                 callbacks: {
                   label: function(context) {

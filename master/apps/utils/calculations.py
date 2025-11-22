@@ -147,30 +147,143 @@ def calcular_saldo_mensual(usuario, mes=None, año=None):
     }
 
 
-def asignar_colores(items, colores_predefinidos=None):
+def asignar_colores_fuentes_ingresos():
+    """Retorna colores específicos para fuentes de ingreso"""
+    colores = {
+        'sueldo': '#06B6D4',  # Cyan
+        'freelance': '#F59E0B',  # Naranja 
+        'devolución': '#84CC16',  # Lima 
+        'inversión': '#3B82F6',  # Azul 
+        'bonificación': '#8B5CF6',  # Violeta 
+        'venta': '#EF4444',  # Rojo 
+        'otro': '#9CA3AF',  # Gris 
+    }
+    return colores
+
+def asignar_iconos_y_colores_fuentes_ingresos(items):
     """
-    Asigna colores a una lista de items.
-    
+    Asigna íconos y colores a fuentes de ingreso basándose en el nombre.
+
     Args:
-        items: Lista de diccionarios
-        colores_predefinidos: Lista de colores hexadecimales
-    
+        items: Lista de diccionarios con la clave 'fuente'
+
     Returns:
-        list: Lista con el campo 'color' agregado
+        list: Items con las claves 'icono', 'color_badge', y 'colores' agregadas
     """
-    if colores_predefinidos is None:
-        colores_predefinidos = [
-            '#F97316',  # Naranja
-            '#3B82F6',  # Azul
-            '#10B981',  # Verde
-            '#A855F7',  # Violeta
-            '#EF4444',  # Rojo
-            '#F59E0B',  # Amarillo
-            '#06B6D4',  # Cian
-            '#EC4899',  # Rosa
-        ]
+    colores_fuentes = asignar_colores_fuentes_ingresos()
     
     for i, item in enumerate(items):
-        item['color'] = colores_predefinidos[i % len(colores_predefinidos)]
+        # Obtener el nombre de la fuente (puede venir como 'fuente' o 'nombre')
+        nombre = item.get("fuente", item.get("nombre", "")).lower()
+        # Asignar color del gráfico
+        item['color'] = colores_fuentes.get(nombre, colores_fuentes['otro'])
+        
+        # Asignar ícono y color del badge según el nombre
+        if "sueldo" in nombre or "salario" in nombre:
+            item["icono"] = "fas fa-briefcase"
+            item["color_icono"] = "text-cyan-500"
+            item["color_badge"] = "text-cyan-800 bg-cyan-100"
+        elif "freelance" in nombre:
+            item["icono"] = "fas fa-laptop-code"
+            item["color_icono"] = "text-amber-500"
+            item["color_badge"] = "text-amber-800 bg-amber-100"
+        elif "devolución" in nombre or "devoluciones" in nombre:
+            item["icono"] = "fas fa-undo"
+            item["color_icono"] = "text-lime-500"
+            item["color_badge"] = "text-lime-800 bg-lime-100"
+        elif "inversión" in nombre or "inversiones" in nombre:
+            item["icono"] = "fas fa-chart-line"
+            item["color_icono"] = "text-blue-500"
+            item["color_badge"] = "text-blue-800 bg-blue-100"
+        elif "bonificación" in nombre or "bono" in nombre:
+            item["icono"] = "fas fa-gift"
+            item["color_icono"] = "text-purple-500"
+            item["color_badge"] = "text-purple-800 bg-purple-100"
+        elif "venta" in nombre:
+            item["icono"] = "fas fa-shopping-cart"
+            item["color_icono"] = "text-red-500"
+            item["color_badge"] = "text-red-800 bg-red-100"
+        else:
+            item["icono"] = "fas fa-dollar-sign"
+            item["color_icono"] = "text-gray-500"
+            item["color_badge"] = "text-gray-800 bg-gray-100"
+    
+    return items
+
+def asignar_colores_categorias_gastos():
+    """Retorna colores específicos para categorías de gasto"""
+    colores = {
+        'comida': "#FFFB1C",  # Amarillo
+        'hogar': '#EF4444',  # Rojo
+        'transporte': '#3B82F6',  # Azul
+        'compras': '#8B5CF6',  # Violeta
+        'servicios': '#06B6D4',  # Cyan
+        'ocio': "#12CA31",  # Verde
+        'salud': "#A4E2FF",  # Celeste
+        'educación': '#D946EF',  # Rosa 
+        'viaje': '#FFA500', # Naranja
+        'otro': '#9CA3AF',  # Gris
+    }
+    return colores
+
+def asignar_iconos_y_colores_categorias_gastos(items):
+    """
+    Asigna íconos y colores a fuentes de ingreso basándose en el nombre.
+
+    Args:
+        items: Lista de diccionarios con la clave 'fuente'
+
+    Returns:
+        list: Items con las claves 'icono', 'color_badge', y 'colores' agregadas
+    """
+    colores_categorias = asignar_colores_categorias_gastos()
+    
+    for i, item in enumerate(items):
+        # Obtener el nombre de la categoria (puede venir como 'categoria' o 'nombre')
+        nombre = item.get("categoria", item.get("nombre", "")).lower()
+        # Asignar color del gráfico
+        item['color'] = colores_categorias.get(nombre, colores_categorias['otro'])
+        
+        # Asignar ícono y color del badge según el nombre
+        if "comida" in nombre or "alimentos" in nombre:
+            item["icono"] = "fas fa-utensils"
+            item["color_icono"] = "text-yellow-500"
+            item["color_badge"] = "text-yellow-800 bg-yellow-100"
+        elif "hogar" in nombre or "alquiler" in nombre:
+            item["icono"] = "fas fa-home"
+            item["color_icono"] = "text-red-500"
+            item["color_badge"] = "text-red-800 bg-red-100"
+        elif "transporte" in nombre or "movilidad"in nombre:
+            item["icono"] = "fas fa-bus"
+            item["color_icono"] = "text-blue-500"
+            item["color_badge"] = "text-blue-800 bg-blue-100"
+        elif "compras" in nombre or "shopping" in nombre:
+            item["icono"] = "fas fa-shopping-bag"
+            item["color_icono"] = "text-purple-500"
+            item["color_badge"] = "text-purple-800 bg-purple-100"
+        elif "servicios" in nombre:
+            item["icono"] = "fas fa-concierge-bell"
+            item["color_icono"] = "text-cyan-500"
+            item["color_badge"] = "text-cyan-800 bg-cyan-100"
+        elif "ocio" in nombre or "entretenimiento" in nombre:
+            item["icono"] = "fas fa-film"
+            item["color_icono"] = "text-green-500"
+            item["color_badge"] = "text-green-800 bg-green-100"
+        elif "salud" in nombre:
+            item["icono"] = "fas fa-heartbeat"
+            item["color_icono"] = "text-sky-500"
+            item["color_badge"] = "text-sky-800 bg-sky-100"
+        elif "educación" in nombre:
+            item["icono"] = "fas fa-book"
+            item["color_icono"] = "text-pink-500"
+            item["color_badge"] = "text-pink-800 bg-pink-100"
+        elif "viaje" in nombre or "vacaciones" in nombre:
+            item["icono"] = "fas fa-plane"
+            item["color_icono"] = "text-orange-500"
+            item["color_badge"] = "text-orange-800 bg-orange-100"
+        else:
+            item["icono"] = "fas fa-dollar-sign"
+            item["color_icono"] = "text-gray-500"
+            item["color_badge"] = "text-gray-800 bg-gray-100"
     
     return items

@@ -6,7 +6,7 @@ from apps.usuario.models import Moneda
 from datetime import datetime
 
 # Importar utilidades
-from apps.utils.calculations import calcular_variacion_mensual, calcular_distribucion_por_campo, asignar_colores
+from apps.utils.calculations import calcular_variacion_mensual, calcular_distribucion_por_campo,asignar_iconos_y_colores_fuentes_ingresos
 from apps.utils.filters import aplicar_filtros_basicos, obtener_valores_filtros
 
 class UserIngresoQuerysetMixin:
@@ -58,15 +58,8 @@ class IngresoListView(LoginRequiredMixin, UserIngresoQuerysetMixin, ListView):
             mes_actual=False  # Total general
         )
         
-        # Asignar colores
-        ingresos_por_fuente = asignar_colores(ingresos_por_fuente, [
-            '#06B6D4',  # Cyan
-            '#F59E0B',  # Amarillo
-            '#84CC16',  # Lima
-            '#3B82F6',  # Azul
-            '#8B5CF6',  # Violeta
-            '#EF4444',  # Rojo
-        ])
+        # Asignar colores y iconos
+        ingresos_por_fuente = asignar_iconos_y_colores_fuentes_ingresos(ingresos_por_fuente)
         
         # Obtener valores de filtros
         valores_filtros = obtener_valores_filtros(

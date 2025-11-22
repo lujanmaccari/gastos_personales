@@ -6,7 +6,7 @@ from apps.categoria.models import Categoria
 from datetime import datetime
 
 # Importar utilidades
-from apps.utils.calculations import calcular_variacion_mensual, calcular_distribucion_por_campo, calcular_saldo_mensual, asignar_colores
+from apps.utils.calculations import calcular_variacion_mensual, calcular_distribucion_por_campo, calcular_saldo_mensual, asignar_iconos_y_colores_categorias_gastos
 from apps.utils.filters import aplicar_filtros_basicos, aplicar_busqueda, obtener_valores_filtros
 
 
@@ -63,16 +63,7 @@ class GastoListView(LoginRequiredMixin, UserGastoQuerysetMixin, ListView):
         )
         
         # Asignar colores específicos para gastos
-        gastos_por_categoria = asignar_colores(gastos_por_categoria, [
-            '#F97316',  # Naranja
-            '#3B82F6',  # Azul
-            '#10B981',  # Verde
-            '#A855F7',  # Violeta
-            '#EF4444',  # Rojo
-            '#F59E0B',  # Amarillo
-            '#06B6D4',  # Cian
-            '#EC4899',  # Rosa
-        ])
+        gastos_por_categoria = asignar_iconos_y_colores_categorias_gastos(gastos_por_categoria)
         
         # Calcular saldo mensual
         saldo_info = calcular_saldo_mensual(usuario)
