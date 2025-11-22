@@ -174,7 +174,13 @@ def asignar_iconos_y_colores_fuentes_ingresos(items):
     
     for i, item in enumerate(items):
         # Obtener el nombre de la fuente (puede venir como 'fuente' o 'nombre')
-        nombre = item.get("fuente", item.get("nombre", "")).lower()
+        nombre = item.get("fuente", item.get("nombre", ""))
+        
+        if nombre is None:
+            nombre = "otro"
+        else:
+            nombre = nombre.lower()
+        
         # Asignar color del gráfico
         item['color'] = colores_fuentes.get(nombre, colores_fuentes['otro'])
         
@@ -240,7 +246,13 @@ def asignar_iconos_y_colores_categorias_gastos(items):
     
     for i, item in enumerate(items):
         # Obtener el nombre de la categoria (puede venir como 'categoria' o 'nombre')
-        nombre = item.get("categoria", item.get("nombre", "")).lower()
+        nombre = item.get("categoria", item.get("nombre", ""))
+        
+        if nombre is None:
+            nombre = "otro"
+        else:
+            nombre = nombre.lower()
+            
         # Asignar color del gráfico
         item['color'] = colores_categorias.get(nombre, colores_categorias['otro'])
         

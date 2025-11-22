@@ -65,6 +65,32 @@ class GastoListView(LoginRequiredMixin, UserGastoQuerysetMixin, ListView):
         # Asignar colores específicos para gastos
         gastos_por_categoria = asignar_iconos_y_colores_categorias_gastos(gastos_por_categoria)
         
+        # Procesar cada gasto individual para agregarle iconos y colores
+        gastos_lista = list(context['gastos'])  # Convertir QuerySet a lista
+        gastos_con_estilos = []
+        
+        for gasto in gastos_lista:
+            # Crear un diccionario temporal con el nombre de la categoría
+            if gasto.categoria:
+                temp_item = [{'categoria': gasto.categoria.nombre}]
+                
+                # Asignar iconos y colores
+                item_procesado = asignar_iconos_y_colores_categorias_gastos(temp_item)[0]
+                
+                # Agregar los atributos al objeto gasto
+                gasto.icono = item_procesado.get('icono', 'fas fa-circle')
+                gasto.color_icono = item_procesado.get('color_icono', 'text-gray-500')
+                gasto.color_badge = item_procesado.get('color_badge', 'text-gray-800 bg-gray-100')
+            else:
+                # Si no tiene categoría, valores por defecto
+                gasto.icono = 'fas fa-circle'
+                gasto.color_icono = 'text-gray-500'
+                gasto.color_badge = 'text-gray-800 bg-gray-100'
+            
+            gastos_con_estilos.append(gasto)
+        
+        context['gastos'] = gastos_con_estilos
+        
         # Calcular saldo mensual
         saldo_info = calcular_saldo_mensual(usuario)
         

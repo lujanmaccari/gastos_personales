@@ -166,19 +166,27 @@
               <td class="px-4 py-4 text-gray-500 text-sm">
                 {{ gasto.fecha|date:"d/m/Y" }}
               </td>
-
+              
               <!-- Categoría con Badge -->
-              <td class="px-4 py-4">
-                {% for item in gastos_por_categoria %}
-                  {% if item.categoria == gasto.categoria.nombre %}
-                  <div class="flex items-center gap-2">
-                    <i class="{{ item.icono }} {{ item.color_icono }}"></i>
-                    <span class="rounded-lg px-3 py-1 text-sm font-medium {{ item.color_badge }}">
-                      {{ gasto.categoria.nombre }}
-                    </span>
-                  </div>
-                  {% endif %}
-                {% endfor %}
+              <td class="px-4 py-4 text-sm">
+                {% if gasto.categoria %}
+                <div class="flex items-center gap-2">
+                  <!-- Ícono dinámico desde el backend -->
+                  <i class="{{ gasto.icono }} {{ gasto.color_icono }}"></i>
+                  
+                  <!-- Badge dinámico desde el backend -->
+                  <span class="rounded-lg px-3 py-1 text-sm font-medium {{ gasto.color_badge }}">
+                    {{ gasto.categoria.nombre }}
+                  </span>
+                </div>
+                {% else %}
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-circle text-gray-500"></i>
+                  <span class="rounded-lg px-3 py-1 text-sm font-medium text-gray-800 bg-gray-100">
+                    Sin categoría
+                  </span>
+                </div>
+                {% endif %}
               </td>
 
               <!-- Descripción -->
