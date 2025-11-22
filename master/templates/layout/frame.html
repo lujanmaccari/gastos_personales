@@ -16,30 +16,9 @@
       {% endblock %}
     </div>
 
-    <!-- Botón flotante -->
-    <button 
-    class="fixed bottom-6 right-6 
-           bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 
-           text-white rounded-full w-16 h-16 
-           flex items-center justify-center 
-           shadow-[0_8px_20px_rgba(100,100,255,0.3)] 
-           backdrop-blur-md 
-           transition-transform hover:scale-110 hover:shadow-[0_10px_25px_rgba(120,120,255,0.4)]"
-    hx-get="{% block nuevo_modal_url %}{% endblock %}"
-    hx-target="#modal-content"
-    hx-trigger="click"
-    title="Nuevo">
-  
-    <!-- Ícono "+" -->
-    <svg xmlns="http://www.w3.org/2000/svg" 
-         class="h-7 w-7" 
-         fill="none" 
-         viewBox="0 0 24 24" 
-         stroke="white" 
-         stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-    </svg>
-  </button>
+    <!-- Botón flotante definido en cada hijo -->
+    {% block boton_flotante %}
+    {% endblock %}
   
   </div>
 {% endblock %}
