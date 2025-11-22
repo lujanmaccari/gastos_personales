@@ -1,8 +1,8 @@
 
 from django.urls import path
-from django.contrib.auth.decorators import login_required
-from .views import categoria
+from .views import CategoriaView, CategoriaCreateView
 
 urlpatterns = [
-    path('categoria/', login_required(categoria), name='categoria'),
+    path('categoria/', CategoriaView.as_view(), name='categoria'),
+    path('categoria/create/', CategoriaCreateView.as_view(), name='categoria_create'),
 ]

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Categorías
+{% endblock %}
+
+{% block sectionTitle %}
+  Nueva categoría
+{% endblock %}
+
+{% block content %}
+  <div class="px-4 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+    <div class="layout-content-container flex flex-col flex-1">
+      <div class="flex flex-wrap justify-between gap-3 p-4">
+        <div class="flex min-w-72 flex-col gap-3">
+          <p class="text-[#4e7f97] text-zinc-400 text-base font-normal leading-normal">Personaliza tus categorías para un mejor seguimiento de los gastos.</p>
+        </div>
+      </div>
+
+      <div class="p-4">
+        <div class="flex flex-col gap-8 bg-white p-6 rounded-xl">
+          <!-- Nombre -->
+          <div>
+            <label class="flex flex-col flex-1">
+              <p class="text-[#0e171b] text-base font-medium leading-normal pb-2">Nombre de la categoría</p>
+              <input class="form-input flex w-full min-w-0 flex-1 rounded-xl text-[#0e171b] border border-[#d0dfe7] dark:border-zinc-700 bg-background-light dark:bg-background-dark focus:border-primary h-14 placeholder:text-[#4e7f97] dark:placeholder-zinc-500 p-[15px]" placeholder="Ej: Comida, Transporte" value="{{ object.nombre|default:'' }}" />
+            </label>
+          </div>
+
+          <!-- Iconos -->
+          <div>
+            <h3 class="text-[#0e171b] text-base font-medium leading-normal pb-2">Elige un ícono</h3>
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(64px,1fr))] gap-3">
+              <!-- acá puedes iterar íconos desde backend -->
+              <div class="flex flex-col gap-3 items-center justify-center cursor-pointer p-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 border-2 border-primary">
+                <span class="material-symbols-outlined text-4xl text-primary">shopping_cart</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Colores -->
+          <div>
+            <h3 class="text-[#0e171b] text-base font-medium leading-normal pb-2">Selecciona un color</h3>
+            <div class="flex flex-wrap gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#f87171] cursor-pointer border-4 border-white ring-2 ring-primary"></div>
+            </div>
+          </div>
+
+          <!-- Vista previa -->
+          <div>
+            <h3 class="text-[#0e171b] text-base font-medium leading-normal pb-2">Vista Previa</h3>
+            <div class="flex items-center gap-4 w-full p-4 rounded-xl bg-zinc-100">
+              <div class="flex items-center justify-center w-16 h-16 rounded-full shrink-0" style="background-color: #f87171;">
+                <span class="material-symbols-outlined text-4xl text-white">shopping_cart</span>
+              </div>
+              <p class="text-[#0e171b] text-xl font-bold truncate">{{ object.nombre|default:'Nombre' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-center gap-4 p-4 mt-auto">
+        <a href="{% url 'categoria' %}" class="flex items-center justify-center min-w-32 h-12 px-6 rounded-lg text-base font-bold text-white bg-zinc-500 hover:bg-zinc-600">Cancelar</a>
+
+        <button class="flex items-center justify-center min-w-32 h-12 px-6 rounded-lg text-base font-bold text-white bg-sky-400 hover:bg-sky-600">Guardar Categoría</button>
+      </div>
+    </div>
+  </div>
+{% endblock %}

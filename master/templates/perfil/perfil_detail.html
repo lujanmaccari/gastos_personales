@@ -15,7 +15,7 @@
         {% if perfil.avatar %}
           <div class="rounded-full w-32 h-32 bg-cover bg-center" style="background-image: url('{{ perfil.avatar.url }}')"></div>
         {% else %}
-          <div class="w-32 h-32 rounded-full bg-slate-200 flex items-center justify-center text-3xl">👤</div>
+          <div class="w-32 h-32 rounded-full bg-zinc-200 flex items-center justify-center text-3xl">👤</div>
         {% endif %}
         <div>
           <p class="text-2xl font-bold">{{ request.user.get_full_name|default:request.user.username }}</p>
@@ -65,7 +65,7 @@
             <p class="text-primary text-lg font-bold">{{ perfil.limite_gasto_mensual }}%</p>
           </div>
 
-          <input id="limitRange" class="w-full h-2 bg-slate-200 rounded-lg" type="range" min="0" max="100" value="{{ perfil.limite_gasto_mensual }}" />
+          <input id="limitRange" class="w-full h-2 bg-zinc-200 rounded-lg" type="range" min="0" max="100" value="{{ perfil.limite_gasto_mensual }}" />
         </div>
 
         <div class="flex justify-end mt-6">
