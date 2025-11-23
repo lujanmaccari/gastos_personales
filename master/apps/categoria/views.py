@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView, View,CreateView
+from django.views.generic import TemplateView, CreateView
 from .models import Categoria, Color, Icono
 from django.urls import reverse_lazy
 from apps.utils.calculations import procesar_categorias, asignar_iconos_y_colores_categorias_gastos
+from django.db.models import Sum
+
 
 class UserCategoriaQuerysetMixin:
     """Filtra las categorías para que cada usuario solo vea las suyas."""
@@ -11,7 +13,7 @@ class UserCategoriaQuerysetMixin:
         return Categoria.objects.filter(usuario=self.request.user)
 
 
-class CategoriaListView(LoginRequiredMixin,UserCategoriaQuerysetMixin, TemplateView):
+class CategoriaListView(LoginRequiredMixin, UserCategoriaQuerysetMixin, TemplateView):
     model = Categoria
     template_name = 'categoria/categoria.html'
     context_object_name = 'categoria'
@@ -21,6 +23,17 @@ class CategoriaListView(LoginRequiredMixin,UserCategoriaQuerysetMixin, TemplateV
 
         categorias = self.get_queryset()
         context["categorias"] = procesar_categorias(categorias)
+
+        top_categorias = (
+            self.get_queryset()
+            .filter(gasto__usuario=self.request.user)
+            .annotate(total=Sum('gasto__monto'))
+            .order_by('-total')[:3]
+            .select_related('color', 'icono')
+        )
+
+        context["top_categorias"] = procesar_categorias(top_categorias)
+
         return context
 
       

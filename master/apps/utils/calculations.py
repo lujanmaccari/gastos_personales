@@ -325,15 +325,39 @@ def procesar_categorias(items):
         return f"rgba({r},{g},{b},{opacity})"
 
     ICON_MAP = {
-        "transporte": "fas fa-bus",
-        "educacion": "fas fa-book",
-        "hogar": "fas fa-home",
         "comida": "fas fa-utensils",
-        "salud": "fas fa-heartbeat",
+        "alimentación": "fas fa-utensils",
+        "alimentacion": "fas fa-utensils",
+
+        "transporte": "fas fa-bus",
+
+        "hogar": "fas fa-home",
+        "casa": "fas fa-home",
+
+        "entretenimiento": "fas fa-film",
         "ocio": "fas fa-film",
+
         "gimnasio": "fas fa-dumbbell",
-        "otro": "fas fa-tag",
+        "gym": "fas fa-dumbbell",
+
+        "viaje": "fas fa-plane",
+        "viajes": "fas fa-plane",
+
+        "educacion": "fas fa-book",
+        "educación": "fas fa-book",
+
+        "salud": "fas fa-heartbeat",
+
+        "mascotas": "fas fa-paw",
+        "mascota": "fas fa-paw",
+
+        "regalo": "fas fa-gift",
+        "regalos": "fas fa-gift",
+
+        "compras": "fas fa-shopping-bag",
+        "compra": "fas fa-shopping-bag",
     }
+
 
     procesadas = []
 
@@ -342,7 +366,7 @@ def procesar_categorias(items):
         darker = darken_hex(base)
         bg = rgba_from_hex(base, 0.15)
 
-        icon_class = ICON_MAP.get(str(cat.icono).lower(), "fas fa-tag")
+        icon_class = ICON_MAP.get(str(cat.icono).lower())
 
         procesadas.append({
             **cat.__dict__,
