@@ -299,3 +299,57 @@ def asignar_iconos_y_colores_categorias_gastos(items):
             item["color_badge"] = "text-gray-800 bg-gray-100"
     
     return items
+
+def procesar_categorias(items):
+
+    def darken_hex(hex_code, factor=0.75):
+        hex_code = hex_code.lstrip("#")
+
+        r = int(hex_code[0:2], 16)
+        g = int(hex_code[2:4], 16)
+        b = int(hex_code[4:6], 16)
+
+        r = int(r * factor)
+        g = int(g * factor)
+        b = int(b * factor)
+
+        return f"#{r:02x}{g:02x}{b:02x}"
+
+    def rgba_from_hex(hex_code, opacity=0.15):
+        hex_code = hex_code.lstrip("#")
+
+        r = int(hex_code[0:2], 16)
+        g = int(hex_code[2:4], 16)
+        b = int(hex_code[4:6], 16)
+
+        return f"rgba({r},{g},{b},{opacity})"
+
+    ICON_MAP = {
+        "transporte": "fas fa-bus",
+        "educacion": "fas fa-book",
+        "hogar": "fas fa-home",
+        "comida": "fas fa-utensils",
+        "salud": "fas fa-heartbeat",
+        "ocio": "fas fa-film",
+        "gimnasio": "fas fa-dumbbell",
+        "otro": "fas fa-tag",
+    }
+
+    procesadas = []
+
+    for cat in items:
+        base = cat.color.codigo_hex
+        darker = darken_hex(base)
+        bg = rgba_from_hex(base, 0.15)
+
+        icon_class = ICON_MAP.get(str(cat.icono).lower(), "fas fa-tag")
+
+        procesadas.append({
+            **cat.__dict__,
+            "icono": icon_class,
+            "color_icono": f"color: #{base};",       
+            "color_bg": f"background-color: {bg};",  
+            "color_texto": f"color: {darker};",     
+        })
+
+    return procesadas

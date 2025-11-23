@@ -101,27 +101,33 @@
     </div>
 
     <div class="p-4 mt-8">
-      <div class="card bg-base-100 shadow-md rounded-xl overflow-hidden">
-        <table class="table w-full">
-          <thead class="bg-base-200">
-            <tr>
-              <th>Categorías Activas</th>
-              <th>Acciones</th>
+      <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Categorías</th>
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Descripción</th>
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Acciones</th>
             </tr>
           </thead>
 
           <tbody>
             {% for categoria in categorias %}
-              <tr>
-                <td>
+              <tr class="border-t border-gray-200 hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-4 text-gray-500 text-sm">
                   <div class="flex items-center gap-3">
-                    <div class="flex items-center justify-center w-10 h-10 rounded-full shrink-0" style="background-color: {{ categoria.color }};">
-                      <i class="{{ categoria.icono }} {{ categoria.color_icono }}"></i>
-                    </div>
-                    <p class="text-base-content">{{ categoria.nombre }} - {{ categoria.descripcion }}</p>
+                    <i class="{{ categoria.icono }}" style="{{ categoria.color_icono }}"></i>
+
+                    <span class="rounded-lg px-3 py-1 text-sm font-medium"
+                          style="{{ categoria.color_bg }} {{ categoria.color_texto }}">
+                      {{ categoria.nombre }}
+                    </span>
+                    
                   </div>
                 </td>
-                <td>
+
+                <td class="px-4 py-4 text-gray-500 text-sm">{{ categoria.descripcion }}</td>
+                <td class="px-4 py-4 text-gray-500 text-sm">
                   <a href="#" class="text-blue-500 hover:text-blue-700 transition" title="Editar"><i class="fas fa-edit"></i></a>
                   <a href="#" class="text-red-500 hover:text-red-700 transition" title="Eliminar"><i class="fas fa-trash"></i></a>
                 </td>

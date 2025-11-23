@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, View,CreateView
 from .models import Categoria, Color, Icono
 from django.urls import reverse_lazy
-from apps.utils.calculations import asignar_iconos_y_colores_categorias_gastos
+from apps.utils.calculations import procesar_categorias, asignar_iconos_y_colores_categorias_gastos
 
 class UserCategoriaQuerysetMixin:
     """Filtra las categorías para que cada usuario solo vea las suyas."""
@@ -18,11 +18,12 @@ class CategoriaListView(LoginRequiredMixin,UserCategoriaQuerysetMixin, TemplateV
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         categorias = self.get_queryset()
-        
-        context['categorias'] = categorias
+        context["categorias"] = procesar_categorias(categorias)
         return context
-    
+
+      
 
 class CategoriaFieldsMixin:
     fields = ['nombre','descripcion', 'color', 'icono']
