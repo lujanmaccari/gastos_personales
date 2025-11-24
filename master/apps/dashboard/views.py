@@ -10,10 +10,9 @@ from django.db.models.functions import TruncMonth
 from django.db.models import Sum
 import calendar
 from django.views.generic import TemplateView
+from apps.utils.currency_mixins import DashboardCurrencyMixin
 
 # Create your views here.
-
-
 
 class UserIngresoQuerysetMixin:
     '''se crea get_ingresos para no sobreescribir el metodo get_queryset de la clase ListView'''
@@ -143,6 +142,7 @@ class DashboardView(
     UserIngresoQuerysetMixin,
     UserGastoQuerysetMixin,
     DashboardCalculatorMixin,
+    DashboardCurrencyMixin,
     TemplateView
 ):
     template_name = 'dashboard/home.html'
@@ -150,15 +150,30 @@ class DashboardView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        ingresos_actual = self.total_ingresos_mes()
-        crecimiento_ingresos = self.crecimiento_ingresos()
-        gastos_actual = self.total_gastos_mes()
-        crecimiento_gastos = self.crecimiento_gastos()
-        balance_mensual = self.balance_mensual()
-        crecimiento_balance = self.crecimiento_balance()
+        # Usar métodos con conversión
+        ingresos_actual = self.total_ingresos_mes_converted()
+        gastos_actual = self.total_gastos_mes_converted()
+        balance_mensual = self.balance_mensual_converted()
+        balance_mensual_pasado = self.balance_mensual_pasado_converted()
+        
+        # Calcular crecimiento con valores convertidos
+        crecimiento_ingresos = self.calculate_growth(
+            ingresos_actual,
+            self.total_ingresos_mes_pasado_converted()
+        )
+        
+        crecimiento_gastos = self.calculate_growth(
+            gastos_actual,
+            self.total_gastos_mes_pasado_converted()
+        )
+        
+        crecimiento_balance = self.calculate_growth(
+            balance_mensual,
+            balance_mensual_pasado
+        )
+        
         top_categoria_mes = self.top_categoria_mes()
-        balance_mensual_pasado = self.balance_mensual_pasado()
-        meses, valores = self.get_6_meses_gastos_chart()
+        meses, valores = self.get_6_meses_gastos_chart_converted()
 
         context.update({
             'total_ingresos_mes': ingresos_actual,
@@ -171,6 +186,7 @@ class DashboardView(
             'top_categoria_mes': top_categoria_mes,
             'ultimos_meses': meses,
             'valores_gastos_mensuales': valores,
+            'user_currency': self.get_user_currency(),
         })
 
         return context

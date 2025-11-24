@@ -31,6 +31,48 @@ def calcular_total_mensual(model, usuario, mes=None, año=None):
     
     return total
 
+def calcular_total_mensual_convertido(model, usuario, user_currency, mes=None, año=None):
+    """
+    Calcula el total mensual con conversión de monedas.
+    
+    Args:
+        model: Clase del modelo (Ingreso o Gasto)
+        usuario: Usuario autenticado
+        user_currency: Moneda preferida del usuario
+        mes: Mes a calcular
+        año: Año a calcular
+    """
+    from apps.utils.currency_service import CurrencyService
+    from decimal import Decimal
+    from datetime import datetime
+    
+    hoy = datetime.now()
+    mes = mes or hoy.month
+    año = año or hoy.year
+    
+    items = model.objects.filter(
+        usuario=usuario,
+        fecha__month=mes,
+        fecha__year=año
+    ).select_related('moneda')
+    
+    total_convertido = Decimal('0.00')
+    
+    for item in items:
+        item_currency = item.moneda.abreviatura if item.moneda else 'ARS'
+        
+        if item_currency == user_currency:
+            total_convertido += item.monto
+        else:
+            converted = CurrencyService.convert_amount(
+                item.monto,
+                item_currency,
+                user_currency
+            )
+            if converted:
+                total_convertido += converted
+    
+    return total_convertido
 
 def calcular_variacion_mensual(model, usuario):
     """
