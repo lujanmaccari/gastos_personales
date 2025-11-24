@@ -1,6 +1,9 @@
 {% extends 'layout/frame.html' %}
 
 {% block title %}Gastos{% endblock %}
+
+{% load currency_filters %}
+
 {% block sectionTitle %}Mis Gastos{% endblock %}
 
 {% block boton_flotante %}
@@ -194,9 +197,26 @@
                 {{ gasto.descripcion|default:"—"|truncatewords:10 }}
               </td>
 
-              <!-- Monto -->
-              <td class="px-4 py-4 text-gray-500 text-sm text-right font-medium">
-                ${{ gasto.monto|floatformat:2 }}
+              <!-- Monto convertido -->
+              <td class="px-4 py-4 text-sm text-right">
+                <div class="flex flex-col items-end gap-1">
+                  <!-- Monto en moneda del usuario -->
+                  <span class="font-semibold text-gray-900">
+                    {{ gasto.monto_convertido|format_currency:user_currency }}
+                  </span>
+                  
+                  <!-- Mostrar monto original si fue convertido -->
+                  {% if gasto.fue_convertido %}
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs text-gray-500">
+                      {{ gasto.monto|format_currency:gasto.moneda_original }}
+                    </span>
+                    <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded" title="Monto convertido">
+                      <i class="fas fa-exchange-alt text-[10px]"></i>
+                    </span>
+                  </div>
+                  {% endif %}
+                </div>
               </td>
 
               <!-- Acciones -->
@@ -270,11 +290,11 @@
         <div class="relative w-full aspect-square flex items-center justify-center">
           <canvas id="categoriasChart" class="w-full h-full"></canvas>
           
-          <!-- Total en el centro -->
+          <!-- Total en el centro ARREGLAR -->
           <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <span class="text-gray-500 text-sm">Total</span>
             <span class="text-gray-900 text-2xl font-bold">
-              ${{ total_general_grafico|floatformat:2 }}
+              {{ total_general_grafico|format_currency:user_currency }}
             </span>
           </div>
         </div>
@@ -347,6 +367,8 @@
   // Configurar gráfico de dona
   document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('categoriasChart');
+    const userCurrency = '{{ user_currency }}';
+
     
     if (ctx) {
       const categoriasData = [
@@ -361,6 +383,14 @@
       ];
       
       if (categoriasData.length > 0) {
+        // Símbolos de moneda
+        const currencySymbols = {
+          'ARS': '$',
+          'USD': 'USD $',
+          'EUR': '€'
+        };
+        const currencySymbol = currencySymbols[userCurrency] || '$';
+        
         new Chart(ctx, {
           type: 'doughnut',
           data: {
@@ -387,7 +417,22 @@
                     const label = context.label || '';
                     const value = context.parsed || 0;
                     const percentage = categoriasData[context.dataIndex].porcentaje;
-                    return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                    
+                    // Formatear según moneda
+                    let formattedValue;
+                    if (userCurrency === 'ARS') {
+                      formattedValue = value.toLocaleString('es-AR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      });
+                    } else {
+                      formattedValue = value.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      });
+                    }
+                    
+                    return `${label}: ${currencySymbol}${formattedValue} (${percentage}%)`;
                   }
                 }
               }

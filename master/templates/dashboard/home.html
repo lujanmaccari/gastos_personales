@@ -4,14 +4,30 @@
   Dashboard
 {% endblock %}
 
+{% load currency_filters %}
+
+
 {% block sectionTitle %}
-  Hola {{ request.user }} 👋, este mes llevás gastado ${{ total_gastos_mes }}
+  Hola {{ request.user }} 👋, este mes llevás gastado {{ total_gastos_mes|format_currency:user_currency }}
 {% endblock %}
 
 {% load static %}
 
 {% block contenido_tabla %}
   <div class="flex flex-col w-full">
+
+    <!-- INDICADOR DE MONEDA ACTUAL -->
+    <div class="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">payments</span>
+          <p class="text-sm text-gray-700">
+            Moneda actual: <span class="font-bold text-blue-600 dark:text-blue-400">{{ user_currency }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- TARJETAS -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mt-6">
       <!-- CARD: INGRESOS -->
@@ -19,7 +35,7 @@
         <p class="text-[#0e171b] text-base font-medium">Total de ingresos 💰</p>
 
         <div class="flex items-baseline gap-2">
-          <p class="text-[#0e171b] text-3xl font-bold">${{ total_ingresos_mes }}</p>
+          <p class="text-[#0e171b] text-3xl font-bold">{{ total_ingresos_mes|format_currency:user_currency }}</p>
 
           {% if crecimiento_ingresos > 0 %}
             <div class="flex items-center gap-1 text-green-600">
@@ -42,7 +58,7 @@
         <p class="text-[#0e171b] text-base font-medium">Total de gastos 💸</p>
 
         <div class="flex items-baseline gap-2">
-          <p class="text-[#0e171b] text-3xl font-bold">${{ total_gastos_mes }}</p>
+          <p class="text-[#0e171b] text-3xl font-bold">{{ total_gastos_mes|format_currency:user_currency }}</p>
 
           <!-- CRECIMIENTO DE GASTOS -->
           {% if crecimiento_gastos > 0 %}
@@ -69,7 +85,7 @@
         <p class="text-[#0e171b] text-base font-medium">Balance mensual ⚖️</p>
 
         <div class="flex items-baseline gap-2">
-          <p class="text-[#0e171b] text-3xl font-bold">${{ balance_mensual }}</p>
+          <p class="text-[#0e171b] text-3xl font-bold"> {{ balance_mensual|format_currency:user_currency }}</p>
 
           {% if crecimiento_balance > 0 %}
             <div class="flex items-center gap-1 text-green-600">
@@ -123,8 +139,17 @@
   <script>
     const labels = {{ ultimos_meses|safe }};
     const dataValues = {{ valores_gastos_mensuales|safe }};
+    const userCurrency = '{{ user_currency }}';
   
     const ctx = document.getElementById('gastosChart');
+
+     // Configurar símbolo de moneda
+    const currencySymbols = {
+      'ARS': '$',
+      'USD': 'USD',
+      'EUR': '€'
+    };
+    const currencySymbol = currencySymbols[userCurrency] || '$';
   
     new Chart(ctx, {
       type: 'line',
@@ -144,6 +169,35 @@
       },
       options: {
         responsive: true,
+
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                if (context.parsed.y !== null) {
+                  // Formatear según la moneda
+                  if (userCurrency === 'ARS') {
+                    label += currencySymbol + context.parsed.y.toLocaleString('es-AR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    });
+                  } else {
+                    label += currencySymbol + context.parsed.y.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    });
+                  }
+                }
+                return label;
+              }
+            }
+          }
+        },
+
         scales: {
           y: {
             ticks: {
