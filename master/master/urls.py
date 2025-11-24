@@ -27,25 +27,20 @@ from api.api import api
 from apps.dashboard.views import DashboardView 
 
 urlpatterns = [
+    path("", LoginView.as_view(template_name="usuario/login.html"), name="login"),
+    
     path("admin/", admin.site.urls),
     path("", include("apps.categoria.urls")),
     path("", include("apps.dashboard.urls")),
     path("", include("apps.gasto.urls")),
     path("", include("apps.ingreso.urls")),
-    path("perfil/", PerfilDetailView.as_view(), name="perfil_detail"),
-    path("perfil/editar/", PerfilUpdateView.as_view(), name="perfil_edit"),
+    path("", include("apps.perfil.urls")),
     path("", include("apps.simulador.urls")),
     path("", include("apps.usuario.urls")),
     
-    path("login/", LoginView.as_view(template_name="usuario/login.html"), name="login"),
-    path("logout/", logout_view, name="logout"), 
-    path("register/", RegisterView.as_view(), name="register"),
-    
-    path('gastos/', GastoListView.as_view(), name='gastos'),
-    path('gastos/nuevo/', GastoCreateView.as_view(), name='gastos_create'),
-    path('ingresos/', IngresoListView.as_view(), name='ingresos'),
-    path('ingresos/nuevo/', IngresoCreateView.as_view(), name='ingresos_create'),
-    
+    path("perfil/", PerfilDetailView.as_view(), name="perfil_detail"),
+    path("perfil/editar/", PerfilUpdateView.as_view(), name="perfil_edit"),
+
     # API
     path('api/', api.urls)
 ]
