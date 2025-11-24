@@ -17,19 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.views import LoginView
-from apps.usuario.views import RegisterView, HomeView, logout_view
+from apps.usuario.views import RegisterView, logout_view
 from apps.perfil.views import PerfilDetailView, PerfilUpdateView
 from django.conf.urls.static import static
 from django.conf import settings
 from apps.gasto.views import GastoListView, GastoCreateView
 from apps.ingreso.views import IngresoListView, IngresoCreateView
 from api.api import api
+from apps.dashboard.views import DashboardView 
 
 urlpatterns = [
-    path("", HomeView.as_view(), name="home"),
+    path("", DashboardView.as_view(), name="dashboard"),
     path("admin/", admin.site.urls),
     path("", include("apps.categoria.urls")),
-    path("", include("apps.dashboard.urls")),
+
     path("", include("apps.gasto.urls")),
     path("", include("apps.ingreso.urls")),
     path("perfil/", PerfilDetailView.as_view(), name="perfil_detail"),

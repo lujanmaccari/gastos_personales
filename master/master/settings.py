@@ -46,7 +46,8 @@ LOCAL_APPS = [
     'apps.gasto',
     'apps.perfil',
     'apps.simulador',
-    'apps.dashboard'
+    'apps.dashboard',
+    'apps.utils',
 ]
 
 THIRD_PARTY_APPS = [
@@ -94,6 +95,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'currency-cache',
+        'TIMEOUT': 3600,
     }
 }
 
