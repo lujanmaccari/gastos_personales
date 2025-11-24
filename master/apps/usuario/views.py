@@ -20,9 +20,6 @@ class RegisterView(CreateView):
         form_class._meta.model = User
         return form_class
 
-class HomeView(LoginRequiredMixin, TemplateView):
-    template_name = "dashboard/home.html"
-
 
 def logout_view(request):
     logout(request)                           # cierra la sesión siempre

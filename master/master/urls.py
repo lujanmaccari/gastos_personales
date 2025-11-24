@@ -27,10 +27,9 @@ from api.api import api
 from apps.dashboard.views import DashboardView 
 
 urlpatterns = [
-    path("", DashboardView.as_view(), name="dashboard"),
     path("admin/", admin.site.urls),
     path("", include("apps.categoria.urls")),
-
+    path("", include("apps.dashboard.urls")),
     path("", include("apps.gasto.urls")),
     path("", include("apps.ingreso.urls")),
     path("perfil/", PerfilDetailView.as_view(), name="perfil_detail"),
