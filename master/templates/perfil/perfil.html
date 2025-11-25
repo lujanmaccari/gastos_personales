@@ -79,7 +79,7 @@
       </div>
 
       <div class="bg-white rounded-xl shadow-sm p-6">
-        <form method="post" action="{% url 'logout' %}">
+        <form method="post" action="{% url 'logout_view' %}">
           {% csrf_token %}
           <button class="w-full rounded-lg h-10 px-4 bg-indigo-100 text-indigo-800 font-semibold">Cerrar Sesión</button>
         </form>
