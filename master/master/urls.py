@@ -28,6 +28,7 @@ from apps.dashboard.views import DashboardView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", DashboardView.as_view(), name="dashboard"),
     path("", include("apps.categoria.urls")),
     path("", include("apps.dashboard.urls")),
     path("", include("apps.gasto.urls")),

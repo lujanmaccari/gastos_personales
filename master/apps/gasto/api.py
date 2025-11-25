@@ -12,13 +12,14 @@ from .schemas import (
     SaldoSchema
 )
 from api.auth import session_auth
+from api.auth import AuthBearer
 
 # Crear router para gastos
 router = Router(tags=["Gastos"])
 
 # ==================== ENDPOINTS DE GASTOS ====================
 
-@router.get("/", response=List[GastoOutSchema], auth=session_auth)
+@router.get("/", response=List[GastoOutSchema], auth=[session_auth, AuthBearer()])
 def listar_gastos(
     request,
     categoria: int = None,
@@ -63,7 +64,7 @@ def listar_gastos(
     return list(queryset)
 
 
-@router.get("/{gasto_id}", response=GastoOutSchema, auth=session_auth)
+@router.get("/{gasto_id}", response=GastoOutSchema, auth=[session_auth, AuthBearer()])
 def obtener_gasto(request, gasto_id: int):
     """
     Obtiene el detalle de un gasto específico.
@@ -77,7 +78,7 @@ def obtener_gasto(request, gasto_id: int):
     return gasto
 
 
-@router.post("/", response=GastoOutSchema, auth=session_auth)
+@router.post("/", response=GastoOutSchema, auth=[session_auth, AuthBearer()])
 def crear_gasto(request, payload: GastoCreateSchema):
     """
     Crea un nuevo gasto para el usuario autenticado.
@@ -94,7 +95,7 @@ def crear_gasto(request, payload: GastoCreateSchema):
     return gasto
 
 
-@router.put("/{gasto_id}", response=GastoOutSchema, auth=session_auth)
+@router.put("/{gasto_id}", response=GastoOutSchema, auth=[session_auth, AuthBearer()])
 def actualizar_gasto(request, gasto_id: int, payload: GastoUpdateSchema):
     """
     Actualiza un gasto existente.
@@ -120,7 +121,7 @@ def actualizar_gasto(request, gasto_id: int, payload: GastoUpdateSchema):
     return gasto
 
 
-@router.patch("/{gasto_id}", response=GastoOutSchema, auth=session_auth)
+@router.patch("/{gasto_id}", response=GastoOutSchema, auth=[session_auth, AuthBearer()])
 def actualizar_parcial_gasto(request, gasto_id: int, payload: GastoUpdateSchema):
     """
     Actualización parcial de un gasto.
@@ -128,7 +129,7 @@ def actualizar_parcial_gasto(request, gasto_id: int, payload: GastoUpdateSchema)
     return actualizar_gasto(request, gasto_id, payload)
 
 
-@router.delete("/{gasto_id}", auth=session_auth)
+@router.delete("/{gasto_id}", auth=[session_auth, AuthBearer()])
 def eliminar_gasto(request, gasto_id: int):
     """
     Elimina un gasto existente.
@@ -143,7 +144,7 @@ def eliminar_gasto(request, gasto_id: int):
     return {"success": True, "message": "Gasto eliminado correctamente"}
 
 
-@router.get("/estadisticas/total", response=GastoTotalSchema, auth=session_auth)
+@router.get("/estadisticas/total", response=GastoTotalSchema, auth=[session_auth, AuthBearer()])
 def total_gastos(request):
     """
     Calcula el total de gastos del usuario autenticado.
@@ -161,7 +162,7 @@ def total_gastos(request):
     }
 
 
-@router.get("/estadisticas/saldo", response=SaldoSchema, auth=session_auth)
+@router.get("/estadisticas/saldo", response=SaldoSchema, auth=[session_auth, AuthBearer()])
 def calcular_saldo(request):
     """
     Calcula el saldo restante: Total Ingresos - Total Gastos.
