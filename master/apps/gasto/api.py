@@ -1,15 +1,12 @@
 from ninja import Router
 from typing import List
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Q
+from django.db.models import Q
 from .models import Gasto
-from apps.ingreso.models import Ingreso
 from .schemas import (
     GastoCreateSchema,
     GastoUpdateSchema,
     GastoOutSchema,
-    GastoTotalSchema,
-    SaldoSchema
 )
 from api.auth import session_auth
 from api.auth import AuthBearer
@@ -121,12 +118,12 @@ def actualizar_gasto(request, gasto_id: int, payload: GastoUpdateSchema):
     return gasto
 
 
-@router.patch("/{gasto_id}", response=GastoOutSchema, auth=[session_auth, AuthBearer()])
-def actualizar_parcial_gasto(request, gasto_id: int, payload: GastoUpdateSchema):
-    """
-    Actualización parcial de un gasto.
-    """
-    return actualizar_gasto(request, gasto_id, payload)
+# @router.patch("/{gasto_id}", response=GastoOutSchema, auth=[session_auth, AuthBearer()])
+# def actualizar_parcial_gasto(request, gasto_id: int, payload: GastoUpdateSchema):
+#     """
+#     Actualización parcial de un gasto.
+#     """
+#     return actualizar_gasto(request, gasto_id, payload)
 
 
 @router.delete("/{gasto_id}", auth=[session_auth, AuthBearer()])
@@ -144,46 +141,46 @@ def eliminar_gasto(request, gasto_id: int):
     return {"success": True, "message": "Gasto eliminado correctamente"}
 
 
-@router.get("/estadisticas/total", response=GastoTotalSchema, auth=[session_auth, AuthBearer()])
-def total_gastos(request):
-    """
-    Calcula el total de gastos del usuario autenticado.
-    """
-    resultado = Gasto.objects.filter(usuario=request.user).aggregate(
-        total=Sum('monto')
-    )
+# @router.get("/estadisticas/total", response=GastoTotalSchema, auth=[session_auth, AuthBearer()])
+# def total_gastos(request):
+#     """
+#     Calcula el total de gastos del usuario autenticado.
+#     """
+#     resultado = Gasto.objects.filter(usuario=request.user).aggregate(
+#         total=Sum('monto')
+#     )
     
-    cantidad = Gasto.objects.filter(usuario=request.user).count()
+#     cantidad = Gasto.objects.filter(usuario=request.user).count()
     
-    return {
-        'total': float(resultado['total'] or 0),
-        'cantidad': cantidad,
-        'moneda': request.user.moneda.abreviatura if request.user.moneda else None
-    }
+#     return {
+#         'total': float(resultado['total'] or 0),
+#         'cantidad': cantidad,
+#         'moneda': request.user.moneda.abreviatura if request.user.moneda else None
+#     }
 
 
-@router.get("/estadisticas/saldo", response=SaldoSchema, auth=[session_auth, AuthBearer()])
-def calcular_saldo(request):
-    """
-    Calcula el saldo restante: Total Ingresos - Total Gastos.
-    Este es uno de los endpoints más importantes del sistema.
-    """
-    # Calcular total de ingresos
-    total_ingresos = Ingreso.objects.filter(usuario=request.user).aggregate(
-        total=Sum('monto')
-    )['total'] or 0
+# @router.get("/estadisticas/saldo", response=SaldoSchema, auth=[session_auth, AuthBearer()])
+# def calcular_saldo(request):
+#     """
+#     Calcula el saldo restante: Total Ingresos - Total Gastos.
+#     Este es uno de los endpoints más importantes del sistema.
+#     """
+#     # Calcular total de ingresos
+#     total_ingresos = Ingreso.objects.filter(usuario=request.user).aggregate(
+#         total=Sum('monto')
+#     )['total'] or 0
     
-    # Calcular total de gastos
-    total_gastos = Gasto.objects.filter(usuario=request.user).aggregate(
-        total=Sum('monto')
-    )['total'] or 0
+#     # Calcular total de gastos
+#     total_gastos = Gasto.objects.filter(usuario=request.user).aggregate(
+#         total=Sum('monto')
+#     )['total'] or 0
     
-    # Calcular saldo
-    saldo = total_ingresos - total_gastos
+#     # Calcular saldo
+#     saldo = total_ingresos - total_gastos
     
-    return {
-        'total_ingresos': float(total_ingresos),
-        'total_gastos': float(total_gastos),
-        'saldo_restante': float(saldo),
-        'moneda': request.user.moneda.abreviatura if request.user.moneda else None
-    }
+#     return {
+#         'total_ingresos': float(total_ingresos),
+#         'total_gastos': float(total_gastos),
+#         'saldo_restante': float(saldo),
+#         'moneda': request.user.moneda.abreviatura if request.user.moneda else None
+#     }
