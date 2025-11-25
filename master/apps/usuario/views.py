@@ -1,11 +1,12 @@
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView, View
-from django.contrib.auth import get_user_model, logout
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.shortcuts import redirect
 from .forms import CustomUserCreationForm
+from django.contrib.auth import get_user_model
+from django.shortcuts import redirect
 
 User = get_user_model()
 
@@ -20,13 +21,10 @@ class RegisterView(CreateView):
         form_class._meta.model = User
         return form_class
 
-<<<<<<< HEAD
-=======
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "dashboard/home.html"
 
->>>>>>> 6428ef5 (modulo usuario y perfil, templates ídem,  master, en ingreso forms.py)
 
 class LogoutView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
