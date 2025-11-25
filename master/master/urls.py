@@ -15,32 +15,26 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.views.generic import RedirectView
 from django.urls import path, include
-from django.contrib.auth.views import LoginView
-from apps.usuario.views import RegisterView, logout_view
-from apps.perfil.views import PerfilDetailView, PerfilUpdateView
 from django.conf.urls.static import static
 from django.conf import settings
-from apps.gasto.views import GastoListView, GastoCreateView
-from apps.ingreso.views import IngresoListView, IngresoCreateView
 from api.api import api
 from apps.dashboard.views import DashboardView 
 
+ 
 urlpatterns = [
-    path("", LoginView.as_view(template_name="usuario/login.html"), name="login"),
-    
+    path("", RedirectView.as_view(url="/login/", permanent=False)), 
     path("admin/", admin.site.urls),
     path("", DashboardView.as_view(), name="dashboard"),
+    path("", include("apps.usuario.urls")),
     path("", include("apps.categoria.urls")),
     path("", include("apps.dashboard.urls")),
     path("", include("apps.gasto.urls")),
     path("", include("apps.ingreso.urls")),
     path("", include("apps.perfil.urls")),
     path("", include("apps.simulador.urls")),
-    path("", include("apps.usuario.urls")),
-    
-    path("perfil/", PerfilDetailView.as_view(), name="perfil_detail"),
-    path("perfil/editar/", PerfilUpdateView.as_view(), name="perfil_edit"),
+
 
     # API
     path('api/', api.urls)
@@ -49,3 +43,4 @@ urlpatterns = [
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # las subidas de avatar redirigen a media/avatars/lalala.jpg y django las busca en MEDIA_ROOT = base_dir/media
+

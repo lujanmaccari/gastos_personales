@@ -11,14 +11,13 @@ from .schemas import (
     FuenteOutSchema
 )
 from api.auth import session_auth
-from api.auth import AuthBearer
 
 # Crear router para ingresos
 router = Router(tags=["Ingresos"])
 
 # ==================== ENDPOINTS DE INGRESOS ====================
 
-@router.get("/", response=List[IngresoOutSchema], auth=[session_auth, AuthBearer()])
+@router.get("/", response=List[IngresoOutSchema], auth=session_auth)
 def listar_ingresos(
     request,
     fuente: int = None,
@@ -58,7 +57,7 @@ def listar_ingresos(
     return list(queryset)
 
 
-@router.get("/{ingreso_id}", response=IngresoOutSchema, auth=[session_auth, AuthBearer()])
+@router.get("/{ingreso_id}", response=IngresoOutSchema, auth=session_auth)
 def obtener_ingreso(request, ingreso_id: int):
     """
     Obtiene el detalle de un ingreso específico.
@@ -72,7 +71,7 @@ def obtener_ingreso(request, ingreso_id: int):
     return ingreso
 
 
-@router.post("/", response=IngresoOutSchema, auth=[session_auth, AuthBearer()])
+@router.post("/", response=IngresoOutSchema, auth=session_auth)
 def crear_ingreso(request, payload: IngresoCreateSchema):
     """
     Crea un nuevo ingreso para el usuario autenticado.
@@ -90,7 +89,7 @@ def crear_ingreso(request, payload: IngresoCreateSchema):
     return ingreso
 
 
-@router.put("/{ingreso_id}", response=IngresoOutSchema, auth=[session_auth, AuthBearer()])
+@router.put("/{ingreso_id}", response=IngresoOutSchema, auth=session_auth)
 def actualizar_ingreso(request, ingreso_id: int, payload: IngresoUpdateSchema):
     """
     Actualiza un ingreso existente.
@@ -116,7 +115,7 @@ def actualizar_ingreso(request, ingreso_id: int, payload: IngresoUpdateSchema):
     return ingreso
 
 
-@router.patch("/{ingreso_id}", response=IngresoOutSchema, auth=[session_auth, AuthBearer()])
+@router.patch("/{ingreso_id}", response=IngresoOutSchema, auth=session_auth)
 def actualizar_parcial_ingreso(request, ingreso_id: int, payload: IngresoUpdateSchema):
     """
     Actualización parcial de un ingreso (igual que PUT pero semánticamente diferente).
@@ -124,7 +123,7 @@ def actualizar_parcial_ingreso(request, ingreso_id: int, payload: IngresoUpdateS
     return actualizar_ingreso(request, ingreso_id, payload)
 
 
-@router.delete("/{ingreso_id}", auth=[session_auth, AuthBearer()])
+@router.delete("/{ingreso_id}", auth=session_auth)
 def eliminar_ingreso(request, ingreso_id: int):
     """
     Elimina un ingreso existente.
@@ -139,7 +138,7 @@ def eliminar_ingreso(request, ingreso_id: int):
     return {"success": True, "message": "Ingreso eliminado correctamente"}
 
 
-@router.get("/estadisticas/total", response=IngresoTotalSchema, auth=[session_auth, AuthBearer()])
+@router.get("/estadisticas/total", response=IngresoTotalSchema, auth=session_auth)
 def total_ingresos(request):
     """
     Calcula el total de ingresos del usuario autenticado.
@@ -159,7 +158,7 @@ def total_ingresos(request):
 
 # ==================== ENDPOINTS DE FUENTES ====================
 
-@router.get("/fuentes/", response=List[FuenteOutSchema], auth=[session_auth, AuthBearer()])
+@router.get("/fuentes/", response=List[FuenteOutSchema], auth=session_auth)
 def listar_fuentes(request):
     """
     Lista todas las fuentes de ingreso disponibles.
@@ -167,7 +166,7 @@ def listar_fuentes(request):
     return list(Fuente.objects.all())
 
 
-@router.get("/fuentes/{fuente_id}", response=FuenteOutSchema, auth=[session_auth, AuthBearer()])
+@router.get("/fuentes/{fuente_id}", response=FuenteOutSchema, auth=session_auth)
 def obtener_fuente(request, fuente_id: int):
     """
     Obtiene el detalle de una fuente específica.

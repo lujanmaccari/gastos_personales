@@ -5,6 +5,5 @@ from .models import Perfil
 
 @admin.register(Perfil)
 class PerfilAdmin(admin.ModelAdmin):
-    list_display = ("usuario", "moneda", "limite_gasto_mensual")
+    list_display = ("usuario", "avatar")
     search_fields = ("usuario__username", "usuario__email")
-    list_filter = ("moneda",)
