@@ -97,5 +97,3 @@ def exchange_rate(from_currency, to_currency):
     """
     rate = CurrencyService.get_exchange_rate(from_currency, to_currency)
     return rate if rate else Decimal('0')
-
-
