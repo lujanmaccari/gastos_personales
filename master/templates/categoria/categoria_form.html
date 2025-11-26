@@ -11,6 +11,13 @@
 {% block content %}
 <div class="px-4 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
   <div class="layout-content-container flex flex-col flex-1">
+    
+      {% if form.errors %}
+      <div class="p-4 bg-red-100 text-red-700 rounded-xl mb-4">
+        {{ form.errors }}
+      </div>
+    {% endif %}
+
     <form method="post">
       {% csrf_token %}
 
@@ -32,137 +39,155 @@
       <div class="p-4">
         <!-- Íconos -->
         <div class="flex flex-row gap-4">
+          
           <!-- Comida -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="comida" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-utensils" hidden />
             <i class="fas fa-utensils text-3xl"></i>
           </label>
 
           <!-- Transporte -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="transporte" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-bus" hidden />
             <i class="fas fa-bus text-3xl"></i>
           </label>
 
           <!-- Hogar -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="hogar" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-home" hidden />
             <i class="fas fa-home text-3xl"></i>
           </label>
 
           <!-- Entretenimiento -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="entretenimiento" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-film" hidden />
             <i class="fas fa-film text-3xl"></i>
           </label>
 
           <!-- Gimnasio -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="gimnasio" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-dumbbell" hidden />
             <i class="fas fa-dumbbell text-3xl"></i>
           </label>
 
           <!-- Viaje -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="viaje" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-plane" hidden />
             <i class="fas fa-plane text-3xl"></i>
           </label>
 
           <!-- Educación -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="educacion" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-book" hidden />
             <i class="fas fa-book text-3xl"></i>
           </label>
 
           <!-- Salud -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="salud" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-heartbeat" hidden />
             <i class="fas fa-heartbeat text-3xl"></i>
           </label>
 
           <!-- Mascotas -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="mascotas" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-paw" hidden />
             <i class="fas fa-paw text-3xl"></i>
           </label>
 
           <!-- Regalo -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="regalo" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-gift" hidden />
             <i class="fas fa-gift text-3xl"></i>
           </label>
 
           <!-- Compras -->
-          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border">
-            <input type="radio" name="icono" value="compras" hidden />
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-shopping-bag" hidden />
             <i class="fas fa-shopping-bag text-3xl"></i>
           </label>
         </div>
+
+        <!-- Campo: Descripción (textarea) -->
+            <div>
+            <label for="{{ form.descripcion.id_for_label }}" 
+                    class="block text-sm font-medium text-gray-700 mb-2">
+                Descripción
+            </label>
+            <textarea 
+                name="{{ form.descripcion.name }}"
+                id="{{ form.descripcion.id_for_label }}"
+                rows="3"
+                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                placeholder="Agregar descripción opcional...">{{ form.descripcion.value|default:'' }}</textarea>
+            {% if form.descripcion.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.descripcion.errors.0 }}</p>
+            {% endif %}
+            </div>
 
         <div>
           <h3 class="text-[#0e171b] text-base font-medium leading-normal pb-2">Selecciona un color</h3>
           <div class="flex flex-row gap-4">
             <!-- Amarillo -->
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2 cursor-pointer color-option">
               <input type="radio" name="color" value="amarillo" hidden />
-              <div class="rounded-full p-1 color-wrapper" data-color="#f9cb15">
-                <div class="w-10 h-10 rounded-full" style="background-color: #f9cb15;"></div>
+              <div class="rounded-full p-1 color-wrapper" data-color="#FFFB1C">
+                <div class="w-10 h-10 rounded-full" style="background-color: #FFFB1C;"></div>
               </div>
             </label>
         
             <!-- Azul -->
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2 cursor-pointer color-option">
               <input type="radio" name="color" value="azul" hidden />
-              <div class="rounded-full p-1 color-wrapper" data-color="#2596be">
-                <div class="w-10 h-10 rounded-full" style="background-color: #2596be;"></div>
+              <div class="rounded-full p-1 color-wrapper" data-color="#3B82F6">
+                <div class="w-10 h-10 rounded-full" style="background-color: #3B82F6;"></div>
               </div>
             </label>
         
             <!-- Violeta -->
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2 cursor-pointer color-option">
               <input type="radio" name="color" value="violeta" hidden />
-              <div class="rounded-full p-1 color-wrapper" data-color="#a789f7">
-                <div class="w-10 h-10 rounded-full" style="background-color: #a789f7;"></div>
+              <div class="rounded-full p-1 color-wrapper" data-color="#8B5CF6">
+                <div class="w-10 h-10 rounded-full" style="background-color: #8B5CF6;"></div>
               </div>
             </label>
         
             <!-- Verde -->
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2 cursor-pointer color-option">
               <input type="radio" name="color" value="verde" hidden />
-              <div class="rounded-full p-1 color-wrapper" data-color="#58df88">
-                <div class="w-10 h-10 rounded-full" style="background-color: #58df88;"></div>
+              <div class="rounded-full p-1 color-wrapper" data-color="#12CA31">
+                <div class="w-10 h-10 rounded-full" style="background-color: #12CA31;"></div>
               </div>
             </label>
         
             <!-- Naranja -->
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2 cursor-pointer color-option">
               <input type="radio" name="color" value="naranja" hidden />
-              <div class="rounded-full p-1 color-wrapper" data-color="#f89645">
-                <div class="w-10 h-10 rounded-full" style="background-color: #f89645;"></div>
+              <div class="rounded-full p-1 color-wrapper" data-color="#FFA500">
+                <div class="w-10 h-10 rounded-full" style="background-color: #FFA500;"></div>
               </div>
             </label>
         
             <!-- Rosa -->
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2 cursor-pointer color-option">
               <input type="radio" name="color" value="rosa" hidden />
-              <div class="rounded-full p-1 color-wrapper" data-color="#f177b6">
-                <div class="w-10 h-10 rounded-full" style="background-color: #f177b6;"></div>
+              <div class="rounded-full p-1 color-wrapper" data-color="#D946EF">
+                <div class="w-10 h-10 rounded-full" style="background-color: #D946EF;"></div>
               </div>
             </label>
         
             <!-- Rojo -->
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2 cursor-pointer color-option">
               <input type="radio" name="color" value="rojo" hidden />
-              <div class="rounded-full p-1 color-wrapper" data-color="#f47675">
-                <div class="w-10 h-10 rounded-full" style="background-color: #f47675;"></div>
+              <div class="rounded-full p-1 color-wrapper" data-color="#EF4444">
+                <div class="w-10 h-10 rounded-full" style="background-color: #EF4444;"></div>
               </div>
             </label>
         
             <!-- Gris -->
-            <label class="flex items-center gap-2 cursor-pointer">
+            <label class="flex items-center gap-2 cursor-pointer color-option">
               <input type="radio" name="color" value="gris" hidden />
-              <div class="rounded-full p-1 color-wrapper" data-color="#eff3f3">
-                <div class="w-10 h-10 rounded-full" style="background-color: #eff3f3;"></div>
+              <div class="rounded-full p-1 color-wrapper" data-color="#9CA3AF">
+                <div class="w-10 h-10 rounded-full" style="background-color: #9CA3AF;"></div>
               </div>
             </label>
           </div>
@@ -171,12 +196,27 @@
           <div class="mt-4">
             <h3 class="text-[#0e171b] text-base font-medium leading-normal pb-2">Vista Previa</h3>
             <div class="flex items-center gap-4 w-full p-4 rounded-xl bg-zinc-100">
-              <div class="flex items-center justify-center w-16 h-16 rounded-full shrink-0 vista-previa-color" style="background-color: {{ form.color.value|default:'#f87171' }};">
-                <span class="material-symbols-outlined text-4xl text-white vista-previa-icon">{{ form.icono.value|default:'shopping_cart' }}</span>
+              <div class="flex items-center justify-center w-16 h-16 rounded-full shrink-0 vista-previa-color" style="background-color: #FFFB1C;">
+                <i class="fas fa-utensils text-3xl text-white vista-previa-icon"></i>
               </div>
-              <p class="text-[#0e171b] text-xl font-bold truncate vista-previa-nombre">{{ form.nombre.value|default:'Nombre' }}</p>
+              <p class="text-[#0e171b] text-xl font-bold truncate vista-previa-nombre">{{ form.nombre.value|default:'Comida' }}</p>
             </div>
           </div>
+
+          <!-- Botones -->
+          <div class="flex gap-3 pt-4">
+            <button 
+              type="submit"
+              class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-blue-500/20">
+              {% if object %}Guardar Cambios{% else %}Guardar Categoría{% endif %}
+            </button>
+            <a href="{% url 'categorias' %}"
+              class="px-8 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3.5 rounded-xl transition text-center">
+              Cancelar
+            </a>
+          </div>
+
+    </form>
         </div>
         
         <script>
@@ -189,108 +229,68 @@
             // Actualizar vista previa del nombre
             if (nameInput && previewName) {
               nameInput.addEventListener('input', () => {
-                previewName.textContent = nameInput.value || 'Nombre';
+                previewName.textContent = nameInput.value || 'Comida';
               });
             }
           
             // Íconos
-            const iconInputs = document.querySelectorAll('input[name="icono"]');
-            iconInputs.forEach(input => {
-              const iconWrapper = input.parentElement;
+            const iconOptions = document.querySelectorAll('.icon-option');
+            iconOptions.forEach(option => {
+              const input = option.querySelector('input[type="radio"]');
+              const icon = option.querySelector('i');
           
-              function updateIconBorder() {
-                if (input.checked) {
-                  iconWrapper.classList.add('border-4', 'border-sky-200', 'rounded-lg', 'p-1');
-                } else {
-                  iconWrapper.classList.remove('border-4', 'border-sky-200', 'p-1');
-                }
-              }
-          
-              // Click en ícono
-              iconWrapper.addEventListener('click', () => {
-                iconInputs.forEach(ic => {
-                  ic.checked = false;
-                  ic.parentElement.classList.remove('border-4', 'border-sky-200', 'p-1');
+              option.addEventListener('click', () => {
+                // Remover selección previa
+                iconOptions.forEach(opt => {
+                  opt.classList.remove('border-4', 'border-sky-200');
                 });
+                
+                // Marcar como seleccionado
+                option.classList.add('border-4', 'border-sky-200');
                 input.checked = true;
-                updateIconBorder();
-                updatePreviewIcon(input.value);
+                
+                // Actualizar vista previa
+                if (previewIcon && icon) {
+                  previewIcon.className = icon.className;
+                }
               });
-          
-              // Inicializar borde por defecto
-              updateIconBorder();
             });
           
             // Colores
-            const colorWrappers = document.querySelectorAll('.color-wrapper');
-            colorWrappers.forEach(wrapper => {
-              const input = wrapper.parentElement.querySelector('input[type="radio"]');
-              const color = wrapper.getAttribute('data-color');
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+              const input = option.querySelector('input[type="radio"]');
+              const wrapper = option.querySelector('.color-wrapper');
+              const colorHex = wrapper.getAttribute('data-color');
           
-              function updateColorBorder() {
-                if (input.checked) {
-                  wrapper.style.border = `4px solid ${color}`;
-                } else {
-                  wrapper.style.border = 'none';
-                }
-              }
-          
-              // Click en color
-              wrapper.parentElement.addEventListener('click', () => {
-                colorWrappers.forEach(w => {
-                  w.querySelector('div').style.border = 'none';
+              option.addEventListener('click', () => {
+                // Remover selección previa
+                colorOptions.forEach(opt => {
+                  const w = opt.querySelector('.color-wrapper');
                   w.style.border = 'none';
                 });
+                
+                // Marcar como seleccionado
+                wrapper.style.border = `4px solid ${colorHex}`;
                 input.checked = true;
-                updateColorBorder();
-                updatePreviewColor(wrapper);
+                
+                // Actualizar vista previa
+                if (previewContainer) {
+                  previewContainer.style.backgroundColor = colorHex;
+                }
               });
-          
-              // Inicializar borde por defecto
-              updateColorBorder();
             });
           
-            // Funciones de preview
-            function updatePreviewIcon(value) {
-              if (!previewIcon) return;
-              previewIcon.className = 'material-symbols-outlined text-4xl text-white';
-              switch(value) {
-                case 'comida': previewIcon.textContent = 'restaurant'; break;
-                case 'transporte': previewIcon.textContent = 'directions_bus'; break;
-                case 'hogar': previewIcon.textContent = 'home'; break;
-                case 'entretenimiento': previewIcon.textContent = 'movie'; break;
-                case 'gimnasio': previewIcon.textContent = 'fitness_center'; break;
-                case 'viaje': previewIcon.textContent = 'flight'; break;
-                case 'educacion': previewIcon.textContent = 'school'; break;
-                case 'salud': previewIcon.textContent = 'favorite'; break;
-                case 'mascotas': previewIcon.textContent = 'pets'; break;
-                case 'regalo': previewIcon.textContent = 'card_giftcard'; break;
-                case 'compras': previewIcon.textContent = 'shopping_cart'; break;
-                default: previewIcon.textContent = 'category';
-              }
+            // Selección por defecto al cargar (primer ícono y primer color)
+            if (iconOptions.length > 0) {
+              iconOptions[0].click();
             }
-          
-            function updatePreviewColor(colorDiv) {
-              if (previewContainer) previewContainer.style.backgroundColor = colorDiv.querySelector('div').style.backgroundColor;
-            }
-          
-            // Selección por defecto al cargar
-            const firstIconInput = iconInputs[0];
-            if (firstIconInput) {
-              firstIconInput.checked = true;
-              firstIconInput.parentElement.classList.add('border-4', 'border-sky-200', 'rounded-lg', 'p-1');
-              updatePreviewIcon(firstIconInput.value);
-            }
-          
-            const firstColorInput = document.querySelector('input[name="color"]');
-            if (firstColorInput) {
-              firstColorInput.checked = true;
-              const wrapper = firstColorInput.nextElementSibling;
-              wrapper.style.border = `4px solid ${wrapper.getAttribute('data-color')}`;
-              updatePreviewColor(wrapper);
+            
+            if (colorOptions.length > 0) {
+              colorOptions[0].click();
             }
           });
-          </script>
+        </script>
           
           
 {% endblock %}

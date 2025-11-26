@@ -1,0 +1,80 @@
+{% extends 'layout/frame.html' %}
+
+{% block title %}Eliminar Categoría{% endblock %}
+{% block sectionTitle %}Eliminar Categoría{% endblock %}
+
+{% block nuevo_modal_url %}{% endblock %}
+
+{% block contenido_tabla %}
+<div class="max-w-lg mx-auto">
+
+    <!-- Card de Confirmación -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+
+        <!-- Header: Advertencia -->
+        <div class="bg-gradient-to-r from-red-500 to-red-600 p-6 text-red-800">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-3xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold">Confirmar Eliminación</h2>
+                    <p class="text-red-200 text-sm font-semibold">Esta acción no se puede deshacer.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido -->
+        <div class="p-6">
+
+            <!-- Detalles de la Categoría -->
+            <div class="flex items-center justify-between mb-6">
+                <span class="text-sm text-gray-600">
+                    <i class="fas fa-briefcase text-gray-400 mr-2"></i>
+                    Categoría:
+                </span>
+                <span class="font-semibold text-gray-900">
+                    {{ object.nombre }}
+                </span>
+            </div>
+
+            <!-- Advertencia -->
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex gap-3">
+                    <div class="text-sm text-red-800">
+                        <p class="font-medium mb-1">⚠️ Advertencia:</p>
+                        <p>Una vez eliminado, este registro no podrá ser recuperado. 
+                           Tus estadísticas y totales se actualizarán automáticamente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de confirmación -->
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="flex gap-3">
+                    <!-- Botón Cancelar -->
+                    <a href="{% url 'categorias' %}"
+                        class="flex-1 btn bg-white border-2 border-gray-300 text-gray-700 
+                               hover:bg-gray-50 transition py-3 text-center">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Cancelar
+                    </a>
+
+                    <!-- Botón Eliminar -->
+                    <button type="submit"
+                        class="flex-1 btn bg-red-500 hover:bg-red-600 text-white transition 
+                               py-3 shadow-lg shadow-red-500/30">
+                        <i class="fas fa-trash mr-2"></i>
+                        Eliminar Definitivamente
+                    </button>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

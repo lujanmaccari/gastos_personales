@@ -20,6 +20,7 @@ class Color(models.Model):
         return self.nombre
 
 class Icono(models.Model):
+    nombre = models.CharField(max_length=50)
     icono = models.CharField(max_length=30)
 
     def __str__(self):

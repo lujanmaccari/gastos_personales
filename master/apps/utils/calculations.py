@@ -261,19 +261,26 @@ def asignar_iconos_y_colores_fuentes_ingresos(items):
 def asignar_colores_categorias_gastos():
     """Retorna colores específicos para categorías de gasto"""
     colores = {
-        'comida': "#FFFB1C",  # Amarillo
-        'hogar': '#EF4444',  # Rojo
+        'comida': "#FFFB1C",      # Amarillo
+        'amarillo': "#FFFB1C",    
+        'hogar': '#EF4444',       # Rojo
+        'rojo': '#EF4444',        
         'transporte': '#3B82F6',  # Azul
-        'compras': '#8B5CF6',  # Violeta
-        'servicios': '#06B6D4',  # Cyan
-        'ocio': "#12CA31",  # Verde
-        'salud': "#A4E2FF",  # Celeste
-        'educación': '#D946EF',  # Rosa 
-        'viaje': '#FFA500', # Naranja
-        'otro': '#9CA3AF',  # Gris
+        'azul': '#3B82F6',        
+        'compras': '#8B5CF6',     # Violeta
+        'violeta': '#8B5CF6',     
+        'servicios': '#06B6D4',   # Cyan
+        'ocio': "#12CA31",        # Verde
+        'verde': "#12CA31",       
+        'salud': "#A4E2FF",       # Celeste
+        'educación': '#D946EF',   # Rosa 
+        'rosa': '#D946EF',        
+        'viaje': '#FFA500',       # Naranja
+        'naranja': '#FFA500',     
+        'otro': '#9CA3AF',        # Gris
+        'gris': '#9CA3AF',        
     }
     return colores
-
 def asignar_iconos_y_colores_categorias_gastos(items):
     """
     Asigna íconos y colores a fuentes de ingreso basándose en el nombre.
@@ -343,10 +350,19 @@ def asignar_iconos_y_colores_categorias_gastos(items):
     return items
 
 def procesar_categorias(items):
-
+    """
+        Procesa categorías para agregar estilos CSS inline.
+        
+        Args:
+            items: QuerySet de Categoria con .select_related('color', 'icono')
+        
+        Returns:
+            list: Lista de diccionarios con estilos procesados
+        """
+        
     def darken_hex(hex_code, factor=0.75):
+        """Oscurece un color hexadecimal"""
         hex_code = hex_code.lstrip("#")
-
         r = int(hex_code[0:2], 16)
         g = int(hex_code[2:4], 16)
         b = int(hex_code[4:6], 16)
@@ -358,14 +374,15 @@ def procesar_categorias(items):
         return f"#{r:02x}{g:02x}{b:02x}"
 
     def rgba_from_hex(hex_code, opacity=0.15):
+        """Convierte hex a rgba con opacidad"""
         hex_code = hex_code.lstrip("#")
-
         r = int(hex_code[0:2], 16)
         g = int(hex_code[2:4], 16)
         b = int(hex_code[4:6], 16)
 
         return f"rgba({r},{g},{b},{opacity})"
 
+    # Mapeo de nombres a íconos FontAwesome
     ICON_MAP = {
         "comida": "fas fa-utensils",
         "alimentación": "fas fa-utensils",
@@ -398,24 +415,40 @@ def procesar_categorias(items):
 
         "compras": "fas fa-shopping-bag",
         "compra": "fas fa-shopping-bag",
-    }
-
+        }
 
     procesadas = []
 
     for cat in items:
-        base = cat.color.codigo_hex
+        # Obtener el código hex del color
+        base = cat.color.codigo_hex if cat.color else "#9CA3AF"
         darker = darken_hex(base)
         bg = rgba_from_hex(base, 0.15)
+            
+        # Obtener la clase del ícono
+        # Primero intentar del objeto icono.icono, sino del mapeo
+        if cat.icono:
+            icon_class = cat.icono.icono
+        else:
+            icon_class = ICON_MAP.get(cat.nombre.lower(), "fas fa-circle")
 
-        icon_class = ICON_MAP.get(str(cat.icono).lower())
-
-        procesadas.append({
-            **cat.__dict__,
-            "icono": icon_class,
-            "color_icono": f"color: #{base};",       
-            "color_bg": f"background-color: {bg};",  
-            "color_texto": f"color: {darker};",     
-        })
+        # Crear diccionario con todos los atributos del objeto original
+        cat_dict = {
+            'id': cat.id,
+            'nombre': cat.nombre,
+            'descripcion': cat.descripcion,
+            'usuario_id': cat.usuario_id,
+            'color_id': cat.color_id,
+            'icono_id': cat.icono_id,
+            # Agregar el total si existe (para top_categorias)
+            'total': getattr(cat, 'total', None),
+            # Estilos procesados
+            'icono': icon_class,
+            'color_icono': f"color: {base};",       
+            'color_bg': f"background-color: {bg};",  
+            'color_texto': f"color: {darker};",
+            }
+        
+        procesadas.append(cat_dict)
 
     return procesadas
