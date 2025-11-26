@@ -42,5 +42,3 @@ urlpatterns = [
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-# las subidas de avatar redirigen a media/avatars/lalala.jpg y django las busca en MEDIA_ROOT = base_dir/media
-

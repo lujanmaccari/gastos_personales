@@ -22,11 +22,7 @@ class AuthBearer(HttpBearer):
 
 
 class SessionAuth:
-    """
-    Autenticación basada en sesión de Django.
-    Útil para desarrollo y testing desde el navegador.
-    """
-    def authenticate(self, request, key):
+    def __call__(self, request):
         if request.user.is_authenticated:
             return request.user
         return None

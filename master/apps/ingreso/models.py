@@ -11,7 +11,7 @@ class Ingreso(models.Model):
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField(blank=True, null=True)
     
-    def __str__(self):
+    def _str_(self):
         return f"{self.fuente} - {self.monto} - {self.fecha}"
 
 class Fuente(models.Model):

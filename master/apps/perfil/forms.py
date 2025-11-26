@@ -1,6 +1,5 @@
 from django import forms
 from apps.usuario.models import Usuario
-from .models import Perfil
 
 class PerfilForm(forms.ModelForm):
     password1 = forms.CharField(
@@ -15,7 +14,7 @@ class PerfilForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Perfil
+        model = Usuario
         fields = ["avatar"]
 
     def clean(self):
