@@ -7,7 +7,7 @@ from datetime import datetime
 from decimal import Decimal
 
 # Importar utilidades
-from apps.utils.calculations import calcular_variacion_mensual, calcular_distribucion_por_campo,asignar_iconos_y_colores_fuentes_ingresos
+from apps.utils.calculations import calcular_variacion_mensual, asignar_iconos_y_colores_fuentes_ingresos
 from apps.utils.filters import aplicar_filtros_basicos, obtener_valores_filtros
 from apps.utils.currency_mixins import ListViewCurrencyMixin
 

@@ -289,3 +289,4 @@ class ListViewCurrencyMixin(CurrencyConversionMixin):
         context['conversion_enabled'] = True
         
         return context
+

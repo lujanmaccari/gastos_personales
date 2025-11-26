@@ -2,7 +2,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, View
+from django.views.generic import CreateView, TemplateView, View
 from django.contrib import messages
 from .forms import CustomUserCreationForm
 from django.contrib.auth import get_user_model

@@ -9,8 +9,12 @@
 {% endblock %}
 
 {% block boton_flotante %}
-  <a href="{% url 'categoria_create' %}" class="fixed bottom-6 right-6 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-[0_8px_20px_rgba(100,100,255,0.3)] backdrop-blur-md transition-transform hover:scale-110 hover:shadow-[0_10px_25px_rgba(120,120,255,0.4)]" title="Nuevo Ingreso">
-    <!-- Ícono "+" -->
+  <a href="{% url 'categoria_create' %}" 
+     class="fixed bottom-6 right-6 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 text-white 
+            rounded-full w-16 h-16 flex items-center justify-center 
+            shadow-[0_8px_20px_rgba(100,100,255,0.3)] backdrop-blur-md 
+            transition-transform hover:scale-110 hover:shadow-[0_10px_25px_rgba(120,120,255,0.4)]"
+     title="Nueva Categoría">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
     </svg>
@@ -20,58 +24,105 @@
 {% load static %}
 
 {% block contenido_tabla %}
-  <div class="layout-content-container flex flex-col flex-1">
-    <div class="p-4">
-      <p class="text-[#0e171b] text-base font-medium">Top categorías con mayores gastos del mes</p>
-      <div class="flex gap-4 mt-6">
-        {% for categoria in top_categorias %}
-          <div class="flex-1 p-4 bg-white rounded-xl border border-gray-200 shadow-sm w-2" style=" {{ categoria.color_texto }}">
-            <div class="flex items-center gap-4">
-              <i class="{{ categoria.icono }} text-3xl" style="{{ categoria.color_icono }}"></i>
-              <p class="font-semibold text-2xl">Categoría {{ categoria.nombre }}</p>
-            </div>
-            <p class="text-gray-700 text-xl font-bold mt-2">$ {{ categoria.total }}</p>
-          </div>
-        {% endfor %}
+<div class="layout-content-container flex flex-col flex-1">
+
+  <!-- ========================= -->
+  <!-- TOP CATEGORÍAS DEL MES -->
+  <!-- ========================= -->
+  <div class="p-4">
+    <p class="text-[#0e171b] text-base font-medium">Top categorías con mayores gastos del mes</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+
+      {% for c in top_categorias %}
+      <div class="p-4 rounded-lg shadow bg-white border border-gray-200 flex flex-col items-start gap-2">
+
+        <div class="flex items-center gap-3">
+          <!-- Ícono procesado por procesar_categorias -->
+          <i class="{{ c.icono }} text-2xl" style="{{ c.color_icono }}"></i>
+          <span class="text-gray-800 font-medium">{{ c.nombre }}</span>
+        </div>
+
+        <p class="text-gray-700 text-xl font-bold mt-2">$ {{ c.total|floatformat:2 }}</p>
+
       </div>
-    </div>
+      {% empty %}
+        <p class="text-gray-500 text-sm">Todavía no hay gastos para mostrar.</p>
+      {% endfor %}
 
-    <div class="p-4 mt-8">
-      <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table class="w-full">
-          <thead>
-            <tr class="bg-gray-50">
-              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Categorías</th>
-              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Descripción</th>
-              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {% for categoria in categorias %}
-              <tr class="border-t border-gray-200 hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-4 text-gray-500 text-sm">
-                  <div class="flex items-center gap-3">
-                    <i class="{{ categoria.icono }}" style="{{ categoria.color_icono }}"></i>
-
-                    <span class="rounded-lg px-3 py-1 text-sm font-medium" style="{{ categoria.color_bg }} {{ categoria.color_texto }}">{{ categoria.nombre }}</span>
-                  </div>
-                </td>
-
-                <td class="px-4 py-4 text-gray-500 text-sm">{{ categoria.descripcion }}</td>
-                <td class="px-4 py-4 text-gray-500 text-sm">
-                  <a href="#" class="text-blue-500 hover:text-blue-700 transition" title="Editar"><i class="fas fa-edit"></i></a>
-                  <a href="#" class="text-red-500 hover:text-red-700 transition" title="Eliminar"><i class="fas fa-trash"></i></a>
-                </td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="2" class="text-center text-neutral py-4">No hay categorías disponibles.</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
     </div>
   </div>
+
+
+  <!-- ========================= -->
+  <!-- TABLA DE CATEGORÍAS -->
+  <!-- ========================= -->
+  <div class="p-4 mt-8">
+    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-50">
+            <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Categoría</th>
+            <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Descripción</th>
+            <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for categoria in categorias %}
+          <tr class="border-t border-gray-200 hover:bg-gray-50 transition-colors">
+
+            <!-- Columna: Icono + Nombre -->
+            <td class="px-4 py-4 text-gray-700 text-sm">
+              <div class="flex items-center gap-3">
+
+                <!-- ICONO procesado por procesar_categorias() -->
+                <i class="{{ categoria.icono }} text-xl" style="{{ categoria.color_icono }}"></i>
+
+                <!-- BADGE con estilos procesados -->
+                <span class="rounded-lg px-3 py-1 text-sm font-medium"
+                      style="{{ categoria.color_bg }} {{ categoria.color_texto }}">
+                  {{ categoria.nombre }}
+                </span>
+
+              </div>
+            </td>
+
+            <!-- Columna: Descripción -->
+            <td class="px-4 py-4 text-gray-600 text-sm">
+              {{ categoria.descripcion|default:"Sin descripción" }}
+            </td>
+
+            <!-- Columna: Acciones -->
+            <td class="px-4 py-4 text-gray-500 text-sm flex gap-4 items-center">
+
+              <a href="{% url 'categoria_update' categoria.id %}" 
+                 class="text-blue-500 hover:text-blue-700 transition"
+                 title="Editar">
+                <i class="fas fa-edit"></i>
+              </a>
+
+              <a href="{% url 'categoria_delete' categoria.id %}" 
+                 class="text-red-500 hover:text-red-700 transition"
+                 title="Eliminar">
+                <i class="fas fa-trash"></i>
+              </a>
+
+            </td>
+          </tr>
+
+          {% empty %}
+          <tr>
+            <td colspan="3" class="text-center text-gray-500 py-4">
+              No hay categorías disponibles.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+</div>
 {% endblock %}

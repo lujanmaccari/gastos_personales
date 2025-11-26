@@ -6,6 +6,7 @@ class Usuario(AbstractUser):
     email = models.EmailField(unique=True) 
     moneda = models.ForeignKey('usuario.Moneda', on_delete=models.SET_NULL, null=True, blank=True, related_name="usuarios_usan_moneda")
     borrado = models.BooleanField(default=False)
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True) 
 
 
     def __str__(self):

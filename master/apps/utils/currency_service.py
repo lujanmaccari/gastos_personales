@@ -151,3 +151,4 @@ class CurrencyService:
     @classmethod
     def clear_cache(cls):
         """Limpia el caché de tasas de cambio."""
+        pass

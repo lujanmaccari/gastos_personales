@@ -5,10 +5,10 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 
-from .models import Perfil
 from .forms import PerfilForm
 from apps.usuario.models import Moneda
 from apps.ingreso.models import Fuente
+from apps.ingreso.models import Usuario
 
 User = get_user_model()
 
@@ -19,7 +19,7 @@ class PerfilDetailView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         usuario = self.request.user
-        perfil, _ = Perfil.objects.get_or_create(usuario=usuario)
+        perfil, _ = Usuario.objects.get_or_create(id=usuario.id)
 
         ctx.update({
             "perfil": perfil,
@@ -34,7 +34,7 @@ class PerfilUpdateView(LoginRequiredMixin, View):
 
     def post(self, request):
         usuario = request.user
-        perfil, _ = Perfil.objects.get_or_create(usuario=usuario)
+
         form = PerfilForm(request.POST, request.FILES)
 
         if not form.is_valid():
@@ -46,7 +46,6 @@ class PerfilUpdateView(LoginRequiredMixin, View):
         usuario.first_name = request.POST.get("first_name", usuario.first_name)
         usuario.last_name = request.POST.get("last_name", usuario.last_name)
         usuario.email = request.POST.get("email", usuario.email)
-
       
         moneda_id = request.POST.get("moneda")
         if moneda_id:
@@ -58,21 +57,19 @@ class PerfilUpdateView(LoginRequiredMixin, View):
 
        
         if form.cleaned_data.get("avatar"):
-            perfil.avatar = form.cleaned_data["avatar"]
+            usuario.avatar = form.cleaned_data["avatar"]
 
        
         p1 = form.cleaned_data.get("password1")
         if p1:
             usuario.set_password(p1)
             usuario.save()
-            perfil.save()
             messages.success(request, "Contraseña actualizada. Iniciá sesión nuevamente.")
             logout(request)
             return redirect("login")
 
         
         usuario.save()
-        perfil.save()
 
         messages.success(request, "Perfil actualizado correctamente.")
         return redirect("perfil_detail")
