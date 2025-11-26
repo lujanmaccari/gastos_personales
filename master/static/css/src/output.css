@@ -1181,9 +1181,6 @@
   .w-1\/2 {
     width: calc(1/2 * 100%);
   }
-  .w-2 {
-    width: calc(var(--spacing) * 2);
-  }
   .w-3 {
     width: calc(var(--spacing) * 3);
   }
@@ -1860,9 +1857,6 @@
   .text-lime-800 {
     color: var(--color-lime-800);
   }
-  .text-neutral {
-    color: var(--color-neutral);
-  }
   .text-orange-500 {
     color: var(--color-orange-500);
   }
@@ -1883,6 +1877,9 @@
   }
   .text-purple-800 {
     color: var(--color-purple-800);
+  }
+  .text-red-200 {
+    color: var(--color-red-200);
   }
   .text-red-500 {
     color: var(--color-red-500);
@@ -2150,6 +2147,11 @@
     &:focus {
       --tw-outline-style: none;
       outline-style: none;
+    }
+  }
+  .sm\:grid-cols-2 {
+    @media (width >= 40rem) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   .md\:col-span-5 {
