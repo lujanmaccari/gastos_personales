@@ -5,6 +5,7 @@ from apps.ingreso.models import Ingreso, Fuente
 from apps.usuario.models import Moneda
 from datetime import datetime
 from decimal import Decimal
+from .forms import IngresoForm
 
 # Importar utilidades
 from apps.utils.calculations import calcular_variacion_mensual, asignar_iconos_y_colores_fuentes_ingresos
@@ -38,7 +39,7 @@ class IngresoListView(LoginRequiredMixin, UserIngresoQuerysetMixin, ListViewCurr
             queryset = queryset.filter(fuente_id=fuente_id)
         
         moneda = self.request.GET.get('moneda')
-        if moneda:
+        if moneda: 
             queryset = queryset.filter(moneda__abreviatura=moneda)
         
         return queryset.order_by('-fecha')
@@ -123,10 +124,15 @@ class IngresoListView(LoginRequiredMixin, UserIngresoQuerysetMixin, ListViewCurr
 class IngresoFieldsMixin:
     fields = ['fecha', 'fuente', 'monto', 'descripcion']
 
-class IngresoCreateView(LoginRequiredMixin, IngresoFieldsMixin, CreateView):
-    """Permite crear un nuevo ingreso asignado al usuario logueado."""
+class IngresoCreateView(LoginRequiredMixin, CreateView):
     model = Ingreso
+    form_class = IngresoForm
     template_name = 'ingreso/ingreso_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def form_valid(self, form):
         form.instance.usuario = self.request.user
@@ -136,10 +142,16 @@ class IngresoCreateView(LoginRequiredMixin, IngresoFieldsMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('ingresos')
 
-class IngresoUpdateView(LoginRequiredMixin, UserIngresoQuerysetMixin, IngresoFieldsMixin, UpdateView):
-    """Permite editar un ingreso existente del usuario logueado."""
+
+class IngresoUpdateView(LoginRequiredMixin, UserIngresoQuerysetMixin, UpdateView):
     model = Ingreso
+    form_class = IngresoForm
     template_name = 'ingreso/ingreso_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def get_success_url(self):
         return reverse_lazy('ingresos')

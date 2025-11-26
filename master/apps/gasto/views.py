@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Gasto
 from apps.categoria.models import Categoria
 from datetime import datetime
-
+from .forms import GastoForm
 # Importar utilidades
 from apps.utils.calculations import calcular_variacion_mensual, calcular_distribucion_por_campo, calcular_saldo_mensual, asignar_iconos_y_colores_categorias_gastos
 from apps.utils.filters import aplicar_filtros_basicos, aplicar_busqueda, obtener_valores_filtros
@@ -168,9 +168,15 @@ class GastoFieldsMixin:
     fields = ['fecha', 'categoria', 'monto', 'descripcion']
 
 
-class GastoCreateView(LoginRequiredMixin, GastoFieldsMixin, CreateView):
+class GastoCreateView(LoginRequiredMixin, CreateView):
     model = Gasto
+    form_class = GastoForm
     template_name = 'gasto/gasto_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def form_valid(self, form):
         form.instance.usuario = self.request.user
@@ -181,13 +187,18 @@ class GastoCreateView(LoginRequiredMixin, GastoFieldsMixin, CreateView):
         return reverse_lazy('gastos')
 
 
-class GastoUpdateView(LoginRequiredMixin, UserGastoQuerysetMixin, GastoFieldsMixin, UpdateView):
+class GastoUpdateView(LoginRequiredMixin, UserGastoQuerysetMixin, UpdateView):
     model = Gasto
+    form_class = GastoForm
     template_name = 'gasto/gasto_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def get_success_url(self):
         return reverse_lazy('gastos')
-
 
 class GastoDeleteView(LoginRequiredMixin, UserGastoQuerysetMixin, DeleteView):
     model = Gasto
