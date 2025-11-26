@@ -70,6 +70,19 @@
           <form method="post" class="flex flex-col gap-4" novalidate>
             {% csrf_token %}
 
+            <!-- Nombre -->
+<div>
+  <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    {{ form.first_name.label }}
+  </label>
+  {{ form.first_name }}
+  {% if form.first_name.errors %}
+    <ul class="text-red-600 text-sm mt-1">
+      {% for e in form.first_name.errors %}<li>{{ e }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+</div>
+
             <!-- Usuario -->
             <div>
               <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -80,7 +93,7 @@
                 <ul class="text-red-600 text-sm mt-1">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>
               {% endif %}
             </div>
-
+            
             <!-- Email -->
             <div>
               <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from apps.usuario.models import Usuario
 
 # Create your models here.
 class Ingreso(models.Model):
@@ -9,11 +11,16 @@ class Ingreso(models.Model):
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField(blank=True, null=True)
     
-    def __str__(self):
+    def _str_(self):
         return f"{self.fuente} - {self.monto} - {self.fecha}"
 
 class Fuente(models.Model):
-    nombre = models.CharField(max_length=50)
-    
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="fuentes"
+    )
+    nombre = models.CharField(max_length=100)
+
     def __str__(self):
         return self.nombre
