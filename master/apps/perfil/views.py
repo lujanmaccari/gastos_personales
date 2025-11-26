@@ -24,7 +24,7 @@ class PerfilDetailView(LoginRequiredMixin, TemplateView):
         ctx.update({
             "perfil": perfil,
             "form": PerfilForm(),
-            "monedas": Moneda.objects.all(),
+            "monedas": Moneda.objects.filter(usuario=self.request.user),
             "fuentes": Fuente.objects.filter(usuario=self.request.user),
         })
         return ctx
@@ -101,7 +101,7 @@ class MonedaCreateView(LoginRequiredMixin, View):
             messages.error(request, "Completá nombre y abreviatura.")
             return redirect("perfil_detail")
 
-        Moneda.objects.create(moneda=nombre, abreviatura=abrev)
+        Moneda.objects.create(usuario=request.user, moneda=nombre, abreviatura=abrev )
         messages.success(request, "Moneda creada.")
         return redirect("perfil_detail")
 
@@ -109,6 +109,9 @@ class MonedaCreateView(LoginRequiredMixin, View):
 class MonedaDeleteView(LoginRequiredMixin, DeleteView):
     model = Moneda
     success_url = reverse_lazy("perfil_detail")
+
+    def get_queryset(self):
+        return Moneda.objects.filter(usuario=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
@@ -118,6 +121,7 @@ class MonedaDeleteView(LoginRequiredMixin, DeleteView):
         moneda.delete()
         messages.success(request, "Moneda eliminada.")
         return redirect("perfil_detail")
+
 
 
 class FuenteCreateView(LoginRequiredMixin, View):

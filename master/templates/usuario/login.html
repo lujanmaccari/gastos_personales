@@ -1,7 +1,9 @@
+
 {% load static %}
 <!doctype html>
 <html lang="es" class="light">
 <head>
+
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Iniciar sesión - SpendWise</title>
@@ -57,14 +59,22 @@
 
       <h1 class="text-3xl font-bold text-[#0e171b] dark:text-white mb-6">Iniciar Sesión</h1>
 
-      <!-- Mensajes Django -->
-      {% if messages %}
-        <ul class="mb-4 space-y-2">
-          {% for m in messages %}
-            <li class="text-sm text-red-600 bg-red-100 px-3 py-2 rounded-lg">{{ m }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
+      <!--mENSAJES-->
+{% if messages %}
+  <div class="space-y-3 mb-4 w-full">
+    {% for message in messages %}
+      <div
+        class="
+          px-4 py-3 rounded-xl shadow-sm
+          {% if message.tags == 'success' %}bg-green-100 text-green-700
+          {% elif message.tags == 'error' %}bg-red-100 text-red-700
+          {% else %}bg-blue-100 text-blue-700{% endif %}
+        ">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 
       <!-- Formulario -->
       <form method="post" novalidate class="flex flex-col gap-4">
