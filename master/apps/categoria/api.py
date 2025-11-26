@@ -1,5 +1,4 @@
 from ninja import Router
-from typing import List
 from django.shortcuts import get_object_or_404
 from .models import Categoria , Icono, Color
 from .schemas import (
@@ -10,7 +9,7 @@ from .schemas import (
 from api.auth import session_auth
 from api.auth import AuthBearer
 from typing import Optional
-from typing import Optional, List, Dict, Any
+from typing import Optional
 from math import ceil
 from .schemas import CategoriaPaginatedResponse
 
