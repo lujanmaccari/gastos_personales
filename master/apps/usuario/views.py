@@ -28,7 +28,7 @@ class CustomLoginView(LoginView):
     template_name = "usuario/login.html"
 
     def form_invalid(self, form):
-        messages.error(self.request, "Usuario o contraseña incorrectos.") # no lo reconoce django
+        messages.error(self.request, "Usuario o contraseña incorrectos.")
         return super().form_invalid(form)
 
     def get_success_url(self):
