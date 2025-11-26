@@ -8,6 +8,7 @@ from apps.utils.calculations import (
     procesar_categorias,
 )
 from django.db.models import Sum
+from apps.utils.currency_mixins import ListViewCurrencyMixin
 
 
 class UserCategoriaQuerysetMixin:
@@ -17,10 +18,9 @@ class UserCategoriaQuerysetMixin:
         return Categoria.objects.filter(usuario=self.request.user)
 
 
-class CategoriaListView(LoginRequiredMixin, UserCategoriaQuerysetMixin, ListView):
-    """Vista principal de Categorías con:
-    - Lista de categorías del usuario.
-    """
+from decimal import Decimal
+
+class CategoriaListView(LoginRequiredMixin, UserCategoriaQuerysetMixin, ListView, ListViewCurrencyMixin):
     model = Categoria
     template_name = 'categoria/categoria.html'
     context_object_name = 'categorias'
@@ -31,23 +31,34 @@ class CategoriaListView(LoginRequiredMixin, UserCategoriaQuerysetMixin, ListView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         categorias = self.get_queryset()
-        
-        # Procesar categorías para agregar estilos
+        user_currency = self.get_user_currency()
+
         context["categorias"] = procesar_categorias(categorias)
-        
-        # Top 3 categorías más usadas
-        top_categorias = (
+
+        top_categorias_qs = (
             categorias
-            .filter(gasto__usuario=self.request.user)
             .annotate(total=Sum('gasto__monto'))
             .order_by("-total")[:3]
             .select_related("color", "icono")
         )
-        
-        context.update({
-            "top_categorias": procesar_categorias(top_categorias),
-        })
-        
+
+        for cat in top_categorias_qs:
+            gastos = cat.gasto_set.all().select_related('moneda')
+            total_convertido = Decimal('0.00')
+            for gasto in gastos:
+                from_currency = gasto.moneda.abreviatura if gasto.moneda else 'ARS'
+
+                monto_convertido = (
+                    gasto.monto if from_currency == user_currency else self.convert_to_user_currency(gasto.monto, from_currency)
+                )
+
+                total_convertido += monto_convertido
+                print(total_convertido, flush=True)
+            cat.total = total_convertido
+
+        context["top_categorias"] = top_categorias_qs
+        context["user_currency"] = user_currency
+
         return context
 
 
