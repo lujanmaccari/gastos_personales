@@ -10,7 +10,7 @@ class CategoriaForm(forms.ModelForm):
 
     class Meta:
         model = Categoria
-        fields = ['nombre', 'icono', 'color']
+        fields = ['nombre','descripcion', 'icono', 'color']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -59,3 +59,15 @@ class CategoriaForm(forms.ModelForm):
         # Usar la función que mapea nombres a colores
         color_obj = get_or_create_color(value)
         return color_obj
+    
+    def clean_descripcion(self):
+        descripcion = self.cleaned_data.get('descripcion', '').strip()
+
+        if not descripcion:
+            raise forms.ValidationError("Debe especificar una descripción")
+        
+        if self.instance:
+            self.instance.descripcion = descripcion
+            self.instance.save()
+
+        return descripcion

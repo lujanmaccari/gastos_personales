@@ -23,8 +23,6 @@ class RegisterView(CreateView):
         form_class._meta.model = User
         return form_class
 
-class HomeView(LoginRequiredMixin, TemplateView):
-    template_name = "dashboard/home.html"
 
 class CustomLoginView(LoginView):
     template_name = "usuario/login.html"

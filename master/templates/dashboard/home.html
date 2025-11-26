@@ -45,7 +45,7 @@
           {% elif crecimiento_ingresos < 0 %}
             <div class="flex items-center gap-1 text-red-600">
               <span class="material-symbols-outlined text-sm">arrow_downward</span>
-              <span class="text-sm font-medium">-{{ crecimiento_ingresos }}% vs. mes pasado</span>
+              <span class="text-sm font-medium">{{ crecimiento_ingresos }}% vs. mes pasado</span>
             </div>
           {% else %}
             <span class="text-gray-600 text-sm">0%</span>
