@@ -7,9 +7,10 @@ from apps.categoria.models import Categoria
 from datetime import datetime
 
 # Importar utilidades
-from apps.utils.calculations import calcular_variacion_mensual, calcular_distribucion_por_campo, calcular_saldo_mensual, asignar_iconos_y_colores_categorias_gastos
+from apps.utils.calculations import calcular_variacion_mensual, calcular_saldo_mensual
 from apps.utils.filters import aplicar_filtros_basicos, aplicar_busqueda, obtener_valores_filtros
 from apps.utils.currency_mixins import ListViewCurrencyMixin
+from apps.utils.categoria.style_helpers import get_badge_styles_from_hex
 
 
 class UserGastoQuerysetMixin:
@@ -29,7 +30,10 @@ class GastoListView(LoginRequiredMixin, UserGastoQuerysetMixin, ListViewCurrency
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = super().get_queryset().select_related('categoria', 'moneda', 'usuario')
+        queryset = super().get_queryset().select_related(
+            'categoria', 'moneda', 'usuario', 
+            'categoria__color', 'categoria__icono'
+        )
         
         # Aplicar búsqueda
         queryset = aplicar_busqueda(
@@ -59,86 +63,21 @@ class GastoListView(LoginRequiredMixin, UserGastoQuerysetMixin, ListViewCurrency
             usuario=usuario,
             fecha__month=hoy.month,
             fecha__year=hoy.year
-        ).select_related('moneda', 'categoria')
+        ).select_related('moneda', 'categoria', 'categoria__color', 'categoria__icono')
         
-        # Calcular total y distribución
-        total_gastos_convertido = Decimal('0.00')
-        gastos_por_categoria = {}
+        # Calcular distribución por categoría
+        gastos_por_categoria_dict = self._calcular_distribucion_categorias(
+            gastos_mes, user_currency
+        )
         
-        for gasto in gastos_mes:
-            # Conversión de moneda
-            gasto_currency = gasto.moneda.abreviatura if gasto.moneda else 'ARS'
-            monto_convertido = (
-                gasto.monto 
-                if gasto_currency == user_currency 
-                else self.convert_to_user_currency(gasto.monto, gasto_currency)
-            )
-            
-            total_gastos_convertido += monto_convertido
-            
-            # Acumular por categoría simultáneamente
-            categoria_nombre = gasto.categoria.nombre if gasto.categoria else 'Sin categoría'
-            if categoria_nombre not in gastos_por_categoria:
-                gastos_por_categoria[categoria_nombre] = Decimal('0.00')
-            gastos_por_categoria[categoria_nombre] += monto_convertido
+        total_gastos_convertido = gastos_por_categoria_dict['total']
+        gastos_por_categoria_list = gastos_por_categoria_dict['items']
         
-        # Calcular porcentajes para el gráfico
-        gastos_por_categoria_list = [
-            {
-                'categoria': categoria,
-                'total': monto,
-                'porcentaje': round((monto / total_gastos_convertido * 100), 2) if total_gastos_convertido > 0 else 0
-            }
-            for categoria, monto in gastos_por_categoria.items()
-        ]
+        # Asignar estilos a gastos individuales
+        self._asignar_estilos_gastos(context['gastos'])
         
-        gastos_por_categoria_list.sort(key=lambda x: x['porcentaje'], reverse=True)
-        
-        # Asignar iconos y colores al gráfico
-        gastos_por_categoria_list = asignar_iconos_y_colores_categorias_gastos(gastos_por_categoria_list)
-        
-        # Pre-calcular estilos de categorías
-        # Crear un diccionario de estilos por categoría
-        categorias_unicas = set()
-        for gasto in context['gastos']:
-            if gasto.categoria:
-                categorias_unicas.add(gasto.categoria.nombre)
-        
-        # Procesar todas las categorías
-        estilos_categorias = {}
-        if categorias_unicas:
-            temp_items = [{'categoria': cat} for cat in categorias_unicas]
-            items_procesados = asignar_iconos_y_colores_categorias_gastos(temp_items)
-            
-            for item in items_procesados:
-                estilos_categorias[item['categoria']] = {
-                    'icono': item.get('icono', 'fas fa-circle'),
-                    'color_icono': item.get('color_icono', 'text-gray-500'),
-                    'color_badge': item.get('color_badge', 'text-gray-800 bg-gray-100')
-                }
-        
-        # Estilos por defecto
-        estilos_default = {
-            'icono': 'fas fa-circle',
-            'color_icono': 'text-gray-500',
-            'color_badge': 'text-gray-800 bg-gray-100'
-        }
-        
-        # Asignar estilos
-        for gasto in context['gastos']:
-            if gasto.categoria and gasto.categoria.nombre in estilos_categorias:
-                estilos = estilos_categorias[gasto.categoria.nombre]
-            else:
-                estilos = estilos_default
-            
-            gasto.icono = estilos['icono']
-            gasto.color_icono = estilos['color_icono']
-            gasto.color_badge = estilos['color_badge']
-        
-        # Calcular variación
+        # Calcular variación y saldo
         variacion = calcular_variacion_mensual(Gasto, usuario)
-        
-        # Calcular saldo mensual
         saldo_info = calcular_saldo_mensual(usuario)
         
         # Obtener valores de filtros
@@ -162,6 +101,95 @@ class GastoListView(LoginRequiredMixin, UserGastoQuerysetMixin, ListViewCurrency
         })
         
         return context
+    
+    def _calcular_distribucion_categorias(self, gastos_mes, user_currency):
+        """
+        Calcula la distribución de gastos por categoría con colores e íconos de la BD.
+        """
+        total_convertido = Decimal('0.00')
+        gastos_por_categoria = {}
+        
+        for gasto in gastos_mes:
+            # Conversión de moneda
+            gasto_currency = gasto.moneda.abreviatura if gasto.moneda else 'ARS'
+            monto_convertido = (
+                gasto.monto 
+                if gasto_currency == user_currency 
+                else self.convert_to_user_currency(gasto.monto, gasto_currency)
+            )
+            
+            total_convertido += monto_convertido
+            
+            # Acumular por categoría
+            categoria_nombre = gasto.categoria.nombre if gasto.categoria else 'Sin categoría'
+            if categoria_nombre not in gastos_por_categoria:
+                gastos_por_categoria[categoria_nombre] = {
+                    'monto': Decimal('0.00'),
+                    'color': gasto.categoria.color.codigo_hex if gasto.categoria and gasto.categoria.color else '#9CA3AF',
+                    'icono': gasto.categoria.icono.icono if gasto.categoria and gasto.categoria.icono else 'fas fa-circle',
+                }
+            gastos_por_categoria[categoria_nombre]['monto'] += monto_convertido
+        
+        # Crear lista con porcentajes
+        items = [
+            {
+                'categoria': categoria,
+                'total': data['monto'],
+                'porcentaje': round((data['monto'] / total_convertido * 100), 2) if total_convertido > 0 else 0,
+                'color': data['color'],
+                'icono': data['icono'],
+            }
+            for categoria, data in gastos_por_categoria.items()
+        ]
+        
+        items.sort(key=lambda x: x['porcentaje'], reverse=True)
+        
+        return {
+            'total': total_convertido,
+            'items': items
+        }
+    
+    def _asignar_estilos_gastos(self, gastos_queryset):
+        """
+        Asigna estilos inline a cada gasto basándose en su categoría.
+        """
+        # Obtener categorías únicas
+        categorias_ids = {gasto.categoria.id for gasto in gastos_queryset if gasto.categoria}
+        
+        # Cargar estilos de categorías desde la BD
+        estilos_categorias = {}
+        if categorias_ids:
+            categorias = Categoria.objects.filter(
+                id__in=categorias_ids
+            ).select_related('color', 'icono')
+            
+            for cat in categorias:
+                color_hex = cat.color.codigo_hex if cat.color else '#9CA3AF'
+                icono_class = cat.icono.icono if cat.icono else 'fas fa-circle'
+                
+                estilos_categorias[cat.nombre] = {
+                    'icono': icono_class,
+                    'color_icono': f"color: {color_hex};",
+                    'color_badge': get_badge_styles_from_hex(color_hex)
+                }
+        
+        # Estilos por defecto
+        estilos_default = {
+            'icono': 'fas fa-circle',
+            'color_icono': 'color: #9CA3AF;',
+            'color_badge': 'background-color: rgba(156,163,175,0.15); color: rgb(75,85,99);'
+        }
+        
+        # Asignar estilos a cada gasto
+        for gasto in gastos_queryset:
+            if gasto.categoria and gasto.categoria.nombre in estilos_categorias:
+                estilos = estilos_categorias[gasto.categoria.nombre]
+            else:
+                estilos = estilos_default
+            
+            gasto.icono = estilos['icono']
+            gasto.color_icono = estilos['color_icono']
+            gasto.color_badge = estilos['color_badge']
 
 
 class GastoFieldsMixin:

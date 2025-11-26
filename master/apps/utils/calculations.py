@@ -5,6 +5,11 @@ from django.db.models import Sum
 from decimal import Decimal
 from datetime import datetime
 from django.db.models import Count
+from apps.utils.currency_service import CurrencyService
+from decimal import Decimal
+from datetime import datetime
+from apps.utils.categoria.style_helpers import darken_hex, rgba_from_hex
+
 
 def calcular_total_mensual(model, usuario, mes=None, año=None):
     """
@@ -42,9 +47,6 @@ def calcular_total_mensual_convertido(model, usuario, user_currency, mes=None, a
         mes: Mes a calcular
         año: Año a calcular
     """
-    from apps.utils.currency_service import CurrencyService
-    from decimal import Decimal
-    from datetime import datetime
     
     hoy = datetime.now()
     mes = mes or hoy.month
@@ -259,180 +261,102 @@ def asignar_iconos_y_colores_fuentes_ingresos(items):
     return items
 
 def asignar_colores_categorias_gastos():
-    """Retorna colores específicos para categorías de gasto"""
+    """
+    Retorna colores predeterminados para categorías de gasto.
+    Usado SOLO para inicializar la BD cuando no hay colores.
+    """
     colores = {
-        'comida': "#FFFB1C",      # Amarillo
-        'amarillo': "#FFFB1C",    
-        'hogar': '#EF4444',       # Rojo
-        'rojo': '#EF4444',        
-        'transporte': '#3B82F6',  # Azul
-        'azul': '#3B82F6',        
-        'compras': '#8B5CF6',     # Violeta
-        'violeta': '#8B5CF6',     
-        'servicios': '#06B6D4',   # Cyan
-        'ocio': "#12CA31",        # Verde
-        'verde': "#12CA31",       
-        'salud': "#A4E2FF",       # Celeste
-        'educación': '#D946EF',   # Rosa 
-        'rosa': '#D946EF',        
-        'viaje': '#FFA500',       # Naranja
-        'naranja': '#FFA500',     
-        'otro': '#9CA3AF',        # Gris
-        'gris': '#9CA3AF',        
+        'comida': "#FFFB1C",
+        'amarillo': "#FFFB1C",
+        'hogar': '#EF4444',
+        'rojo': '#EF4444',
+        'transporte': '#3B82F6',
+        'azul': '#3B82F6',
+        'compras': '#8B5CF6',
+        'violeta': '#8B5CF6',
+        'servicios': '#06B6D4',
+        'ocio': "#12CA31",
+        'verde': "#12CA31",
+        'salud': "#A4E2FF",
+        'educación': '#D946EF',
+        'rosa': '#D946EF',
+        'viaje': '#FFA500',
+        'naranja': '#FFA500',
+        'otro': '#9CA3AF',
+        'gris': '#9CA3AF',
     }
     return colores
+
 def asignar_iconos_y_colores_categorias_gastos(items):
     """
-    Asigna íconos y colores a fuentes de ingreso basándose en el nombre.
-
-    Args:
-        items: Lista de diccionarios con la clave 'fuente'
-
-    Returns:
-        list: Items con las claves 'icono', 'color_badge', y 'colores' agregadas
-    """
+        Se mantiene solo para compatibilidad con código legacy.
+        Los colores e íconos ahora vienen directamente de la BD.
+        """
     colores_categorias = asignar_colores_categorias_gastos()
     
-    for i, item in enumerate(items):
-        # Obtener el nombre de la categoria (puede venir como 'categoria' o 'nombre')
-        nombre = item.get("categoria", item.get("nombre", ""))
-        
-        if nombre is None:
-            nombre = "otro"
-        else:
-            nombre = nombre.lower()
-            
-        # Asignar color del gráfico
-        item['color'] = colores_categorias.get(nombre, colores_categorias['otro'])
-        
-        # Asignar ícono y color del badge según el nombre
-        if "comida" in nombre or "alimentos" in nombre:
-            item["icono"] = "fas fa-utensils"
-            item["color_icono"] = "text-yellow-500"
-            item["color_badge"] = "text-yellow-800 bg-yellow-100"
-        elif "hogar" in nombre or "alquiler" in nombre:
-            item["icono"] = "fas fa-home"
-            item["color_icono"] = "text-red-500"
-            item["color_badge"] = "text-red-800 bg-red-100"
-        elif "transporte" in nombre or "movilidad"in nombre:
-            item["icono"] = "fas fa-bus"
-            item["color_icono"] = "text-blue-500"
-            item["color_badge"] = "text-blue-800 bg-blue-100"
-        elif "compras" in nombre or "shopping" in nombre:
-            item["icono"] = "fas fa-shopping-bag"
-            item["color_icono"] = "text-purple-500"
-            item["color_badge"] = "text-purple-800 bg-purple-100"
-        elif "servicios" in nombre:
-            item["icono"] = "fas fa-concierge-bell"
-            item["color_icono"] = "text-cyan-500"
-            item["color_badge"] = "text-cyan-800 bg-cyan-100"
-        elif "ocio" in nombre or "entretenimiento" in nombre:
-            item["icono"] = "fas fa-film"
-            item["color_icono"] = "text-green-500"
-            item["color_badge"] = "text-green-800 bg-green-100"
-        elif "salud" in nombre:
-            item["icono"] = "fas fa-heartbeat"
-            item["color_icono"] = "text-sky-500"
-            item["color_badge"] = "text-sky-800 bg-sky-100"
-        elif "educación" in nombre:
-            item["icono"] = "fas fa-book"
-            item["color_icono"] = "text-pink-500"
-            item["color_badge"] = "text-pink-800 bg-pink-100"
-        elif "viaje" in nombre or "vacaciones" in nombre:
-            item["icono"] = "fas fa-plane"
-            item["color_icono"] = "text-orange-500"
-            item["color_badge"] = "text-orange-800 bg-orange-100"
-        else:
-            item["icono"] = "fas fa-dollar-sign"
-            item["color_icono"] = "text-gray-500"
-            item["color_badge"] = "text-gray-800 bg-gray-100"
+    ICON_MAP = {
+        "comida": "fas fa-utensils",
+        "hogar": "fas fa-home",
+        "transporte": "fas fa-bus",
+        "compras": "fas fa-shopping-bag",
+        "servicios": "fas fa-concierge-bell",
+        "ocio": "fas fa-film",
+        "salud": "fas fa-heartbeat",
+        "educación": "fas fa-book",
+        "viaje": "fas fa-plane",
+    }
+    
+    for item in items:
+        nombre = item.get("categoria", item.get("nombre", "")).lower()
+        item['color'] = colores_categorias.get(nombre, colores_categorias.get('otro', '#9CA3AF'))
+        item['icono'] = ICON_MAP.get(nombre, "fas fa-dollar-sign")
     
     return items
 
 def procesar_categorias(items):
     """
-        Procesa categorías para agregar estilos CSS inline.
-        
-        Args:
-            items: QuerySet de Categoria con .select_related('color', 'icono')
-        
-        Returns:
-            list: Lista de diccionarios con estilos procesados
-        """
-        
-    def darken_hex(hex_code, factor=0.75):
-        """Oscurece un color hexadecimal"""
-        hex_code = hex_code.lstrip("#")
-        r = int(hex_code[0:2], 16)
-        g = int(hex_code[2:4], 16)
-        b = int(hex_code[4:6], 16)
-
-        r = int(r * factor)
-        g = int(g * factor)
-        b = int(b * factor)
-
-        return f"#{r:02x}{g:02x}{b:02x}"
-
-    def rgba_from_hex(hex_code, opacity=0.15):
-        """Convierte hex a rgba con opacidad"""
-        hex_code = hex_code.lstrip("#")
-        r = int(hex_code[0:2], 16)
-        g = int(hex_code[2:4], 16)
-        b = int(hex_code[4:6], 16)
-
-        return f"rgba({r},{g},{b},{opacity})"
-
+    Procesa categorías para agregar estilos CSS inline.
+    Usado SOLO en CategoriaListView para mostrar la lista de categorías.
+    
+    Args:
+        items: QuerySet de Categoria con .select_related('color', 'icono')
+    
+    Returns:
+        list: Lista de diccionarios con estilos procesados
+    """    
     # Mapeo de nombres a íconos FontAwesome
     ICON_MAP = {
         "comida": "fas fa-utensils",
         "alimentación": "fas fa-utensils",
-        "alimentacion": "fas fa-utensils",
-
         "transporte": "fas fa-bus",
-
         "hogar": "fas fa-home",
-        "casa": "fas fa-home",
-
         "entretenimiento": "fas fa-film",
         "ocio": "fas fa-film",
-
         "gimnasio": "fas fa-dumbbell",
-        "gym": "fas fa-dumbbell",
-
         "viaje": "fas fa-plane",
-        "viajes": "fas fa-plane",
-
         "educacion": "fas fa-book",
         "educación": "fas fa-book",
-
         "salud": "fas fa-heartbeat",
-
         "mascotas": "fas fa-paw",
-        "mascota": "fas fa-paw",
-
         "regalo": "fas fa-gift",
-        "regalos": "fas fa-gift",
-
         "compras": "fas fa-shopping-bag",
-        "compra": "fas fa-shopping-bag",
-        }
+    }
 
     procesadas = []
 
     for cat in items:
-        # Obtener el código hex del color
+        # Obtener color
         base = cat.color.codigo_hex if cat.color else "#9CA3AF"
         darker = darken_hex(base)
         bg = rgba_from_hex(base, 0.15)
-            
-        # Obtener la clase del ícono
-        # Primero intentar del objeto icono.icono, sino del mapeo
+        
+        # Obtener ícono (primero de BD, sino del mapeo)
         if cat.icono:
             icon_class = cat.icono.icono
         else:
             icon_class = ICON_MAP.get(cat.nombre.lower(), "fas fa-circle")
 
-        # Crear diccionario con todos los atributos del objeto original
+        # Crear diccionario
         cat_dict = {
             'id': cat.id,
             'nombre': cat.nombre,
@@ -440,14 +364,13 @@ def procesar_categorias(items):
             'usuario_id': cat.usuario_id,
             'color_id': cat.color_id,
             'icono_id': cat.icono_id,
-            # Agregar el total si existe (para top_categorias)
-            'total': getattr(cat, 'total', None),
+            'total': getattr(cat, 'total', None),  # Para top_categorias
             # Estilos procesados
             'icono': icon_class,
-            'color_icono': f"color: {base};",       
-            'color_bg': f"background-color: {bg};",  
+            'color_icono': f"color: {base};",
+            'color_bg': f"background-color: {bg};",
             'color_texto': f"color: {darker};",
-            }
+        }
         
         procesadas.append(cat_dict)
 

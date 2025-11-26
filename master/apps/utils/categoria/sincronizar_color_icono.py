@@ -108,6 +108,8 @@ def get_or_create_color(nombre_color):
     return color
 
 
+
+
 def initialize_default_colors_and_icons():
     """
     Inicializa los colores e íconos predeterminados usando calculations.py
