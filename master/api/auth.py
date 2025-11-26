@@ -11,8 +11,6 @@ class AuthBearer(HttpBearer):
     """
     def authenticate(self, request, token):
         try:
-            # Aquí puedes implementar tu lógica de validación de token
-            # Por ahora usaremos una validación simple
             user = User.objects.filter(auth_token__key=token).first()
             if user:
                 return user
@@ -27,9 +25,4 @@ class SessionAuth:
             return request.user
         return None
 
-
-# Para usar autenticación de sesión (más simple para desarrollo)
-# from ninja.security import django_auth
-
-# Exportar para uso en otros módulos
 session_auth =  SessionAuth()

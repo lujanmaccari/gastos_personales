@@ -35,10 +35,10 @@ def listar_categorias(
         queryset = queryset.filter(nombre__icontains=nombre)
 
     if icono:
-        queryset = queryset.filter(icono__icono__iexact=icono)
+        queryset = queryset.filter(icono__icono__icontains=icono)
 
     if color:
-        queryset = queryset.filter(color__nombre__iexact=color)
+        queryset = queryset.filter(color__nombre__icontains=color)
 
     total = queryset.count()
 

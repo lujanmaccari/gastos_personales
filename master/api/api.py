@@ -9,16 +9,15 @@ api = NinjaAPI(
     title="API Gestión de Gastos Personales",
     version="1.0.0",
     description="API RESTful para gestionar gastos personales",
-    docs_url="/docs",  # Swagger UI estará en /api/docs
+    docs_url="/docs",  # Swagger UI en /api/docs
     auth=AuthBearer()
 )
 
-# Registrar los routers de cada módulo
+# Registrar los routers de cada modulo
 api.add_router("/ingresos", ingreso_router)
 api.add_router("/gastos", gasto_router)
 api.add_router("/categorias", categoria_router)
 
-# Endpoint de prueba
 @api.get("/health")
 def health_check(request):
     """Endpoint para verificar que la API está funcionando"""
