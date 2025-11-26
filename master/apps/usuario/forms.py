@@ -15,10 +15,11 @@ class MonedaForm(forms.ModelForm):
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Email")
     first_name = forms.CharField(required=True, label="Nombre")
+    last_name = forms.CharField(required=True, label="Apellido")
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ("username", "first_name", "email")
+        fields = ("username", "first_name", "last_name", "email")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -28,6 +29,9 @@ class CustomUserCreationForm(UserCreationForm):
         })
         self.fields["first_name"].widget.attrs.update({
             "placeholder": "Tu nombre",
+        })
+        self.fields["last_name"].widget.attrs.update({
+            "placeholder": "Tu apellido",
         })
         self.fields["email"].widget.attrs.update({
             "placeholder": "Ingresá tu email",
