@@ -1,0 +1,167 @@
+{% extends 'layout/frame.html' %}
+
+{% block title %}Simulador de ahorro{% endblock %}
+
+{% block sectionTitle %}Simulador de ahorro{% endblock %}
+
+{% load static %}
+{% block contenido_tabla %}
+<div class="w-full">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-10">
+    <button id="resetBtn" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-sm text-gray-700 shadow-sm border border-gray-200 hover:bg-gray-50 transition">
+      Reiniciar simulación
+      <span class="text-lg">↻</span>
+    </button>
+  </div>
+
+  <!-- Grid principal -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Panel izquierdo -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+      <h2 class="text-xl font-semibold mb-6">Ajusta tus variables</h2>
+
+      <!-- Ingresos -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-gray-700">Ingresos Mensuales</p>
+          <p id="ingresosValue" class="font-semibold">$3500</p>
+        </div>
+        <input id="ingresosInput" type="range" min="100" max="1000000" value="3500" class="w-full h-2 rounded-full accent-[#4BA3E3]" />
+      </div>
+
+      <!-- Gastos -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-gray-700">Gastos Mensuales</p>
+          <p id="gastosValue" class="font-semibold">$2000</p>
+        </div>
+        <input id="gastosInput" type="range" min="100" max="1000000" value="2000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#4BA3E3]" />
+      </div>
+
+      <!-- Meta -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-gray-700">Meta de Ahorro</p>
+          <p id="metaValue" class="font-semibold">$10000</p>
+        </div>
+        <input id="metaInput" type="range" min="100" max="1000000" value="10000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#4BA3E3]" />
+      </div>
+    </div>
+
+    <!-- Panel derecho -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+      <h2 class="text-xl font-semibold mb-6">Proyección de Saldo Futuro</h2>
+      <canvas id="chart" height="180"></canvas>
+    </div>
+  </div>
+
+  <!-- Insights -->
+  <div class="mt-10 bg-[#DDF1FF] border border-[#B7E2FF] rounded-2xl p-6 flex items-start gap-4">
+    <div class="text-[#4BA3E3] text-2xl">💡</div>
+    <div>
+      <p class="font-semibold text-[#0E171B]">Insights de Ahorro</p>
+      <p class="text-gray-700 mt-1">
+        En <span id="mesesMeta" class="font-semibold text-[#4BA3E3]">0</span> meses podrías ahorrar
+        <span id="ahorroMeta" class="font-semibold text-[#4BA3E3]">0</span> si mantienes tus ingresos y gastos.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+
+<script>
+  const ingresosInput = document.getElementById("ingresosInput");
+  const gastosInput = document.getElementById("gastosInput");
+  const metaInput = document.getElementById("metaInput");
+
+  const ingresosValue = document.getElementById("ingresosValue");
+  const gastosValue = document.getElementById("gastosValue");
+  const metaValue = document.getElementById("metaValue");
+
+  const mesesMetaEl = document.getElementById("mesesMeta");
+  const ahorroMetaEl = document.getElementById("ahorroMeta");
+
+  // Chart.js inicial
+  const ctx = document.getElementById('chart');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length:12}, (_,i)=>`Mes ${i+1}`),
+      datasets: [{
+        label: 'Saldo acumulado',
+        data: Array(12).fill(0),
+        borderColor: '#4BA3E3',
+        backgroundColor: 'rgba(75,163,227,0.25)',
+        borderWidth: 3,
+        tension: 0.35,
+        pointBackgroundColor: '#FFFFFF',
+        pointBorderColor: '#4BA3E3',
+        pointBorderWidth: 2,
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#E5EAF0' }, ticks: { color: '#6B7280' } },
+        x: { grid: { display: false }, ticks: { color: '#6B7280' } }
+      }
+    }
+  });
+
+  function actualizarLabels(){
+    ingresosValue.textContent = "$" + ingresosInput.value;
+    gastosValue.textContent = "$" + gastosInput.value;
+    metaValue.textContent = "$" + metaInput.value;
+  }
+
+  async function calcular() {
+    actualizarLabels();
+
+    const formData = new FormData();
+    formData.append("ingresos", ingresosInput.value);
+    formData.append("gastos", gastosInput.value);
+    formData.append("meta", metaInput.value);
+
+    const response = await fetch("{% url 'simulador-calcular' %}", {
+      method: "POST",
+      headers: { "X-CSRFToken": "{{ csrf_token }}" },
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if(data.error){
+      alert(data.error);
+      return;
+    }
+
+    // actualizar insight
+    mesesMetaEl.textContent = data.meses_objetivo;
+    ahorroMetaEl.textContent = data.proyeccion[data.proyeccion.length - 1];
+
+    // actualizar chart
+    chart.data.datasets[0].data = data.proyeccion.slice(0,12); // solo 12 meses
+    chart.update();
+  }
+
+  // recalcular al cambiar cualquier slider
+  ingresosInput.addEventListener('input', calcular);
+  gastosInput.addEventListener('input', calcular);
+  metaInput.addEventListener('input', calcular);
+
+  // resetear valores
+  document.getElementById("resetBtn").addEventListener('click', () => {
+    ingresosInput.value = 3500;
+    gastosInput.value = 2000;
+    metaInput.value = 10000;
+    calcular();
+  });
+
+  // calcular al cargar la página
+  window.addEventListener('DOMContentLoaded', calcular);
+</script>
+{% endblock %}

@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Categorías
+{% endblock %}
+
+{% block sectionTitle %}
+  Nueva categoría
+{% endblock %}
+
+{% block content %}
+<div class="px-4 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+  <div class="layout-content-container flex flex-col flex-1">
+    
+      {% if form.errors %}
+      <div class="p-4 bg-red-100 text-red-700 rounded-xl mb-4">
+        {{ form.errors }}
+      </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="flex flex-wrap justify-between gap-3 p-4">
+        <div class="flex min-w-72 flex-col gap-3">
+          <p class="text-zinc-400 text-base font-normal leading-normal">Personaliza tus categorías para un mejor seguimiento de los gastos.</p>
+        </div>
+      </div>
+
+      <!-- Nombre -->
+      <div>
+        <label class="flex flex-col flex-1">
+          <p class="text-[#0e171b] text-base font-medium leading-normal pb-2">Nombre de la categoría</p>
+          <input name="nombre" class="form-input flex w-full min-w-0 flex-1 rounded-xl text-[#0e171b] bg-background-light dark:bg-background-dark focus:border-primary h-14 placeholder:text-[#4e7f97] dark:placeholder-zinc-500 p-[15px]" placeholder="Ej: Comida, Transporte" value="{{ form.nombre.value|default:'' }}" />
+          {{ form.nombre.errors }}
+        </label>
+      </div>
+
+      <div class="p-4">
+        <!-- Íconos -->
+        <div class="flex flex-row gap-4">
+          
+          <!-- Comida -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-utensils" hidden />
+            <i class="fas fa-utensils text-3xl"></i>
+          </label>
+
+          <!-- Transporte -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-bus" hidden />
+            <i class="fas fa-bus text-3xl"></i>
+          </label>
+
+          <!-- Hogar -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-home" hidden />
+            <i class="fas fa-home text-3xl"></i>
+          </label>
+
+          <!-- Entretenimiento -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-film" hidden />
+            <i class="fas fa-film text-3xl"></i>
+          </label>
+
+          <!-- Gimnasio -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-dumbbell" hidden />
+            <i class="fas fa-dumbbell text-3xl"></i>
+          </label>
+
+          <!-- Viaje -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-plane" hidden />
+            <i class="fas fa-plane text-3xl"></i>
+          </label>
+
+          <!-- Educación -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-book" hidden />
+            <i class="fas fa-book text-3xl"></i>
+          </label>
+
+          <!-- Salud -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-heartbeat" hidden />
+            <i class="fas fa-heartbeat text-3xl"></i>
+          </label>
+
+          <!-- Mascotas -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-paw" hidden />
+            <i class="fas fa-paw text-3xl"></i>
+          </label>
+
+          <!-- Regalo -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-gift" hidden />
+            <i class="fas fa-gift text-3xl"></i>
+          </label>
+
+          <!-- Compras -->
+          <label class="flex items-center gap-2 cursor-pointer p-2 rounded-lg border icon-option">
+            <input type="radio" name="icono" value="fas fa-shopping-bag" hidden />
+            <i class="fas fa-shopping-bag text-3xl"></i>
+          </label>
+        </div>
+
+        <!-- Campo: Descripción (textarea) -->
+            <div>
+            <label for="{{ form.descripcion.id_for_label }}" 
+                    class="block text-sm font-medium text-gray-700 mb-2">
+                Descripción
+            </label>
+            <textarea 
+                name="{{ form.descripcion.name }}"
+                id="{{ form.descripcion.id_for_label }}"
+                rows="3"
+                class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                placeholder="Agregar descripción opcional...">{{ form.descripcion.value|default:'' }}</textarea>
+            {% if form.descripcion.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.descripcion.errors.0 }}</p>
+            {% endif %}
+            </div>
+
+        <div>
+          <h3 class="text-[#0e171b] text-base font-medium leading-normal pb-2">Selecciona un color</h3>
+          <div class="flex flex-row gap-4">
+            <!-- Amarillo -->
+            <label class="flex items-center gap-2 cursor-pointer color-option">
+              <input type="radio" name="color" value="amarillo" hidden />
+              <div class="rounded-full p-1 color-wrapper" data-color="#FFFB1C">
+                <div class="w-10 h-10 rounded-full" style="background-color: #FFFB1C;"></div>
+              </div>
+            </label>
+        
+            <!-- Azul -->
+            <label class="flex items-center gap-2 cursor-pointer color-option">
+              <input type="radio" name="color" value="azul" hidden />
+              <div class="rounded-full p-1 color-wrapper" data-color="#3B82F6">
+                <div class="w-10 h-10 rounded-full" style="background-color: #3B82F6;"></div>
+              </div>
+            </label>
+        
+            <!-- Violeta -->
+            <label class="flex items-center gap-2 cursor-pointer color-option">
+              <input type="radio" name="color" value="violeta" hidden />
+              <div class="rounded-full p-1 color-wrapper" data-color="#8B5CF6">
+                <div class="w-10 h-10 rounded-full" style="background-color: #8B5CF6;"></div>
+              </div>
+            </label>
+        
+            <!-- Verde -->
+            <label class="flex items-center gap-2 cursor-pointer color-option">
+              <input type="radio" name="color" value="verde" hidden />
+              <div class="rounded-full p-1 color-wrapper" data-color="#12CA31">
+                <div class="w-10 h-10 rounded-full" style="background-color: #12CA31;"></div>
+              </div>
+            </label>
+        
+            <!-- Naranja -->
+            <label class="flex items-center gap-2 cursor-pointer color-option">
+              <input type="radio" name="color" value="naranja" hidden />
+              <div class="rounded-full p-1 color-wrapper" data-color="#FFA500">
+                <div class="w-10 h-10 rounded-full" style="background-color: #FFA500;"></div>
+              </div>
+            </label>
+        
+            <!-- Rosa -->
+            <label class="flex items-center gap-2 cursor-pointer color-option">
+              <input type="radio" name="color" value="rosa" hidden />
+              <div class="rounded-full p-1 color-wrapper" data-color="#D946EF">
+                <div class="w-10 h-10 rounded-full" style="background-color: #D946EF;"></div>
+              </div>
+            </label>
+        
+            <!-- Rojo -->
+            <label class="flex items-center gap-2 cursor-pointer color-option">
+              <input type="radio" name="color" value="rojo" hidden />
+              <div class="rounded-full p-1 color-wrapper" data-color="#EF4444">
+                <div class="w-10 h-10 rounded-full" style="background-color: #EF4444;"></div>
+              </div>
+            </label>
+        
+            <!-- Gris -->
+            <label class="flex items-center gap-2 cursor-pointer color-option">
+              <input type="radio" name="color" value="gris" hidden />
+              <div class="rounded-full p-1 color-wrapper" data-color="#9CA3AF">
+                <div class="w-10 h-10 rounded-full" style="background-color: #9CA3AF;"></div>
+              </div>
+            </label>
+          </div>
+        
+          <!-- Vista previa -->
+          <div class="mt-4">
+            <h3 class="text-[#0e171b] text-base font-medium leading-normal pb-2">Vista Previa</h3>
+            <div class="flex items-center gap-4 w-full p-4 rounded-xl bg-zinc-100">
+              <div class="flex items-center justify-center w-16 h-16 rounded-full shrink-0 vista-previa-color" style="background-color: #FFFB1C;">
+                <i class="fas fa-utensils text-3xl text-white vista-previa-icon"></i>
+              </div>
+              <p class="text-[#0e171b] text-xl font-bold truncate vista-previa-nombre">{{ form.nombre.value|default:'Comida' }}</p>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex gap-3 pt-4">
+            <button 
+              type="submit"
+              class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-blue-500/20">
+              {% if object %}Guardar Cambios{% else %}Guardar Categoría{% endif %}
+            </button>
+            <a href="{% url 'categorias' %}"
+              class="px-8 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3.5 rounded-xl transition text-center">
+              Cancelar
+            </a>
+          </div>
+
+    </form>
+        </div>
+        
+        <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            const previewIcon = document.querySelector('.vista-previa-icon');
+            const previewContainer = document.querySelector('.vista-previa-color');
+            const previewName = document.querySelector('.vista-previa-nombre');
+            const nameInput = document.querySelector('input[name="nombre"]');
+          
+            // Actualizar vista previa del nombre
+            if (nameInput && previewName) {
+              nameInput.addEventListener('input', () => {
+                previewName.textContent = nameInput.value || 'Comida';
+              });
+            }
+          
+            // Íconos
+            const iconOptions = document.querySelectorAll('.icon-option');
+            iconOptions.forEach(option => {
+              const input = option.querySelector('input[type="radio"]');
+              const icon = option.querySelector('i');
+          
+              option.addEventListener('click', () => {
+                // Remover selección previa
+                iconOptions.forEach(opt => {
+                  opt.classList.remove('border-4', 'border-sky-200');
+                });
+                
+                // Marcar como seleccionado
+                option.classList.add('border-4', 'border-sky-200');
+                input.checked = true;
+                
+                // Actualizar vista previa
+                if (previewIcon && icon) {
+                  previewIcon.className = icon.className;
+                }
+              });
+            });
+          
+            // Colores
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+              const input = option.querySelector('input[type="radio"]');
+              const wrapper = option.querySelector('.color-wrapper');
+              const colorHex = wrapper.getAttribute('data-color');
+          
+              option.addEventListener('click', () => {
+                // Remover selección previa
+                colorOptions.forEach(opt => {
+                  const w = opt.querySelector('.color-wrapper');
+                  w.style.border = 'none';
+                });
+                
+                // Marcar como seleccionado
+                wrapper.style.border = `4px solid ${colorHex}`;
+                input.checked = true;
+                
+                // Actualizar vista previa
+                if (previewContainer) {
+                  previewContainer.style.backgroundColor = colorHex;
+                }
+              });
+            });
+          
+            // Selección por defecto al cargar (primer ícono y primer color)
+            if (iconOptions.length > 0) {
+              iconOptions[0].click();
+            }
+            
+            if (colorOptions.length > 0) {
+              colorOptions[0].click();
+            }
+          });
+        </script>
+          
+          
+{% endblock %}
