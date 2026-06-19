@@ -10,7 +10,7 @@ from decimal import Decimal
 from .forms import IngresoForm
 
 # Importar utilidades
-from apps.utils.calculations import calcular_variacion_mensual, asignar_iconos_y_colores_fuentes_ingresos
+from apps.utils.calculations import calcular_variacion_mensual, asignar_iconos_y_colores_fuentes_ingresos, MESES_ES
 from apps.utils.filters import aplicar_filtros_basicos, aplicar_busqueda, obtener_valores_filtros
 from apps.utils.currency_mixins import ListViewCurrencyMixin
 
@@ -108,10 +108,19 @@ class IngresoListView(LoginRequiredMixin, UserIngresoQuerysetMixin, ListViewCurr
         # Obtener moneda del usuario
         moneda_usuario = usuario.moneda.abreviatura if hasattr(usuario, 'moneda') and usuario.moneda else '$'
         
+        # Asignar estilos de fuente directamente a cada ingreso del listado
+        # (ingresos_por_fuente solo cubre el mes actual; la tabla puede mostrar cualquier mes)
+        for ingreso in context['ingresos']:
+            raw_nombre = ingreso.fuente.nombre if ingreso.fuente else ''
+            styled = asignar_iconos_y_colores_fuentes_ingresos([{'fuente': raw_nombre}])
+            ingreso.icono_fuente = styled[0]['icono']
+            ingreso.color_icono_fuente = styled[0]['color_icono']
+            ingreso.color_badge_fuente = styled[0]['color_badge']
+
         context.update({
             'total_ingresos_mensual': total_ingresos_convertido,
             'variacion_porcentual': variacion['variacion_porcentual'],
-            'mes_nombre': hoy.strftime('%B'),
+            'mes_nombre': MESES_ES[hoy.month],
             'ingresos_por_fuente': ingresos_por_fuente_list,
             'total_general': total_ingresos_convertido,
             'fuentes_disponibles': Fuente.objects.filter(usuario=self.request.user),

@@ -1,16 +1,14 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from apps.ingreso.models import Ingreso
-from apps.gasto.models import Gasto
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum
 import calendar
 from django.views.generic import TemplateView
+from apps.ingreso.models import Ingreso
+from apps.gasto.models import Gasto
 from apps.utils.currency_mixins import DashboardCurrencyMixin
+from apps.utils.calculations import calcular_crecimiento
 
 # Create your views here.
 
@@ -35,9 +33,7 @@ class DashboardCalculatorMixin:
         return timezone.now() - timedelta(days=60)
 
     def calculate_growth(self, current, previous):
-        if previous == 0:
-            return 0
-        return round((current - previous) / previous * 100, 2)
+        return calcular_crecimiento(current, previous)
 
     # ----------- INGRESOS -----------
     def total_ingresos_mes(self):
@@ -150,28 +146,18 @@ class DashboardView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Usar métodos con conversión
+        user_currency = self.get_user_currency()
+
+        # Totales con conversión de moneda
         ingresos_actual = self.total_ingresos_mes_converted()
-        gastos_actual = self.total_gastos_mes_converted()
+        gastos_actual   = self.total_gastos_mes_converted()
         balance_mensual = self.balance_mensual_converted()
-        balance_mensual_pasado = self.balance_mensual_pasado_converted()
-        
-        # Calcular crecimiento con valores convertidos
-        crecimiento_ingresos = self.calculate_growth(
-            ingresos_actual,
-            self.total_ingresos_mes_pasado_converted()
-        )
-        
-        crecimiento_gastos = self.calculate_growth(
-            gastos_actual,
-            self.total_gastos_mes_pasado_converted()
-        )
-        
-        crecimiento_balance = self.calculate_growth(
-            balance_mensual,
-            balance_mensual_pasado
-        )
-        
+        balance_pasado  = self.balance_mensual_pasado_converted()
+
+        crecimiento_ingresos = calcular_crecimiento(ingresos_actual, self.total_ingresos_mes_pasado_converted())
+        crecimiento_gastos   = calcular_crecimiento(gastos_actual,   self.total_gastos_mes_pasado_converted())
+        crecimiento_balance  = calcular_crecimiento(balance_mensual, balance_pasado)
+
         top_categoria_mes = self.top_categoria_mes()
         meses, valores = self.get_6_meses_gastos_chart_converted()
 
@@ -182,11 +168,10 @@ class DashboardView(
             'crecimiento_gastos': crecimiento_gastos,
             'balance_mensual': balance_mensual,
             'crecimiento_balance': crecimiento_balance,
-            'balance_mensual_pasado': balance_mensual_pasado,
             'top_categoria_mes': top_categoria_mes,
             'ultimos_meses': meses,
             'valores_gastos_mensuales': valores,
-            'user_currency': self.get_user_currency(),
+            'user_currency': user_currency,
         })
 
         return context

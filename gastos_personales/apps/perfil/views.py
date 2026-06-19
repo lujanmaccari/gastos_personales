@@ -4,6 +4,7 @@ from django.views.generic import TemplateView, DeleteView, View
 from django.urls import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
+from django.http import JsonResponse
 from django.db.models import Count
 
 from .forms import PerfilForm
@@ -142,6 +143,36 @@ class FuenteCreateView(LoginRequiredMixin, View):
 
         Fuente.objects.create(nombre=nombre, usuario=request.user)
         messages.success(request, "Fuente creada.")
+        return redirect("perfil_detail")
+
+
+class FuenteUpdateView(LoginRequiredMixin, View):
+    def get(self, request, pk, *args, **kwargs):
+        return redirect("perfil_detail")
+
+    def post(self, request, pk, *args, **kwargs):
+        fuente = get_object_or_404(Fuente, pk=pk, usuario=request.user)
+        nombre = request.POST.get("nombre", "").strip()
+        is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+        if not nombre:
+            if is_ajax:
+                return JsonResponse({"status": "error", "errors": {"nombre": ["Ingresá un nombre."]}}, status=400)
+            messages.error(request, "Ingresá un nombre.")
+            return redirect("perfil_detail")
+
+        if Fuente.objects.filter(usuario=request.user, nombre__iexact=nombre).exclude(pk=pk).exists():
+            if is_ajax:
+                return JsonResponse({"status": "error", "errors": {"nombre": [f"Ya tenés una fuente llamada «{nombre}»."]}}, status=400)
+            messages.error(request, f"Ya tenés una fuente llamada «{nombre}».")
+            return redirect("perfil_detail")
+
+        fuente.nombre = nombre
+        fuente.save()
+
+        if is_ajax:
+            return JsonResponse({"status": "ok"})
+        messages.success(request, "Fuente actualizada.")
         return redirect("perfil_detail")
 
 

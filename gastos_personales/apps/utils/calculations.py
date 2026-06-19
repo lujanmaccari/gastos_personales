@@ -6,9 +6,22 @@ from decimal import Decimal
 from datetime import datetime
 from django.db.models import Count
 from apps.utils.currency_service import CurrencyService
-from decimal import Decimal
-from datetime import datetime
 from apps.utils.categoria.style_helpers import darken_hex, rgba_from_hex
+
+MESES_ES = [
+    '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+]
+
+def calcular_crecimiento(actual, anterior):
+    """
+    Variación porcentual entre dos períodos.
+    Devuelve 100 cuando anterior=0 y actual>0 (período nuevo con datos).
+    Consistente con calcular_variacion_mensual.
+    """
+    if anterior > 0:
+        return round((actual - anterior) / anterior * 100, 1)
+    return 100 if actual > 0 else 0
 
 
 def calcular_total_mensual(model, usuario, mes=None, año=None):
@@ -204,6 +217,26 @@ def asignar_colores_fuentes_ingresos():
     }
     return colores
 
+_PALETTE_COLORS = [
+    '#06B6D4', '#F59E0B', '#84CC16', '#3B82F6',
+    '#8B5CF6', '#EF4444', '#EC4899', '#14B8A6',
+    '#F97316', '#6366F1', '#10B981', '#F43F5E',
+]
+_PALETTE_TAILWIND = [
+    ('text-cyan-500',   'text-cyan-800 bg-cyan-100'),
+    ('text-amber-500',  'text-amber-800 bg-amber-100'),
+    ('text-lime-500',   'text-lime-800 bg-lime-100'),
+    ('text-blue-500',   'text-blue-800 bg-blue-100'),
+    ('text-violet-500', 'text-violet-800 bg-violet-100'),
+    ('text-red-500',    'text-red-800 bg-red-100'),
+    ('text-pink-500',   'text-pink-800 bg-pink-100'),
+    ('text-teal-500',   'text-teal-800 bg-teal-100'),
+    ('text-orange-500', 'text-orange-800 bg-orange-100'),
+    ('text-indigo-500', 'text-indigo-800 bg-indigo-100'),
+    ('text-emerald-500','text-emerald-800 bg-emerald-100'),
+    ('text-rose-500',   'text-rose-800 bg-rose-100'),
+]
+
 def asignar_iconos_y_colores_fuentes_ingresos(items):
     """
     Asigna íconos y colores a fuentes de ingreso basándose en el nombre.
@@ -215,49 +248,58 @@ def asignar_iconos_y_colores_fuentes_ingresos(items):
         list: Items con las claves 'icono', 'color_badge', y 'colores' agregadas
     """
     colores_fuentes = asignar_colores_fuentes_ingresos()
-    
+    palette_index = 0
+
     for i, item in enumerate(items):
         # Obtener el nombre de la fuente (puede venir como 'fuente' o 'nombre')
         nombre = item.get("fuente", item.get("nombre", ""))
-        
+
         if nombre is None:
             nombre = "otro"
         else:
             nombre = nombre.lower()
-        
-        # Asignar color del gráfico
-        item['color'] = colores_fuentes.get(nombre, colores_fuentes['otro'])
-        
-        # Asignar ícono y color del badge según el nombre
+
+        # Asignar ícono y color del badge según el nombre con keyword matching
         if "sueldo" in nombre or "salario" in nombre:
             item["icono"] = "fas fa-briefcase"
             item["color_icono"] = "text-cyan-500"
             item["color_badge"] = "text-cyan-800 bg-cyan-100"
+            item['color'] = colores_fuentes['sueldo']
         elif "freelance" in nombre:
             item["icono"] = "fas fa-laptop-code"
             item["color_icono"] = "text-amber-500"
             item["color_badge"] = "text-amber-800 bg-amber-100"
+            item['color'] = colores_fuentes['freelance']
         elif "devolución" in nombre or "devoluciones" in nombre:
             item["icono"] = "fas fa-undo"
             item["color_icono"] = "text-lime-500"
             item["color_badge"] = "text-lime-800 bg-lime-100"
+            item['color'] = colores_fuentes['devolución']
         elif "inversión" in nombre or "inversiones" in nombre:
             item["icono"] = "fas fa-chart-line"
             item["color_icono"] = "text-blue-500"
             item["color_badge"] = "text-blue-800 bg-blue-100"
+            item['color'] = colores_fuentes['inversión']
         elif "bonificación" in nombre or "bono" in nombre:
             item["icono"] = "fas fa-gift"
             item["color_icono"] = "text-purple-500"
             item["color_badge"] = "text-purple-800 bg-purple-100"
+            item['color'] = colores_fuentes['bonificación']
         elif "venta" in nombre:
             item["icono"] = "fas fa-shopping-cart"
             item["color_icono"] = "text-red-500"
             item["color_badge"] = "text-red-800 bg-red-100"
+            item['color'] = colores_fuentes['venta']
         else:
+            # Usar paleta rotatoria para fuentes sin keyword match (evita que todo sea gris)
+            idx = palette_index % len(_PALETTE_COLORS)
+            icon_color, badge_color = _PALETTE_TAILWIND[idx]
             item["icono"] = "fas fa-dollar-sign"
-            item["color_icono"] = "text-gray-500"
-            item["color_badge"] = "text-gray-800 bg-gray-100"
-    
+            item["color_icono"] = icon_color
+            item["color_badge"] = badge_color
+            item['color'] = _PALETTE_COLORS[idx]
+            palette_index += 1
+
     return items
 
 def asignar_colores_categorias_gastos():

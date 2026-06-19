@@ -9,7 +9,7 @@ from apps.categoria.models import Categoria
 from datetime import datetime
 from .forms import GastoForm
 # Importar utilidades
-from apps.utils.calculations import calcular_variacion_mensual, calcular_saldo_mensual
+from apps.utils.calculations import calcular_variacion_mensual, calcular_saldo_mensual, MESES_ES
 from apps.utils.filters import aplicar_filtros_basicos, aplicar_busqueda, obtener_valores_filtros
 from apps.utils.currency_mixins import ListViewCurrencyMixin
 from apps.utils.categoria.style_helpers import get_badge_styles_from_hex
@@ -91,7 +91,7 @@ class GastoListView(LoginRequiredMixin, UserGastoQuerysetMixin, ListViewCurrency
         context.update({
             'total_gastos_mensual': total_gastos_convertido,
             'variacion_porcentual': variacion['variacion_porcentual'],
-            'mes_nombre': hoy.strftime('%B'),
+            'mes_nombre': MESES_ES[hoy.month],
             'gastos_por_categoria': gastos_por_categoria_list,
             'total_general_grafico': total_gastos_convertido,
             'categorias_disponibles': Categoria.objects.filter(usuario=usuario),

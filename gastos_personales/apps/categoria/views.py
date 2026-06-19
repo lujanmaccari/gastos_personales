@@ -9,7 +9,7 @@ from .forms import CategoriaForm
 from django.urls import reverse_lazy
 from django.db.models import Sum
 from apps.utils.calculations import procesar_categorias
-from apps.utils.currency_mixins import ListViewCurrencyMixin
+from apps.utils.currency_mixins import CurrencyConversionMixin
 
 
 class UserCategoriaQuerysetMixin:
@@ -19,10 +19,11 @@ class UserCategoriaQuerysetMixin:
         return Categoria.objects.filter(usuario=self.request.user)
 
 
-class CategoriaListView(LoginRequiredMixin, UserCategoriaQuerysetMixin, ListView, ListViewCurrencyMixin):
+class CategoriaListView(LoginRequiredMixin, UserCategoriaQuerysetMixin, CurrencyConversionMixin, ListView):
     model = Categoria
     template_name = 'categoria/categoria.html'
     context_object_name = 'categorias'
+    paginate_by = 10
 
     def get_queryset(self):
         qs = super().get_queryset().select_related('icono', 'color')
@@ -35,19 +36,23 @@ class CategoriaListView(LoginRequiredMixin, UserCategoriaQuerysetMixin, ListView
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        categorias = self.get_queryset()
         user_currency = self.get_user_currency()
         context['search_query'] = self.request.GET.get('search', '')
+        context['user_currency'] = user_currency
 
-        context["categorias"] = procesar_categorias(categorias)
+        # Procesar solo la página actual (ya paginada por ListView)
+        context["categorias"] = procesar_categorias(list(context["categorias"]))
 
+        # Top categorías usa el queryset completo filtrado (no paginado)
+        full_qs = self.get_queryset()
         top_categorias_qs = (
-            categorias
+            full_qs
             .annotate(total=Sum('gasto__monto'))
             .order_by("-total")[:3]
             .select_related("color", "icono")
         )
 
+        top_categorias_procesadas = []
         for cat in top_categorias_qs:
             gastos = cat.gasto_set.all().select_related('moneda')
             total_convertido = Decimal('0.00')
@@ -58,10 +63,17 @@ class CategoriaListView(LoginRequiredMixin, UserCategoriaQuerysetMixin, ListView
                     else self.convert_to_user_currency(gasto.monto, from_currency)
                 )
                 total_convertido += monto_convertido
-            cat.total = total_convertido
 
-        context["top_categorias"] = top_categorias_qs
-        context["user_currency"] = user_currency
+            color_hex = cat.color.codigo_hex if cat.color else '#9CA3AF'
+            top_categorias_procesadas.append({
+                'nombre': cat.nombre,
+                'total': total_convertido,
+                'icono': cat.icono.icono if cat.icono else 'fas fa-circle',
+                'color_icono': f"color: {color_hex};",
+                'color_hex': color_hex,
+            })
+
+        context["top_categorias"] = top_categorias_procesadas
 
         return context
 

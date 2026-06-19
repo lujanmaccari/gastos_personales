@@ -1,9 +1,9 @@
 from django.urls import path
 from .views import (
     PerfilDetailView, PerfilUpdateView,
-    PerfilDeleteView, MonedaCreateView, 
+    PerfilDeleteView, MonedaCreateView,
     MonedaDeleteView, FuenteCreateView,
-    FuenteDeleteView,
+    FuenteUpdateView, FuenteDeleteView,
 )
 
 urlpatterns = [
@@ -15,5 +15,6 @@ urlpatterns = [
     path("perfil/moneda/delete/<int:pk>/", MonedaDeleteView.as_view(), name="moneda_delete"),
 
     path("perfil/fuente/create/", FuenteCreateView.as_view(), name="fuente_create"),
+    path("perfil/fuente/update/<int:pk>/", FuenteUpdateView.as_view(), name="fuente_update"),
     path("perfil/fuente/delete/<int:pk>/", FuenteDeleteView.as_view(), name="fuente_delete"),
 ]

@@ -69,7 +69,7 @@
           {% elif crecimiento_gastos < 0 %}
             <div class="flex items-center gap-1 text-green-600">
               <span class="material-symbols-outlined text-sm">arrow_downward</span>
-              <span class="text-sm font-medium">-{{ crecimiento_gastos }}% vs. mes pasado</span>
+              <span class="text-sm font-medium">{{ crecimiento_gastos }}% vs. mes pasado</span>
             </div>
           {% else %}
             <div class="flex items-center gap-1 text-gray-500">
@@ -103,7 +103,7 @@
         </div>
       </div>
 
-      <!-- CARD: TOP CATEGORIA -->
+      <!-- CARD: TOP CATEGORÍA -->
       <div class="flex flex-col gap-2 rounded-xl p-6 bg-white/70 dark:bg-background-dark/50 shadow-sm">
         <p class="text-[#0e171b] text-base font-medium">Top categoría del mes 🏆</p>
         <p class="text-[#0e171b] text-3xl font-bold">{{ top_categoria_mes }}</p>
@@ -111,23 +111,27 @@
       </div>
     </div>
 
-    <!-- GRAFICO -->
+    <!-- GRAFICO EVOLUCIÓN -->
     <div class="mt-8 flex flex-col gap-2 rounded-xl border border-primary/20 p-6 bg-white/70 dark:bg-background-dark/50 shadow-sm">
       <p class="text-[#0e171b] text-lg font-bold">Evolución de Gastos</p>
 
-      <div class="flex gap-1 items-baseline">
-        <p class="text-gray-600 dark:text-gray-400">Últimos 6 meses</p>
-        <p class="text-green-600 dark:text-green-400 font-medium">+5%</p>
+      <div class="flex gap-2 items-center">
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Últimos 6 meses</p>
+        {% if crecimiento_gastos > 0 %}
+          <span class="flex items-center gap-0.5 text-red-600 text-sm font-medium">
+            <span class="material-symbols-outlined text-sm">arrow_upward</span>+{{ crecimiento_gastos }}%
+          </span>
+        {% elif crecimiento_gastos < 0 %}
+          <span class="flex items-center gap-0.5 text-green-600 text-sm font-medium">
+            <span class="material-symbols-outlined text-sm">arrow_downward</span>{{ crecimiento_gastos }}%
+          </span>
+        {% endif %}
       </div>
 
-      <!-- CONTENEDOR CON ALTURA FIJA -->
       <div class="w-full flex flex-col gap-4 py-2">
-        <!-- TARJETA DEL GRAFICO -->
         <div class="w-full">
           <canvas id="gastosChart" height="50"></canvas>
         </div>
-
-        <!-- Meses debajo -->
         <div class="flex justify-around mt-1">
           {% for mes in ultimos_meses %}
             <p class="text-gray-500 dark:text-gray-400 text-sm font-bold">{{ mes }}</p>
@@ -135,22 +139,21 @@
         </div>
       </div>
     </div>
+
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script>
+  document.addEventListener('DOMContentLoaded', function () {
     const labels = {{ ultimos_meses|safe }};
     const dataValues = {{ valores_gastos_mensuales|safe }};
     const userCurrency = '{{ user_currency }}';
-  
-    const ctx = document.getElementById('gastosChart');
 
-     // Configurar símbolo de moneda
-    const currencySymbols = {
-      'ARS': '$',
-      'USD': 'USD',
-      'EUR': '€'
-    };
+    const ctx = document.getElementById('gastosChart');
+    if (!ctx) return;
+
+    const currencySymbols = { 'ARS': '$', 'USD': 'USD', 'EUR': '€' };
     const currencySymbol = currencySymbols[userCurrency] || '$';
-  
+
     new Chart(ctx, {
       type: 'line',
       data: {
@@ -208,5 +211,7 @@
         }
       }
     });
+  }); // DOMContentLoaded
   </script>
+
 {% endblock %}

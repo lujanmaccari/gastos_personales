@@ -280,10 +280,10 @@
 {% endblock %}
 
 {% block contenido_tabla %}
-<div class="flex flex-col flex-1">
+<div class="w-full space-y-4">
 
   <!-- BÚSQUEDA DE CATEGORÍAS -->
-  <form method="get" action="{% url 'categorias' %}" id="catFilterForm" class="mb-6">
+  <form method="get" action="{% url 'categorias' %}" id="catFilterForm">
     <div class="flex items-center h-11 bg-gray-100 rounded-xl px-4 gap-3 max-w-md">
       <i class="fas fa-search text-gray-400 text-sm shrink-0"></i>
       <input type="text" name="search" id="catSearchInput" value="{{ search_query }}"
@@ -299,117 +299,148 @@
     </div>
   </form>
 
-  <!-- TOP CATEGORÍAS DEL MES -->
-  <div>
-    <p class="text-gray-900 text-base font-medium">Top categorías con mayores gastos del mes</p>
+  <!-- LAYOUT: Tabla izquierda + Top categorías derecha -->
+  <div class="flex flex-col lg:flex-row gap-6">
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-      {% for c in top_categorias %}
-      <div class="p-4 rounded-lg shadow bg-white border border-gray-200 flex flex-col items-start gap-2">
-        <div class="flex items-center gap-3">
-          <i class="{{ c.icono }} text-2xl" style="{{ c.color_icono }}"></i>
-          <span class="text-gray-800 font-medium">{{ c.nombre }}</span>
-        </div>
-        <p class="text-gray-700 text-xl font-bold mt-2">{{ c.total|format_currency:user_currency }}</p>
-      </div>
-      {% empty %}
-        <p class="text-gray-500 text-sm">Todavía no hay gastos para mostrar.</p>
-      {% endfor %}
-    </div>
-  </div>
+    <!-- TABLA DE CATEGORÍAS (izquierda 2/3) -->
+    <div class="flex-grow w-full lg:w-2/3">
+      <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Categoría</th>
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Descripción</th>
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Acciones</th>
+            </tr>
+          </thead>
 
-  <!-- TABLA DE CATEGORÍAS -->
-  <div class="mt-8">
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-      <table class="w-full">
-        <thead>
-          <tr class="bg-gray-50">
-            <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Categoría</th>
-            <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Descripción</th>
-            <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Acciones</th>
-          </tr>
-        </thead>
+          <tbody>
+            {% for categoria in categorias %}
+            <tr class="border-t border-gray-200 hover:bg-gray-50 transition-colors">
 
-        <tbody>
-          {% for categoria in categorias %}
-          <tr class="border-t border-gray-200 hover:bg-gray-50 transition-colors">
-
-            <td class="px-4 py-4 text-gray-700 text-sm">
-              <div class="flex items-center gap-3">
-                <i class="{{ categoria.icono }} text-xl" style="{{ categoria.color_icono }}"></i>
-                <span class="rounded-lg px-3 py-1 text-sm font-medium"
-                      style="{{ categoria.color_bg }} {{ categoria.color_texto }}">
-                  {{ categoria.nombre }}
-                </span>
-              </div>
-            </td>
-
-            <td class="px-4 py-4 text-gray-600 text-sm">
-              {{ categoria.descripcion|default:"Sin descripción" }}
-            </td>
-
-            <td class="px-4 py-4 text-gray-500 text-sm">
-              <div class="flex gap-4 items-center">
-                <button type="button"
-                        class="text-blue-500 hover:text-blue-700 transition cat-edit-btn"
-                        title="Editar"
-                        data-edit-url="{% url 'categoria_update' categoria.id %}"
-                        data-nombre="{{ categoria.nombre|escapejs }}"
-                        data-descripcion="{{ categoria.descripcion|escapejs }}"
-                        data-icono="{{ categoria.icono }}"
-                        data-color="{{ categoria.color_nombre }}">
-                  <i class="fas fa-edit"></i>
-                </button>
-
-                <!-- Detalles ocultos inyectados en el modal -->
-                <div id="cat-detail-{{ categoria.id }}" class="hidden">
-                  <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-2 text-sm">
-                    <p class="text-gray-500 text-xs mb-2">Estás a punto de eliminar la siguiente categoría:</p>
-                    <div class="flex items-center justify-between">
-                      <span class="text-gray-500"><i class="fas fa-tag text-gray-400 mr-2"></i>Categoría:</span>
-                      <span class="font-semibold text-gray-900">{{ categoria.nombre }}</span>
-                    </div>
-                    {% if categoria.descripcion %}
-                    <div class="pt-2 border-t border-gray-200">
-                      <span class="text-gray-500 block mb-1"><i class="fas fa-align-left text-gray-400 mr-2"></i>Descripción:</span>
-                      <p class="text-gray-700 italic text-xs">{{ categoria.descripcion }}</p>
-                    </div>
-                    {% endif %}
-                  </div>
+              <td class="px-4 py-4 text-gray-700 text-sm">
+                <div class="flex items-center gap-3">
+                  <i class="{{ categoria.icono }} text-xl" style="{{ categoria.color_icono }}"></i>
+                  <span class="rounded-lg px-3 py-1 text-sm font-medium"
+                        style="{{ categoria.color_bg }} {{ categoria.color_texto }}">
+                    {{ categoria.nombre }}
+                  </span>
                 </div>
+              </td>
 
-                <form method="post" action="{% url 'categoria_delete' categoria.id %}"
-                      data-confirm-delete
-                      data-title="¿Eliminar esta categoría?"
-                      data-subtitle="Esta acción no podrá deshacerse."
-                      data-details-id="cat-detail-{{ categoria.id }}"
-                      data-warning="Los gastos asociados a &ldquo;{{ categoria.nombre }}&rdquo; quedarán sin categoría asignada.">
-                  {% csrf_token %}
-                  <button type="submit" class="text-red-400 hover:text-red-600 transition" title="Eliminar">
-                    <i class="fas fa-trash text-sm"></i>
+              <td class="px-4 py-4 text-gray-600 text-sm">
+                {{ categoria.descripcion|default:"Sin descripción" }}
+              </td>
+
+              <td class="px-4 py-4 text-gray-500 text-sm">
+                <div class="flex gap-4 items-center">
+                  <button type="button"
+                          class="text-blue-500 hover:text-blue-700 transition cat-edit-btn"
+                          title="Editar"
+                          data-edit-url="{% url 'categoria_update' categoria.id %}"
+                          data-nombre="{{ categoria.nombre|escapejs }}"
+                          data-descripcion="{{ categoria.descripcion|escapejs }}"
+                          data-icono="{{ categoria.icono }}"
+                          data-color="{{ categoria.color_nombre }}">
+                    <i class="fas fa-edit"></i>
                   </button>
-                </form>
-              </div>
-            </td>
 
-          </tr>
+                  <div id="cat-detail-{{ categoria.id }}" class="hidden">
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-2 text-sm">
+                      <p class="text-gray-500 text-xs mb-2">Estás a punto de eliminar la siguiente categoría:</p>
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-500"><i class="fas fa-tag text-gray-400 mr-2"></i>Categoría:</span>
+                        <span class="font-semibold text-gray-900">{{ categoria.nombre }}</span>
+                      </div>
+                      {% if categoria.descripcion %}
+                      <div class="pt-2 border-t border-gray-200">
+                        <span class="text-gray-500 block mb-1"><i class="fas fa-align-left text-gray-400 mr-2"></i>Descripción:</span>
+                        <p class="text-gray-700 italic text-xs">{{ categoria.descripcion }}</p>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <form method="post" action="{% url 'categoria_delete' categoria.id %}"
+                        data-confirm-delete
+                        data-title="¿Eliminar esta categoría?"
+                        data-subtitle="Esta acción no podrá deshacerse."
+                        data-details-id="cat-detail-{{ categoria.id }}"
+                        data-warning="Los gastos asociados a &ldquo;{{ categoria.nombre }}&rdquo; quedarán sin categoría asignada.">
+                    {% csrf_token %}
+                    <button type="submit" class="text-red-400 hover:text-red-600 transition" title="Eliminar">
+                      <i class="fas fa-trash text-sm"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="text-center py-16">
+                <i class="fas fa-tags text-gray-300 text-6xl mb-4 block"></i>
+                <p class="text-gray-500 text-lg mb-4">No hay categorías creadas</p>
+                <button type="button" onclick="openCreateModal()"
+                        class="btn bg-blue-500 hover:bg-blue-600 text-white px-6 inline-flex items-center gap-2">
+                  <i class="fas fa-plus"></i>
+                  <span>Crear primera categoría</span>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación (mismo patrón que Gastos/Ingresos) -->
+      {% if is_paginated %}
+      <div class="mt-4 flex justify-center">
+        <div class="flex gap-2">
+          {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+             class="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 transition">
+            Anterior
+          </a>
+          {% endif %}
+          <span class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+          </span>
+          {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+             class="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 transition">
+            Siguiente
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div><!-- /tabla izquierda -->
+
+    <!-- PANEL DERECHO: Top categorías del mes (1/3) -->
+    <div class="w-full lg:w-1/3">
+      <div class="flex flex-col gap-4 p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
+        <p class="text-gray-900 text-base font-bold">Top del mes</p>
+        <p class="text-gray-500 text-xs -mt-2">Categorías con mayor gasto</p>
+
+        <div class="flex flex-col gap-3">
+          {% for c in top_categorias %}
+          <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-100">
+            <div class="flex items-center gap-3">
+              <i class="{{ c.icono }} text-xl" style="{{ c.color_icono }}"></i>
+              <span class="text-gray-800 text-sm font-medium">{{ c.nombre }}</span>
+            </div>
+            <span class="text-gray-900 text-sm font-bold">{{ c.total|format_currency:user_currency }}</span>
+          </div>
           {% empty %}
-          <tr>
-            <td colspan="3" class="text-center py-16">
-              <i class="fas fa-tags text-gray-300 text-6xl mb-4 block"></i>
-              <p class="text-gray-500 text-lg mb-4">No hay categorías creadas</p>
-              <button type="button" onclick="openCreateModal()"
-                      class="btn bg-blue-500 hover:bg-blue-600 text-white px-6 inline-flex items-center gap-2">
-                <i class="fas fa-plus"></i>
-                <span>Crear primera categoría</span>
-              </button>
-            </td>
-          </tr>
+          <p class="text-gray-400 text-sm text-center py-4">Todavía no hay gastos este mes.</p>
           {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
+        </div>
+      </div>
+    </div><!-- /panel derecho -->
+
+  </div><!-- /flex-row -->
 
 </div>
 
