@@ -1,7 +1,7 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="es" class="h-full">
   <head>
     {% load static %}
     <link rel="icon" type="image/x-icon" href="{% static 'images/image.png' %}" />
@@ -9,8 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/src/output.css' %}" />
     <link rel="stylesheet" href="{% static 'css/src/global.css' %}" />
-    <script src="https://unpkg.com/@heroicons/vue@latest/dist/heroicons.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
     <title>
@@ -23,7 +21,7 @@
   <body class="m-0 flex min-h-screen">
     {% block navbar %}
       {% if request.path != '/login/' and request.path != '/registro/' %}
-        <aside class="w-64 bg-[#1E293B] text-white h-screen shrink-0">
+        <aside class="w-64 h-screen shrink-0">
           {% include 'layout/sidebar.html' %}
         </aside>
       {% endif %}
@@ -31,19 +29,305 @@
 
     <main class="flex-1 min-h-screen px-6 pt-6 space-y-4 bg-[#F8FAFC]">
       {% if request.path != '/login/' and request.path != '/registro/' %}
+        {% if messages %}
+          <div class="space-y-2">
+            {% for message in messages %}
+              <div class="px-4 py-3 rounded-xl shadow-sm text-sm font-medium
+                {% if message.tags == 'success' %}bg-green-100 text-green-700
+                {% elif message.tags == 'error' %}bg-red-100 text-red-700
+                {% else %}bg-blue-100 text-blue-700{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
         <h1 class="text-2xl font-bold text-gray-800 cursor-default">
           {% block sectionTitle %}
-
           {% endblock %}
         </h1>
       {% endif %}
 
-
       {% block content %}
-
       {% endblock %}
     </main>
 
-    <div id="modal-content"></div>
+    <!-- Modal de advertencia de duplicado (reutilizable vía window.openDuplicateModal) -->
+    <div id="duplicateModal" class="hidden fixed inset-0 z-50 items-center justify-center">
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div id="duplicateModalCard"
+           class="relative bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 z-10
+                  transform transition-all duration-200 scale-95 opacity-0">
+        <div class="p-6">
+          <div class="flex items-start gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                 style="background-color: rgba(245,158,11,0.12);">
+              <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-semibold text-gray-900">Registro posiblemente duplicado</h3>
+              <p id="duplicateModalMessage" class="text-sm text-gray-500 mt-1"></p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button id="dupCancelBtn" type="button"
+                    class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition text-sm">
+              Cancelar
+            </button>
+            <button id="dupConfirmBtn" type="button"
+                    class="flex-1 px-4 py-2.5 text-white font-semibold rounded-xl transition text-sm"
+                    style="background-color: #f59e0b;">
+              Cargar igualmente
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación de eliminación (reutilizable vía data-confirm-delete) -->
+    <div id="modal-content">
+      <div id="deleteModal"
+           class="hidden fixed inset-0 z-50 items-center justify-center"
+           role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+
+        <!-- Overlay -->
+        <div id="deleteModalOverlay"
+             class="absolute inset-0 bg-black/40 transition-opacity duration-200"></div>
+
+        <!-- Card -->
+        <div class="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 z-10
+                    transform transition-all duration-200 scale-95 opacity-0"
+             id="deleteModalCard">
+
+          <!-- Header rojo -->
+          <div class="rounded-t-xl p-6 text-center" style="background: linear-gradient(to right, #ef4444, #dc2626);">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+                 style="background-color: rgba(255,255,255,0.2);">
+              <i class="fas fa-exclamation-triangle text-xl" style="color: white;"></i>
+            </div>
+            <h3 id="deleteModalTitle" class="text-lg font-bold leading-snug" style="color: white;">
+              ¿Eliminar este elemento?
+            </h3>
+            <p id="deleteModalSubtitle" class="text-sm mt-1" style="color: rgba(255,255,255,0.85);">
+              Esta acción no podrá deshacerse.
+            </p>
+          </div>
+
+          <!-- Cuerpo -->
+          <div class="p-6">
+
+            <!-- Mensaje corto (cuando no hay detalles) -->
+            <p id="deleteModalMessage" class="text-sm text-gray-600 mb-4 hidden"></p>
+
+            <!-- Detalles del ítem (inyectados desde data-details-id) -->
+            <div id="deleteModalDetails" class="hidden mb-4"></div>
+
+            <!-- Caja de advertencia -->
+            <div id="deleteModalWarning" class="hidden mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div class="flex gap-3">
+                <i class="fas fa-info-circle text-red-500 mt-0.5 shrink-0"></i>
+                <div class="text-sm text-red-800">
+                  <p class="font-medium mb-1">⚠️ Advertencia:</p>
+                  <p id="deleteModalWarningText">Una vez eliminado, este registro no podrá ser recuperado. Tus estadísticas y totales se actualizarán automáticamente.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error de backend -->
+            <div id="deleteModalError"
+                 class="hidden mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-3">
+              <button id="deleteModalCancel"
+                      type="button"
+                      class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700
+                             font-semibold rounded-xl transition text-sm">
+                Cancelar
+              </button>
+              <button id="deleteModalConfirm"
+                      type="button"
+                      class="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white
+                             font-semibold rounded-xl transition text-sm
+                             disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                <i class="fas fa-trash text-xs"></i>
+                <span id="deleteModalConfirmText">Eliminar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    /* === DUPLICATE WARNING MODAL === */
+    (function () {
+      var dupModal   = document.getElementById('duplicateModal');
+      var dupCard    = document.getElementById('duplicateModalCard');
+      var dupMsg     = document.getElementById('duplicateModalMessage');
+      var dupCancel  = document.getElementById('dupCancelBtn');
+      var dupConfirm = document.getElementById('dupConfirmBtn');
+      var _onConfirm = null;
+
+      window.openDuplicateModal = function (message, onConfirm) {
+        dupMsg.textContent = message || '';
+        _onConfirm = onConfirm || null;
+        dupModal.classList.remove('hidden');
+        dupModal.classList.add('flex');
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            dupCard.classList.remove('scale-95', 'opacity-0');
+            dupCard.classList.add('scale-100', 'opacity-100');
+          });
+        });
+      };
+
+      window.closeDuplicateModal = function () {
+        dupCard.classList.remove('scale-100', 'opacity-100');
+        dupCard.classList.add('scale-95', 'opacity-0');
+        setTimeout(function () {
+          dupModal.classList.add('hidden');
+          dupModal.classList.remove('flex');
+          _onConfirm = null;
+        }, 150);
+      };
+
+      dupCancel.addEventListener('click', closeDuplicateModal);
+
+      dupConfirm.addEventListener('click', function () {
+        var cb = _onConfirm;
+        closeDuplicateModal();
+        if (cb) { setTimeout(cb, 160); }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !dupModal.classList.contains('hidden')) {
+          closeDuplicateModal();
+        }
+      });
+    })();
+    </script>
+
+    <script>
+    (function () {
+      var modal       = document.getElementById('deleteModal');
+      var card        = document.getElementById('deleteModalCard');
+      var overlay     = document.getElementById('deleteModalOverlay');
+      var titleEl     = document.getElementById('deleteModalTitle');
+      var subtitleEl  = document.getElementById('deleteModalSubtitle');
+      var messageEl   = document.getElementById('deleteModalMessage');
+      var detailsEl   = document.getElementById('deleteModalDetails');
+      var warningEl   = document.getElementById('deleteModalWarning');
+      var warningTxt  = document.getElementById('deleteModalWarningText');
+      var errorEl     = document.getElementById('deleteModalError');
+      var cancelBtn   = document.getElementById('deleteModalCancel');
+      var confirmBtn  = document.getElementById('deleteModalConfirm');
+      var confirmTxt  = document.getElementById('deleteModalConfirmText');
+
+      var pendingForm = null;
+
+      function openModal(form) {
+        pendingForm = form;
+
+        var title      = form.getAttribute('data-title')      || '¿Eliminar este elemento?';
+        var subtitle   = form.getAttribute('data-subtitle')   || 'Esta acción no podrá deshacerse.';
+        var message    = form.getAttribute('data-message')    || '';
+        var detailsId  = form.getAttribute('data-details-id') || '';
+        var warningMsg = form.getAttribute('data-warning')    || '';
+
+        titleEl.textContent    = title;
+        subtitleEl.textContent = subtitle;
+
+        // Mensaje simple
+        if (message) {
+          messageEl.textContent = message;
+          messageEl.classList.remove('hidden');
+        } else {
+          messageEl.classList.add('hidden');
+        }
+
+        // Detalles del ítem (desde div oculto en el DOM)
+        if (detailsId) {
+          var src = document.getElementById(detailsId);
+          if (src) {
+            detailsEl.innerHTML = src.innerHTML;
+            detailsEl.classList.remove('hidden');
+          }
+        } else {
+          detailsEl.innerHTML = '';
+          detailsEl.classList.add('hidden');
+        }
+
+        // Advertencia
+        if (detailsId || warningMsg) {
+          warningTxt.textContent = warningMsg || 'Una vez eliminado, este registro no podrá ser recuperado. Tus estadísticas y totales se actualizarán automáticamente.';
+          warningEl.classList.remove('hidden');
+        } else {
+          warningEl.classList.add('hidden');
+        }
+
+        errorEl.classList.add('hidden');
+        setLoading(false);
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            card.classList.remove('scale-95', 'opacity-0');
+            card.classList.add('scale-100', 'opacity-100');
+          });
+        });
+
+        document.addEventListener('keydown', onEscape);
+      }
+
+      function closeModal() {
+        card.classList.remove('scale-100', 'opacity-100');
+        card.classList.add('scale-95', 'opacity-0');
+        setTimeout(function () {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          pendingForm = null;
+          setLoading(false);
+        }, 150);
+        document.removeEventListener('keydown', onEscape);
+      }
+
+      function setLoading(loading) {
+        confirmBtn.disabled = loading;
+        if (loading) {
+          confirmTxt.textContent = 'Eliminando...';
+          confirmBtn.querySelector('i').className = 'fas fa-spinner fa-spin text-xs';
+        } else {
+          confirmTxt.textContent = 'Eliminar';
+          confirmBtn.querySelector('i').className = 'fas fa-trash text-xs';
+        }
+      }
+
+      function onEscape(e) {
+        if (e.key === 'Escape') closeModal();
+      }
+
+      cancelBtn.addEventListener('click', closeModal);
+      overlay.addEventListener('click', closeModal);
+
+      confirmBtn.addEventListener('click', function () {
+        if (!pendingForm) return;
+        setLoading(true);
+        pendingForm.setAttribute('data-confirmed', '');
+        pendingForm.submit();
+      });
+
+      // Interceptar cualquier submit de un form con data-confirm-delete
+      document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (form.hasAttribute('data-confirm-delete') && !form.hasAttribute('data-confirmed')) {
+          e.preventDefault();
+          openModal(form);
+        }
+      });
+    })();
+    </script>
   </body>
 </html>

@@ -7,26 +7,140 @@
 {% block sectionTitle %}Mis Ingresos{% endblock %}
 
 {% block boton_flotante %}
-    <a href="{% url 'ingresos_create' %}"
-    class="fixed bottom-6 right-6 
-          bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 
-          text-white rounded-full w-16 h-16 
-          flex items-center justify-center 
-          shadow-[0_8px_20px_rgba(100,100,255,0.3)] 
-          backdrop-blur-md 
-          transition-transform hover:scale-110 hover:shadow-[0_10px_25px_rgba(120,120,255,0.4)]"
-    title="Nuevo Ingreso">
-  
-    <!-- Ícono "+" -->
-    <svg xmlns="http://www.w3.org/2000/svg" 
-        class="h-7 w-7" 
-        fill="none" 
-        viewBox="0 0 24 24" 
-        stroke="white" 
-        stroke-width="2">
+  <button type="button"
+          onclick="openCreateModal()"
+          class="fixed bottom-6 right-6
+                 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400
+                 text-white rounded-full w-16 h-16
+                 flex items-center justify-center
+                 shadow-[0_8px_20px_rgba(100,100,255,0.3)]
+                 backdrop-blur-md
+                 transition-transform hover:scale-110 hover:shadow-[0_10px_25px_rgba(120,120,255,0.4)]"
+          title="Nuevo Ingreso">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
     </svg>
-  </a>
+  </button>
+
+  <!-- Modal de creación de ingreso -->
+  <div id="createModal" class="hidden fixed inset-0 z-40 items-center justify-center">
+    <div class="absolute inset-0 bg-black/40" onclick="closeCreateModal()"></div>
+    <div id="createModalCard"
+         class="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 z-10
+                transform transition-all duration-200 scale-95 opacity-0 max-h-[90vh] overflow-y-auto">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">Nuevo Ingreso</h2>
+        <button type="button" onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600 transition">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="ingresoCreateForm" action="{% url 'ingresos_create' %}" method="post" class="p-6 space-y-4">
+        {% csrf_token %}
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha</label>
+          {{ create_form.fecha }}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Fuente</label>
+          {{ create_form.fuente }}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Monto</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none">$</span>
+            {{ create_form.monto }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Descripción <span class="text-gray-400 font-normal">(opcional)</span></label>
+          {{ create_form.descripcion }}
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeCreateModal()"
+                  class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition text-sm">
+            Cancelar
+          </button>
+          <button type="submit" id="ingresoSubmitBtn"
+                  class="flex-1 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition text-sm
+                         disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <i id="ingresoSubmitIcon" class="fas fa-save text-xs"></i>
+            <span id="ingresoSubmitText">Guardar Ingreso</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de edición de ingreso -->
+  <div id="ingresoEditModal" class="hidden fixed inset-0 z-40 items-center justify-center">
+    <div class="absolute inset-0 bg-black/40" onclick="closeEditModal()"></div>
+    <div id="ingresoEditModalCard"
+         class="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 z-10
+                transform transition-all duration-200 scale-95 opacity-0 max-h-[90vh] overflow-y-auto">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">Editar Ingreso</h2>
+        <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="ingresoEditForm" action="" method="post" class="p-6 space-y-4">
+        {% csrf_token %}
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha</label>
+          <input type="date" name="fecha" id="edit_ingreso_fecha"
+                 class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Fuente</label>
+          <select name="fuente" id="edit_ingreso_fuente"
+                  class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+            {% for fuente in fuentes_disponibles %}
+            <option value="{{ fuente.id }}">{{ fuente.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Monto</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none">$</span>
+            <input type="number" name="monto" id="edit_ingreso_monto" step="0.01"
+                   class="w-full pl-8 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Descripción <span class="text-gray-400 font-normal">(opcional)</span></label>
+          <textarea name="descripcion" id="edit_ingreso_descripcion" rows="3"
+                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"></textarea>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeEditModal()"
+                  class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition text-sm">
+            Cancelar
+          </button>
+          <button type="submit" id="ingresoEditSubmitBtn"
+                  class="flex-1 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition text-sm
+                         disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <i id="ingresoEditSubmitIcon" class="fas fa-save text-xs"></i>
+            <span id="ingresoEditSubmitText">Guardar Cambios</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 {% endblock %}
 
 {% block contenido_tabla %}
@@ -107,106 +221,103 @@
     <!-- COLUMNA DERECHA: Tabla de Ingresos Recientes -->
     <div class="lg:col-span-2">
 
-      <!-- Header con Filtros -->
-      <div class="flex justify-between items-center mb-4">
-        <p class="text-gray-900 text-xl font-bold">Ingresos Recientes</p>
+      <!-- Título -->
+      <p class="text-gray-900 text-xl font-bold mb-4">Ingresos Recientes</p>
 
-        <button 
-          onclick="toggleFiltros()" 
-          class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-          <i class="fas fa-filter"></i>
-          <span>Filtros</span>
-        </button>
-      </div>
+      <!-- BÚSQUEDA + FILTROS (un solo form) -->
+      <form method="get" action="{% url 'ingresos' %}" id="ingresoFilterForm" class="mb-4">
 
-      <!-- Panel de Filtros (Colapsable) -->
-      <div id="filtrosPanel" class="hidden mb-4">
-        <div class="p-4 bg-white border border-gray-200 rounded-xl">
-          <form method="get" action="{% url 'ingresos' %}" 
-                class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div class="flex gap-3">
+          <div class="flex-1 flex items-center h-11 bg-gray-100 rounded-xl px-4 gap-3">
+            <i class="fas fa-search text-gray-400 text-sm shrink-0"></i>
+            <input type="text" name="search" id="ingresoSearchInput" value="{{ search_query }}"
+                   autocomplete="off"
+                   class="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder-gray-400"
+                   placeholder="Buscar ingresos por descripción o fuente...">
+            {% if search_query %}
+            <button type="button" onclick="clearSearch('ingresoFilterForm','ingresoSearchInput')"
+                    class="text-gray-400 hover:text-gray-600 transition shrink-0">
+              <i class="fas fa-times text-xs"></i>
+            </button>
+            {% endif %}
+          </div>
+          <button type="button" onclick="toggleFiltros()"
+                  class="flex items-center gap-2 h-11 px-4 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm text-gray-700 font-medium transition shrink-0">
+            <i class="fas fa-sliders-h text-sm text-gray-500"></i>
+            Filtros
+            {% if tiene_filtros_activos %}
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            {% endif %}
+          </button>
+        </div>
 
-            <!-- Filtro: Fecha -->
-            <div>
-              <label class="block text-sm font-medium text-gray-600 mb-2">Fecha</label>
-              <input 
-                type="date" 
-                name="fecha" 
-                value="{{ filtro_fecha }}"
-                class="input w-full bg-gray-50 border-gray-300"/>
+        <div id="filtrosPanel" class="{% if not tiene_filtros_activos %}hidden {% endif %}mt-2">
+          <div class="bg-white border border-gray-200 rounded-xl p-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">Fecha</label>
+                <input type="date" name="fecha" value="{{ filtro_fecha }}"
+                       class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">Fuente</label>
+                <select name="fuente"
+                        class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Todas</option>
+                  {% for fuente in fuentes_disponibles %}
+                  <option value="{{ fuente.id }}" {% if filtro_fuente == fuente.id|stringformat:"s" %}selected{% endif %}>
+                    {{ fuente.nombre }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">Moneda</label>
+                <select name="moneda"
+                        class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Todas</option>
+                  {% for moneda in monedas_disponibles %}
+                  <option value="{{ moneda.abreviatura }}" {% if filtro_moneda == moneda.abreviatura %}selected{% endif %}>
+                    {{ moneda.abreviatura }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">Monto mín.</label>
+                <input type="number" step="0.01" name="monto_min" value="{{ filtro_monto_min }}"
+                       placeholder="Ej: 1000"
+                       class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1.5">Monto máx.</label>
+                <input type="number" step="0.01" name="monto_max" value="{{ filtro_monto_max }}"
+                       placeholder="Ej: 5000"
+                       class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+
             </div>
-
-            <!-- Filtro: Fuente -->
-            <div>
-              <label class="block text-sm font-medium text-gray-600 mb-2">Fuente</label>
-              <select 
-                name="fuente" 
-                class="input w-full bg-gray-50 border-gray-300">
-                <option value="">Todas</option>
-                {% for fuente in fuentes_disponibles %}
-                <option value="{{ fuente.id }}"
-                  {% if filtro_fuente == fuente.id|stringformat:"s" %}selected{% endif %}>
-                  {{ fuente.nombre }}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Filtro: Moneda -->
-            <div>
-              <label class="block text-sm font-medium text-gray-600 mb-2">Moneda Original</label>
-              <select 
-                name="moneda" 
-                class="input w-full bg-gray-50 border-gray-300">
-                <option value="">Todas</option>
-                {% for moneda in monedas_disponibles %}
-                <option value="{{ moneda.abreviatura }}"
-                  {% if filtro_moneda == moneda.abreviatura %}selected{% endif %}>
-                  {{ moneda.abreviatura }}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Filtro: Monto -->
-            <div>
-              <label class="block text-sm font-medium text-gray-600 mb-2">Monto mín.</label>
-              <input 
-                type="number" 
-                step="0.01"
-                name="monto_min" 
-                value="{{ filtro_monto_min }}"
-                class="input w-full bg-gray-50 border-gray-300"
-                placeholder="Ej: 1000"/>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-600 mb-2">Monto máx.</label>
-              <input 
-                type="number" 
-                step="0.01"
-                name="monto_max" 
-                value="{{ filtro_monto_max }}"
-                class="input w-full bg-gray-50 border-gray-300"
-                placeholder="Ej: 5000"/>
-            </div>
-
-            <!-- Botones -->
-            <div class="md:col-span-5 flex gap-2 justify-end">
-              <button type="submit" class="btn bg-blue-500 hover:bg-blue-600 text-white px-6">
-                <i class="fas fa-search mr-2"></i> Aplicar
-              </button>
-
-              {% if filtro_fecha or filtro_fuente or filtro_monto_min or filtro_monto_max or filtro_moneda %}
-              <a href="{% url 'ingresos' %}" 
-                 class="btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-6">
-                <i class="fas fa-times mr-2"></i> Limpiar
+            <div class="flex items-center justify-end gap-3 mt-4 pt-3 border-t border-gray-100">
+              {% if tiene_filtros_activos or search_query %}
+              <a href="{% url 'ingresos' %}"
+                 class="text-sm text-gray-500 hover:text-gray-800 transition flex items-center gap-1.5">
+                <i class="fas fa-times text-xs"></i>Limpiar todo
               </a>
               {% endif %}
+              <button type="submit"
+                      class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition">
+                Aplicar filtros
+              </button>
             </div>
-
-          </form>
+          </div>
         </div>
-      </div>
+
+      </form>
 
       <!-- Tabla de Ingresos -->
       {% if ingresos %}
@@ -214,11 +325,11 @@
         <table class="w-full text-sm">
           <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th class="px-4 py-3 text-left text-gray-600 font-medium">Fecha</th>
-              <th class="px-4 py-3 text-left text-gray-600 font-medium">Fuente</th>
-              <th class="px-4 py-3 text-right text-gray-600 font-medium">Monto</th>
-              <th class="px-4 py-3 text-left text-gray-600 font-medium">Descripción</th>
-              <th class="px-4 py-3 text-center text-gray-600 font-medium">Acciones</th>
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Fecha</th>
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Fuente</th>
+              <th class="px-4 py-3 text-right text-gray-600 text-sm font-medium">Monto</th>
+              <th class="px-4 py-3 text-left text-gray-600 text-sm font-medium">Descripción</th>
+              <th class="px-4 py-3 text-center text-gray-600 text-sm font-medium">Acciones</th>
             </tr>
           </thead>
 
@@ -275,16 +386,52 @@
               <!-- Acciones -->
               <td class="px-4 py-3">
                 <div class="flex justify-center gap-3">
-                  <a href="{% url 'ingresos_update' ingreso.id %}" 
-                    class="text-blue-500 hover:text-blue-700 transition"
-                    title="Editar">
+                  <button type="button"
+                          class="text-blue-500 hover:text-blue-700 transition ingreso-edit-btn"
+                          title="Editar"
+                          data-edit-url="{% url 'ingresos_update' ingreso.id %}"
+                          data-fecha="{{ ingreso.fecha|date:'Y-m-d' }}"
+                          data-fuente="{{ ingreso.fuente.id|default:'' }}"
+                          data-monto="{{ ingreso.monto }}"
+                          data-descripcion="{{ ingreso.descripcion|default:'' }}">
                     <i class="fas fa-edit"></i>
-                  </a>
-                  <a href="{% url 'ingresos_delete' ingreso.id %}" 
-                    class="text-red-500 hover:text-red-700 transition"
-                    title="Eliminar">
-                    <i class="fas fa-trash"></i>
-                  </a>
+                  </button>
+
+                  <!-- Detalles ocultos inyectados en el modal -->
+                  <div id="ingreso-detail-{{ ingreso.id }}" class="hidden">
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-2 text-sm">
+                      <p class="text-gray-500 text-xs mb-2">Estás a punto de eliminar el siguiente ingreso:</p>
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-500"><i class="fas fa-dollar-sign text-gray-400 mr-2"></i>Monto:</span>
+                        <span class="font-bold text-gray-900 text-base">${{ ingreso.monto|floatformat:2 }}</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-500"><i class="fas fa-calendar text-gray-400 mr-2"></i>Fecha:</span>
+                        <span class="font-semibold text-gray-900">{{ ingreso.fecha|date:"d/m/Y" }}</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-500"><i class="fas fa-briefcase text-gray-400 mr-2"></i>Fuente:</span>
+                        <span class="font-semibold text-gray-900">{{ ingreso.fuente.nombre|default:"Sin fuente" }}</span>
+                      </div>
+                      {% if ingreso.descripcion %}
+                      <div class="pt-2 border-t border-gray-200">
+                        <span class="text-gray-500 block mb-1"><i class="fas fa-align-left text-gray-400 mr-2"></i>Descripción:</span>
+                        <p class="text-gray-700 italic text-xs">&ldquo;{{ ingreso.descripcion|truncatewords:15 }}&rdquo;</p>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <form method="post" action="{% url 'ingresos_delete' ingreso.id %}"
+                        data-confirm-delete
+                        data-title="¿Eliminar este ingreso?"
+                        data-subtitle="Esta acción no podrá deshacerse."
+                        data-details-id="ingreso-detail-{{ ingreso.id }}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-red-400 hover:text-red-600 transition" title="Eliminar">
+                      <i class="fas fa-trash text-sm"></i>
+                    </button>
+                  </form>
                 </div>
               </td>
             </tr>
@@ -323,11 +470,11 @@
       <div class="text-center py-16 bg-white border border-gray-200 rounded-xl">
         <i class="fas fa-inbox text-gray-300 text-6xl mb-4"></i>
         <p class="text-gray-500 text-lg mb-4">No hay ingresos registrados</p>
-        <a href="{% url 'ingresos_create' %}" 
-           class="btn bg-blue-500 hover:bg-blue-600 text-white px-6 inline-flex items-center gap-2">
+        <button type="button" onclick="openCreateModal()"
+                class="btn bg-blue-500 hover:bg-blue-600 text-white px-6 inline-flex items-center gap-2">
           <i class="fas fa-plus"></i>
           <span>Crear primer ingreso</span>
-        </a>
+        </button>
       </div>
       {% endif %}
 
@@ -337,15 +484,231 @@
 
 </div>
 
+<!-- Filtros: helpers compartidos -->
+<script>
+  function toggleFiltros() {
+    var panel = document.getElementById('filtrosPanel');
+    panel.classList.toggle('hidden');
+  }
+
+  function clearSearch(formId, inputId) {
+    document.getElementById(inputId).value = '';
+    document.getElementById(formId).submit();
+  }
+
+  (function () {
+    var input = document.getElementById('ingresoSearchInput');
+    if (!input) return;
+    var timer;
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        document.getElementById('ingresoFilterForm').submit();
+      }, 400);
+    });
+  })();
+</script>
+
+<!-- Modal de creación: open/close/submit -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var modal = document.getElementById('createModal');
+  var card  = document.getElementById('createModalCard');
+  if (!modal || !card) return;
+
+  window.openCreateModal = function () {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+      });
+    });
+  };
+
+  window.closeCreateModal = function () {
+    card.classList.remove('scale-100', 'opacity-100');
+    card.classList.add('scale-95', 'opacity-0');
+    setTimeout(function () {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('ingresoCreateForm').reset();
+      document.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+    }, 150);
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (!modal.classList.contains('hidden')) closeCreateModal();
+      var em = document.getElementById('ingresoEditModal');
+      if (em && !em.classList.contains('hidden')) closeEditModal();
+    }
+  });
+
+  // === EDIT MODAL ===
+  var editModal = document.getElementById('ingresoEditModal');
+  var editCard  = document.getElementById('ingresoEditModalCard');
+
+  window.openEditModal = function (btn) {
+    if (!editModal || !editCard) return;
+    var form = document.getElementById('ingresoEditForm');
+    form.action = btn.dataset.editUrl;
+    document.getElementById('edit_ingreso_fecha').value       = btn.dataset.fecha       || '';
+    document.getElementById('edit_ingreso_fuente').value      = btn.dataset.fuente      || '';
+    document.getElementById('edit_ingreso_monto').value       = btn.dataset.monto       || '';
+    document.getElementById('edit_ingreso_descripcion').value = btn.dataset.descripcion || '';
+    form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+    var submitBtn  = document.getElementById('ingresoEditSubmitBtn');
+    var submitIcon = document.getElementById('ingresoEditSubmitIcon');
+    var submitTxt  = document.getElementById('ingresoEditSubmitText');
+    submitBtn.disabled    = false;
+    submitIcon.className  = 'fas fa-save text-xs';
+    submitTxt.textContent = 'Guardar Cambios';
+    editModal.classList.remove('hidden');
+    editModal.classList.add('flex');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        editCard.classList.remove('scale-95', 'opacity-0');
+        editCard.classList.add('scale-100', 'opacity-100');
+      });
+    });
+  };
+
+  window.closeEditModal = function () {
+    if (!editModal || !editCard) return;
+    editCard.classList.remove('scale-100', 'opacity-100');
+    editCard.classList.add('scale-95', 'opacity-0');
+    setTimeout(function () {
+      editModal.classList.add('hidden');
+      editModal.classList.remove('flex');
+    }, 150);
+  };
+
+  document.querySelectorAll('.ingreso-edit-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () { openEditModal(this); });
+  });
+
+  if (document.getElementById('ingresoEditForm')) {
+    document.getElementById('ingresoEditForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var form = this;
+      var btn  = document.getElementById('ingresoEditSubmitBtn');
+      var icon = document.getElementById('ingresoEditSubmitIcon');
+      var txt  = document.getElementById('ingresoEditSubmitText');
+      btn.disabled    = true;
+      icon.className  = 'fas fa-spinner fa-spin text-xs';
+      txt.textContent = 'Guardando...';
+      form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+      fetch(form.action, {
+        method:  'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body:    new FormData(form)
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.status === 'ok') {
+          closeEditModal();
+          window.location.reload();
+        } else {
+          Object.entries(data.errors).forEach(function ([field, errors]) {
+            var input = form.querySelector('[name="' + field + '"]');
+            if (input) {
+              var errEl = document.createElement('p');
+              errEl.className = 'field-error text-xs text-red-600 mt-1';
+              errEl.textContent = Array.isArray(errors) ? errors[0] : errors;
+              input.closest('div').appendChild(errEl);
+            }
+          });
+          btn.disabled    = false;
+          icon.className  = 'fas fa-save text-xs';
+          txt.textContent = 'Guardar Cambios';
+        }
+      })
+      .catch(function () {
+        btn.disabled    = false;
+        icon.className  = 'fas fa-save text-xs';
+        txt.textContent = 'Guardar Cambios';
+      });
+    });
+  }
+
+  document.getElementById('ingresoCreateForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = this;
+    var btn  = document.getElementById('ingresoSubmitBtn');
+    var icon = document.getElementById('ingresoSubmitIcon');
+    var txt  = document.getElementById('ingresoSubmitText');
+
+    btn.disabled    = true;
+    icon.className  = 'fas fa-spinner fa-spin text-xs';
+    txt.textContent = 'Guardando...';
+
+    form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+
+    fetch(form.action, {
+      method:  'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body:    new FormData(form)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.status === 'ok') {
+        closeCreateModal();
+        window.location.reload();
+      } else if (data.status === 'duplicate') {
+        btn.disabled    = false;
+        icon.className  = 'fas fa-save text-xs';
+        txt.textContent = 'Guardar Ingreso';
+        window.openDuplicateModal(data.message, function () {
+          btn.disabled    = true;
+          icon.className  = 'fas fa-spinner fa-spin text-xs';
+          txt.textContent = 'Guardando...';
+          var fd = new FormData(form);
+          fd.append('force_create', 'true');
+          fetch(form.action, {
+            method:  'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body:    fd
+          })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d.status === 'ok') { closeCreateModal(); window.location.reload(); }
+          })
+          .catch(function () {
+            btn.disabled    = false;
+            icon.className  = 'fas fa-save text-xs';
+            txt.textContent = 'Guardar Ingreso';
+          });
+        });
+      } else {
+        Object.entries(data.errors).forEach(function ([field, errors]) {
+          var input = form.querySelector('[name="' + field + '"]');
+          if (input) {
+            var errEl = document.createElement('p');
+            errEl.className = 'field-error text-xs text-red-600 mt-1';
+            errEl.textContent = Array.isArray(errors) ? errors[0] : errors;
+            input.closest('div').appendChild(errEl);
+          }
+        });
+        btn.disabled    = false;
+        icon.className  = 'fas fa-save text-xs';
+        txt.textContent = 'Guardar Ingreso';
+      }
+    })
+    .catch(function () {
+      btn.disabled    = false;
+      icon.className  = 'fas fa-save text-xs';
+      txt.textContent = 'Guardar Ingreso';
+    });
+  });
+});
+</script>
+
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-  // Toggle de filtros
-  function toggleFiltros() {
-    const panel = document.getElementById('filtrosPanel');
-    panel.classList.toggle('hidden');
-  }
 
   // Configurar gráfico
   document.addEventListener('DOMContentLoaded', function() {

@@ -74,8 +74,11 @@ def obtener_valores_filtros(request, campos):
     valores = {}
     for campo in campos:
         valores[f'filtro_{campo}'] = request.GET.get(campo, '')
-    
-    # Agregar búsqueda si existe
+
     valores['search_query'] = request.GET.get('search', '')
-    
+    # True si algún parámetro de filtro (no search) tiene valor
+    valores['tiene_filtros_activos'] = any(
+        request.GET.get(campo) for campo in campos
+    )
+
     return valores

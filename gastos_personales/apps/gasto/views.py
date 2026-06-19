@@ -2,6 +2,8 @@ from decimal import Decimal
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.shortcuts import redirect
 from .models import Gasto
 from apps.categoria.models import Categoria
 from datetime import datetime
@@ -92,11 +94,12 @@ class GastoListView(LoginRequiredMixin, UserGastoQuerysetMixin, ListViewCurrency
             'mes_nombre': hoy.strftime('%B'),
             'gastos_por_categoria': gastos_por_categoria_list,
             'total_general_grafico': total_gastos_convertido,
-            'categorias_disponibles': Categoria.objects.all(),
+            'categorias_disponibles': Categoria.objects.filter(usuario=usuario),
             'cantidad_gastos': self.get_queryset().count(),
             'saldo_restante': saldo_info['saldo'],
             'total_ingresos_mensual': saldo_info['total_ingresos'],
             'moneda': user_currency,
+            'create_form': GastoForm(user=self.request.user),
             **valores_filtros
         })
         
@@ -207,9 +210,35 @@ class GastoCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
+        force_create = self.request.POST.get('force_create') == 'true'
+
+        if not force_create:
+            fecha     = form.cleaned_data.get('fecha')
+            categoria = form.cleaned_data.get('categoria')
+            monto     = form.cleaned_data.get('monto')
+            ya_existe = Gasto.objects.filter(
+                usuario=self.request.user,
+                fecha=fecha,
+                categoria=categoria,
+                monto=monto
+            ).exists()
+            if ya_existe and self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'duplicate',
+                    'message': 'Ya tenés un gasto idéntico registrado para esa fecha, categoría y monto. ¿Querés cargarlo igualmente?'
+                })
+
         form.instance.usuario = self.request.user
         form.instance.moneda = self.request.user.moneda
-        return super().form_valid(form)
+        self.object = form.save()
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'ok'})
+        return redirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+        return super().form_invalid(form)
 
     def get_success_url(self):
         return reverse_lazy('gastos')
@@ -225,12 +254,26 @@ class GastoUpdateView(LoginRequiredMixin, UserGastoQuerysetMixin, UpdateView):
         kwargs['user'] = self.request.user
         return kwargs
 
+    def form_valid(self, form):
+        self.object = form.save()
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'ok'})
+        return redirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+        return super().form_invalid(form)
+
     def get_success_url(self):
         return reverse_lazy('gastos')
 
+
 class GastoDeleteView(LoginRequiredMixin, UserGastoQuerysetMixin, DeleteView):
     model = Gasto
-    template_name = 'gasto/gasto_confirm_delete.html'
+
+    def get(self, request, *args, **kwargs):
+        return redirect('gastos')
 
     def get_success_url(self):
         return reverse_lazy('gastos')

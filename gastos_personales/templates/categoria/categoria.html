@@ -1,63 +1,325 @@
 {% extends 'layout/frame.html' %}
 {% load currency_filters %}
-{% block title %}
-  Categorías
-{% endblock %}
+{% load static %}
 
-{% block sectionTitle %}
-  Categorías
-{% endblock %}
+{% block title %}Categorías{% endblock %}
+{% block sectionTitle %}Categorías{% endblock %}
 
 {% block boton_flotante %}
-  <a href="{% url 'categoria_create' %}" 
-     class="fixed bottom-6 right-6 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 text-white 
-            rounded-full w-16 h-16 flex items-center justify-center 
-            shadow-[0_8px_20px_rgba(100,100,255,0.3)] backdrop-blur-md 
-            transition-transform hover:scale-110 hover:shadow-[0_10px_25px_rgba(120,120,255,0.4)]"
-     title="Nueva Categoría">
+  <button type="button"
+          onclick="openCreateModal()"
+          class="fixed bottom-6 right-6 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 text-white
+                 rounded-full w-16 h-16 flex items-center justify-center
+                 shadow-[0_8px_20px_rgba(100,100,255,0.3)] backdrop-blur-md
+                 transition-transform hover:scale-110 hover:shadow-[0_10px_25px_rgba(120,120,255,0.4)]"
+          title="Nueva Categoría">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
     </svg>
-  </a>
+  </button>
+
+  <!-- Modal de creación de categoría -->
+  <div id="createModal" class="hidden fixed inset-0 z-40 items-center justify-center">
+    <div class="absolute inset-0 bg-black/40" onclick="closeCreateModal()"></div>
+    <div id="createModalCard"
+         class="relative bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 z-10
+                transform transition-all duration-200 scale-95 opacity-0 max-h-[90vh] overflow-y-auto">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">Nueva Categoría</h2>
+        <button type="button" onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600 transition">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="categoriaCreateForm" action="{% url 'categoria_create' %}" method="post" class="p-6 space-y-5">
+        {% csrf_token %}
+
+        <!-- Nombre -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre</label>
+          <input name="nombre" id="cat_nombre"
+                 class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                 placeholder="Ej: Comida, Transporte">
+        </div>
+
+        <!-- Descripción -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Descripción</label>
+          <textarea name="descripcion" rows="2"
+                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                    placeholder="Breve descripción..."></textarea>
+        </div>
+
+        <!-- Ícono -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Ícono</label>
+          <div class="flex flex-wrap gap-2">
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-utensils" hidden />
+              <i class="fas fa-utensils text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-bus" hidden />
+              <i class="fas fa-bus text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-home" hidden />
+              <i class="fas fa-home text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-film" hidden />
+              <i class="fas fa-film text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-dumbbell" hidden />
+              <i class="fas fa-dumbbell text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-plane" hidden />
+              <i class="fas fa-plane text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-book" hidden />
+              <i class="fas fa-book text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-heartbeat" hidden />
+              <i class="fas fa-heartbeat text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-paw" hidden />
+              <i class="fas fa-paw text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-gift" hidden />
+              <i class="fas fa-gift text-xl text-gray-500"></i>
+            </label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-modal transition">
+              <input type="radio" name="icono" value="fas fa-shopping-bag" hidden />
+              <i class="fas fa-shopping-bag text-xl text-gray-500"></i>
+            </label>
+          </div>
+        </div>
+
+        <!-- Color -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+          <div class="flex flex-wrap gap-3">
+            <label class="cursor-pointer color-option-modal">
+              <input type="radio" name="color" value="amarillo" hidden />
+              <div class="rounded-full p-1 color-wrapper-modal" data-color="#FFFB1C">
+                <div class="w-9 h-9 rounded-full" style="background-color: #FFFB1C;"></div>
+              </div>
+            </label>
+            <label class="cursor-pointer color-option-modal">
+              <input type="radio" name="color" value="azul" hidden />
+              <div class="rounded-full p-1 color-wrapper-modal" data-color="#3B82F6">
+                <div class="w-9 h-9 rounded-full" style="background-color: #3B82F6;"></div>
+              </div>
+            </label>
+            <label class="cursor-pointer color-option-modal">
+              <input type="radio" name="color" value="violeta" hidden />
+              <div class="rounded-full p-1 color-wrapper-modal" data-color="#8B5CF6">
+                <div class="w-9 h-9 rounded-full" style="background-color: #8B5CF6;"></div>
+              </div>
+            </label>
+            <label class="cursor-pointer color-option-modal">
+              <input type="radio" name="color" value="verde" hidden />
+              <div class="rounded-full p-1 color-wrapper-modal" data-color="#12CA31">
+                <div class="w-9 h-9 rounded-full" style="background-color: #12CA31;"></div>
+              </div>
+            </label>
+            <label class="cursor-pointer color-option-modal">
+              <input type="radio" name="color" value="naranja" hidden />
+              <div class="rounded-full p-1 color-wrapper-modal" data-color="#FFA500">
+                <div class="w-9 h-9 rounded-full" style="background-color: #FFA500;"></div>
+              </div>
+            </label>
+            <label class="cursor-pointer color-option-modal">
+              <input type="radio" name="color" value="rosa" hidden />
+              <div class="rounded-full p-1 color-wrapper-modal" data-color="#D946EF">
+                <div class="w-9 h-9 rounded-full" style="background-color: #D946EF;"></div>
+              </div>
+            </label>
+            <label class="cursor-pointer color-option-modal">
+              <input type="radio" name="color" value="rojo" hidden />
+              <div class="rounded-full p-1 color-wrapper-modal" data-color="#EF4444">
+                <div class="w-9 h-9 rounded-full" style="background-color: #EF4444;"></div>
+              </div>
+            </label>
+            <label class="cursor-pointer color-option-modal">
+              <input type="radio" name="color" value="gris" hidden />
+              <div class="rounded-full p-1 color-wrapper-modal" data-color="#9CA3AF">
+                <div class="w-9 h-9 rounded-full" style="background-color: #9CA3AF;"></div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Vista previa -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Vista Previa</label>
+          <div class="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border border-gray-200">
+            <div id="cat_preview_circle"
+                 class="flex items-center justify-center w-12 h-12 rounded-full shrink-0"
+                 style="background-color: #9CA3AF;">
+              <i id="cat_preview_icon" class="fas fa-circle text-xl text-white"></i>
+            </div>
+            <p id="cat_preview_name" class="text-gray-900 font-semibold truncate">Nueva categoría</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-1">
+          <button type="button" onclick="closeCreateModal()"
+                  class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition text-sm">
+            Cancelar
+          </button>
+          <button type="submit" id="categoriaSubmitBtn"
+                  class="flex-1 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition text-sm
+                         disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <i id="categoriaSubmitIcon" class="fas fa-save text-xs"></i>
+            <span id="categoriaSubmitText">Guardar Categoría</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de edición de categoría -->
+  <div id="catEditModal" class="hidden fixed inset-0 z-40 items-center justify-center">
+    <div class="absolute inset-0 bg-black/40" onclick="closeEditModal()"></div>
+    <div id="catEditModalCard"
+         class="relative bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 z-10
+                transform transition-all duration-200 scale-95 opacity-0 max-h-[90vh] overflow-y-auto">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">Editar Categoría</h2>
+        <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="catEditForm" action="" method="post" class="p-6 space-y-5">
+        {% csrf_token %}
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre</label>
+          <input name="nombre" id="cat_edit_nombre"
+                 class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                 placeholder="Ej: Comida, Transporte">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Descripción</label>
+          <textarea name="descripcion" id="cat_edit_descripcion" rows="2"
+                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"></textarea>
+        </div>
+
+        <!-- Ícono -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Ícono</label>
+          <div class="flex flex-wrap gap-2">
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-utensils" hidden /><i class="fas fa-utensils text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-bus" hidden /><i class="fas fa-bus text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-home" hidden /><i class="fas fa-home text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-film" hidden /><i class="fas fa-film text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-dumbbell" hidden /><i class="fas fa-dumbbell text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-plane" hidden /><i class="fas fa-plane text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-book" hidden /><i class="fas fa-book text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-heartbeat" hidden /><i class="fas fa-heartbeat text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-paw" hidden /><i class="fas fa-paw text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-gift" hidden /><i class="fas fa-gift text-xl text-gray-500"></i></label>
+            <label class="flex items-center justify-center cursor-pointer p-2.5 rounded-xl border icon-option-edit transition"><input type="radio" name="icono" value="fas fa-shopping-bag" hidden /><i class="fas fa-shopping-bag text-xl text-gray-500"></i></label>
+          </div>
+        </div>
+
+        <!-- Color -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+          <div class="flex flex-wrap gap-3">
+            <label class="cursor-pointer color-option-edit"><input type="radio" name="color" value="amarillo" hidden /><div class="rounded-full p-1 color-wrapper-edit" data-color="#FFFB1C"><div class="w-9 h-9 rounded-full" style="background-color: #FFFB1C;"></div></div></label>
+            <label class="cursor-pointer color-option-edit"><input type="radio" name="color" value="azul" hidden /><div class="rounded-full p-1 color-wrapper-edit" data-color="#3B82F6"><div class="w-9 h-9 rounded-full" style="background-color: #3B82F6;"></div></div></label>
+            <label class="cursor-pointer color-option-edit"><input type="radio" name="color" value="violeta" hidden /><div class="rounded-full p-1 color-wrapper-edit" data-color="#8B5CF6"><div class="w-9 h-9 rounded-full" style="background-color: #8B5CF6;"></div></div></label>
+            <label class="cursor-pointer color-option-edit"><input type="radio" name="color" value="verde" hidden /><div class="rounded-full p-1 color-wrapper-edit" data-color="#12CA31"><div class="w-9 h-9 rounded-full" style="background-color: #12CA31;"></div></div></label>
+            <label class="cursor-pointer color-option-edit"><input type="radio" name="color" value="naranja" hidden /><div class="rounded-full p-1 color-wrapper-edit" data-color="#FFA500"><div class="w-9 h-9 rounded-full" style="background-color: #FFA500;"></div></div></label>
+            <label class="cursor-pointer color-option-edit"><input type="radio" name="color" value="rosa" hidden /><div class="rounded-full p-1 color-wrapper-edit" data-color="#D946EF"><div class="w-9 h-9 rounded-full" style="background-color: #D946EF;"></div></div></label>
+            <label class="cursor-pointer color-option-edit"><input type="radio" name="color" value="rojo" hidden /><div class="rounded-full p-1 color-wrapper-edit" data-color="#EF4444"><div class="w-9 h-9 rounded-full" style="background-color: #EF4444;"></div></div></label>
+            <label class="cursor-pointer color-option-edit"><input type="radio" name="color" value="gris" hidden /><div class="rounded-full p-1 color-wrapper-edit" data-color="#9CA3AF"><div class="w-9 h-9 rounded-full" style="background-color: #9CA3AF;"></div></div></label>
+          </div>
+        </div>
+
+        <!-- Vista previa -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Vista Previa</label>
+          <div class="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border border-gray-200">
+            <div id="cat_edit_preview_circle"
+                 class="flex items-center justify-center w-12 h-12 rounded-full shrink-0"
+                 style="background-color: #9CA3AF;">
+              <i id="cat_edit_preview_icon" class="fas fa-circle text-xl text-white"></i>
+            </div>
+            <p id="cat_edit_preview_name" class="text-gray-900 font-semibold truncate">Categoría</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-1">
+          <button type="button" onclick="closeEditModal()"
+                  class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition text-sm">
+            Cancelar
+          </button>
+          <button type="submit" id="catEditSubmitBtn"
+                  class="flex-1 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition text-sm
+                         disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <i id="catEditSubmitIcon" class="fas fa-save text-xs"></i>
+            <span id="catEditSubmitText">Guardar Cambios</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 {% endblock %}
 
-{% load static %}
-
 {% block contenido_tabla %}
-<div class="layout-content-container flex flex-col flex-1">
+<div class="flex flex-col flex-1">
 
-  <!-- ========================= -->
+  <!-- BÚSQUEDA DE CATEGORÍAS -->
+  <form method="get" action="{% url 'categorias' %}" id="catFilterForm" class="mb-6">
+    <div class="flex items-center h-11 bg-gray-100 rounded-xl px-4 gap-3 max-w-md">
+      <i class="fas fa-search text-gray-400 text-sm shrink-0"></i>
+      <input type="text" name="search" id="catSearchInput" value="{{ search_query }}"
+             autocomplete="off"
+             class="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder-gray-400"
+             placeholder="Buscar categorías por nombre o descripción...">
+      {% if search_query %}
+      <button type="button" onclick="clearCatSearch()"
+              class="text-gray-400 hover:text-gray-600 transition shrink-0">
+        <i class="fas fa-times text-xs"></i>
+      </button>
+      {% endif %}
+    </div>
+  </form>
+
   <!-- TOP CATEGORÍAS DEL MES -->
-  <!-- ========================= -->
-  <div class="p-4">
-    <p class="text-[#0e171b] text-base font-medium">Top categorías con mayores gastos del mes</p>
+  <div>
+    <p class="text-gray-900 text-base font-medium">Top categorías con mayores gastos del mes</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-
       {% for c in top_categorias %}
       <div class="p-4 rounded-lg shadow bg-white border border-gray-200 flex flex-col items-start gap-2">
-
         <div class="flex items-center gap-3">
-          <!-- Ícono procesado por procesar_categorias -->
           <i class="{{ c.icono }} text-2xl" style="{{ c.color_icono }}"></i>
           <span class="text-gray-800 font-medium">{{ c.nombre }}</span>
         </div>
-
         <p class="text-gray-700 text-xl font-bold mt-2">{{ c.total|format_currency:user_currency }}</p>
-
       </div>
       {% empty %}
         <p class="text-gray-500 text-sm">Todavía no hay gastos para mostrar.</p>
       {% endfor %}
-
     </div>
   </div>
 
-
-  <!-- ========================= -->
   <!-- TABLA DE CATEGORÍAS -->
-  <!-- ========================= -->
-  <div class="p-4 mt-8">
+  <div class="mt-8">
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
       <table class="w-full">
         <thead>
@@ -72,57 +334,403 @@
           {% for categoria in categorias %}
           <tr class="border-t border-gray-200 hover:bg-gray-50 transition-colors">
 
-            <!-- Columna: Icono + Nombre -->
             <td class="px-4 py-4 text-gray-700 text-sm">
               <div class="flex items-center gap-3">
-
-                <!-- ICONO procesado por procesar_categorias() -->
                 <i class="{{ categoria.icono }} text-xl" style="{{ categoria.color_icono }}"></i>
-
-                <!-- BADGE con estilos procesados -->
                 <span class="rounded-lg px-3 py-1 text-sm font-medium"
                       style="{{ categoria.color_bg }} {{ categoria.color_texto }}">
                   {{ categoria.nombre }}
                 </span>
-
               </div>
             </td>
 
-            <!-- Columna: Descripción -->
             <td class="px-4 py-4 text-gray-600 text-sm">
               {{ categoria.descripcion|default:"Sin descripción" }}
             </td>
 
-            <!-- Columna: Acciones -->
-            <td class="px-4 py-4 text-gray-500 text-sm flex gap-4 items-center">
+            <td class="px-4 py-4 text-gray-500 text-sm">
+              <div class="flex gap-4 items-center">
+                <button type="button"
+                        class="text-blue-500 hover:text-blue-700 transition cat-edit-btn"
+                        title="Editar"
+                        data-edit-url="{% url 'categoria_update' categoria.id %}"
+                        data-nombre="{{ categoria.nombre|escapejs }}"
+                        data-descripcion="{{ categoria.descripcion|escapejs }}"
+                        data-icono="{{ categoria.icono }}"
+                        data-color="{{ categoria.color_nombre }}">
+                  <i class="fas fa-edit"></i>
+                </button>
 
-              <a href="{% url 'categoria_update' categoria.id %}" 
-                 class="text-blue-500 hover:text-blue-700 transition"
-                 title="Editar">
-                <i class="fas fa-edit"></i>
-              </a>
+                <!-- Detalles ocultos inyectados en el modal -->
+                <div id="cat-detail-{{ categoria.id }}" class="hidden">
+                  <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-2 text-sm">
+                    <p class="text-gray-500 text-xs mb-2">Estás a punto de eliminar la siguiente categoría:</p>
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-500"><i class="fas fa-tag text-gray-400 mr-2"></i>Categoría:</span>
+                      <span class="font-semibold text-gray-900">{{ categoria.nombre }}</span>
+                    </div>
+                    {% if categoria.descripcion %}
+                    <div class="pt-2 border-t border-gray-200">
+                      <span class="text-gray-500 block mb-1"><i class="fas fa-align-left text-gray-400 mr-2"></i>Descripción:</span>
+                      <p class="text-gray-700 italic text-xs">{{ categoria.descripcion }}</p>
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
 
-              <a href="{% url 'categoria_delete' categoria.id %}" 
-                 class="text-red-500 hover:text-red-700 transition"
-                 title="Eliminar">
-                <i class="fas fa-trash"></i>
-              </a>
-
+                <form method="post" action="{% url 'categoria_delete' categoria.id %}"
+                      data-confirm-delete
+                      data-title="¿Eliminar esta categoría?"
+                      data-subtitle="Esta acción no podrá deshacerse."
+                      data-details-id="cat-detail-{{ categoria.id }}"
+                      data-warning="Los gastos asociados a &ldquo;{{ categoria.nombre }}&rdquo; quedarán sin categoría asignada.">
+                  {% csrf_token %}
+                  <button type="submit" class="text-red-400 hover:text-red-600 transition" title="Eliminar">
+                    <i class="fas fa-trash text-sm"></i>
+                  </button>
+                </form>
+              </div>
             </td>
-          </tr>
 
+          </tr>
           {% empty %}
           <tr>
-            <td colspan="3" class="text-center text-gray-500 py-4">
-              No hay categorías disponibles.
+            <td colspan="3" class="text-center py-16">
+              <i class="fas fa-tags text-gray-300 text-6xl mb-4 block"></i>
+              <p class="text-gray-500 text-lg mb-4">No hay categorías creadas</p>
+              <button type="button" onclick="openCreateModal()"
+                      class="btn bg-blue-500 hover:bg-blue-600 text-white px-6 inline-flex items-center gap-2">
+                <i class="fas fa-plus"></i>
+                <span>Crear primera categoría</span>
+              </button>
             </td>
           </tr>
           {% endfor %}
         </tbody>
-
       </table>
     </div>
   </div>
 
 </div>
+
+<script>
+  function clearCatSearch() {
+    document.getElementById('catSearchInput').value = '';
+    document.getElementById('catFilterForm').submit();
+  }
+
+  (function () {
+    var input = document.getElementById('catSearchInput');
+    if (!input) return;
+    var timer;
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        document.getElementById('catFilterForm').submit();
+      }, 400);
+    });
+  })();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var modal = document.getElementById('createModal');
+  var card  = document.getElementById('createModalCard');
+  if (!modal || !card) return;
+
+  window.openCreateModal = function () {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+        // Aplicar selección por defecto si nada está seleccionado aún
+        var anyIconChecked  = !!document.querySelector('.icon-option-modal input:checked');
+        var anyColorChecked = !!document.querySelector('.color-option-modal input:checked');
+        if (!anyIconChecked) {
+          var firstIcon = document.querySelector('.icon-option-modal');
+          if (firstIcon) firstIcon.click();
+        }
+        if (!anyColorChecked) {
+          var firstColor = document.querySelector('.color-option-modal');
+          if (firstColor) firstColor.click();
+        }
+      });
+    });
+  };
+
+  window.closeCreateModal = function () {
+    card.classList.remove('scale-100', 'opacity-100');
+    card.classList.add('scale-95', 'opacity-0');
+    setTimeout(function () {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('categoriaCreateForm').reset();
+      document.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+      // Reset preview al estado neutro
+      document.getElementById('cat_preview_circle').style.backgroundColor = '#9CA3AF';
+      document.getElementById('cat_preview_icon').className = 'fas fa-circle text-xl text-white';
+      document.getElementById('cat_preview_name').textContent = 'Nueva categoría';
+      // Reset visual de pickers (el form.reset() ya deschequea los radios)
+      document.querySelectorAll('.icon-option-modal').forEach(function (el) {
+        el.classList.remove('border-blue-400', 'bg-blue-50', 'border-2');
+        el.classList.add('border');
+      });
+      document.querySelectorAll('.color-wrapper-modal').forEach(function (el) {
+        el.style.border = 'none';
+      });
+    }, 150);
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (!modal.classList.contains('hidden')) closeCreateModal();
+      var em = document.getElementById('catEditModal');
+      if (em && !em.classList.contains('hidden')) closeEditModal();
+    }
+  });
+
+  // === EDIT MODAL ===
+  var editModal = document.getElementById('catEditModal');
+  var editCard  = document.getElementById('catEditModalCard');
+
+  var editIconOptions  = document.querySelectorAll('.icon-option-edit');
+  var editColorOptions = document.querySelectorAll('.color-option-edit');
+
+  // Pickers del edit modal
+  editIconOptions.forEach(function (option) {
+    var input = option.querySelector('input[type="radio"]');
+    var icon  = option.querySelector('i');
+    option.addEventListener('click', function () {
+      editIconOptions.forEach(function (opt) {
+        opt.classList.remove('border-2', 'border-blue-400', 'bg-blue-50');
+        opt.classList.add('border');
+      });
+      option.classList.remove('border');
+      option.classList.add('border-2', 'border-blue-400', 'bg-blue-50');
+      input.checked = true;
+      var prev = document.getElementById('cat_edit_preview_icon');
+      prev.className = icon.className.replace(/text-gray-500/g, '') + ' text-xl text-white';
+    });
+  });
+
+  editColorOptions.forEach(function (option) {
+    var input   = option.querySelector('input[type="radio"]');
+    var wrapper = option.querySelector('.color-wrapper-edit');
+    var hex     = wrapper.getAttribute('data-color');
+    option.addEventListener('click', function () {
+      editColorOptions.forEach(function (opt) {
+        opt.querySelector('.color-wrapper-edit').style.border = 'none';
+      });
+      wrapper.style.border = '3px solid ' + hex;
+      input.checked = true;
+      document.getElementById('cat_edit_preview_circle').style.backgroundColor = hex;
+    });
+  });
+
+  document.getElementById('cat_edit_nombre').addEventListener('input', function () {
+    document.getElementById('cat_edit_preview_name').textContent = this.value || 'Categoría';
+  });
+
+  window.openEditModal = function (btn) {
+    if (!editModal || !editCard) return;
+    var form = document.getElementById('catEditForm');
+    form.action = btn.dataset.editUrl;
+
+    var nombre      = btn.dataset.nombre      || '';
+    var descripcion = btn.dataset.descripcion || '';
+    var icono       = btn.dataset.icono       || '';
+    var color       = btn.dataset.color       || '';
+
+    document.getElementById('cat_edit_nombre').value      = nombre;
+    document.getElementById('cat_edit_descripcion').value = descripcion;
+    document.getElementById('cat_edit_preview_name').textContent = nombre || 'Categoría';
+
+    // Pre-seleccionar ícono
+    editIconOptions.forEach(function (opt) {
+      var input = opt.querySelector('input[type="radio"]');
+      if (input.value === icono) {
+        opt.click();
+      }
+    });
+
+    // Pre-seleccionar color
+    editColorOptions.forEach(function (opt) {
+      var input = opt.querySelector('input[type="radio"]');
+      if (input.value === color) {
+        opt.click();
+      }
+    });
+
+    form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+    var submitBtn  = document.getElementById('catEditSubmitBtn');
+    var submitIcon = document.getElementById('catEditSubmitIcon');
+    var submitTxt  = document.getElementById('catEditSubmitText');
+    submitBtn.disabled    = false;
+    submitIcon.className  = 'fas fa-save text-xs';
+    submitTxt.textContent = 'Guardar Cambios';
+
+    editModal.classList.remove('hidden');
+    editModal.classList.add('flex');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        editCard.classList.remove('scale-95', 'opacity-0');
+        editCard.classList.add('scale-100', 'opacity-100');
+      });
+    });
+  };
+
+  window.closeEditModal = function () {
+    if (!editModal || !editCard) return;
+    editCard.classList.remove('scale-100', 'opacity-100');
+    editCard.classList.add('scale-95', 'opacity-0');
+    setTimeout(function () {
+      editModal.classList.add('hidden');
+      editModal.classList.remove('flex');
+      // Reset picker visuals
+      editIconOptions.forEach(function (el) {
+        el.classList.remove('border-2', 'border-blue-400', 'bg-blue-50');
+        el.classList.add('border');
+      });
+      editColorOptions.forEach(function (el) {
+        el.querySelector('.color-wrapper-edit').style.border = 'none';
+      });
+    }, 150);
+  };
+
+  document.querySelectorAll('.cat-edit-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () { openEditModal(this); });
+  });
+
+  if (document.getElementById('catEditForm')) {
+    document.getElementById('catEditForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var form = this;
+      var btn  = document.getElementById('catEditSubmitBtn');
+      var icon = document.getElementById('catEditSubmitIcon');
+      var txt  = document.getElementById('catEditSubmitText');
+      btn.disabled    = true;
+      icon.className  = 'fas fa-spinner fa-spin text-xs';
+      txt.textContent = 'Guardando...';
+      form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+      fetch(form.action, {
+        method:  'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body:    new FormData(form)
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.status === 'ok') {
+          closeEditModal();
+          window.location.reload();
+        } else {
+          Object.entries(data.errors).forEach(function ([field, errors]) {
+            var input = form.querySelector('[name="' + field + '"]');
+            if (input) {
+              var errEl = document.createElement('p');
+              errEl.className = 'field-error text-xs text-red-600 mt-1';
+              errEl.textContent = Array.isArray(errors) ? errors[0] : errors;
+              (input.closest('div') || input.parentNode).appendChild(errEl);
+            }
+          });
+          btn.disabled    = false;
+          icon.className  = 'fas fa-save text-xs';
+          txt.textContent = 'Guardar Cambios';
+        }
+      })
+      .catch(function () {
+        btn.disabled    = false;
+        icon.className  = 'fas fa-save text-xs';
+        txt.textContent = 'Guardar Cambios';
+      });
+    });
+  }
+
+  // Ícono picker
+  var iconOptions = document.querySelectorAll('.icon-option-modal');
+  iconOptions.forEach(function (option) {
+    var input = option.querySelector('input[type="radio"]');
+    var icon  = option.querySelector('i');
+    option.addEventListener('click', function () {
+      iconOptions.forEach(function (opt) {
+        opt.classList.remove('border-2', 'border-blue-400', 'bg-blue-50');
+        opt.classList.add('border');
+      });
+      option.classList.remove('border');
+      option.classList.add('border-2', 'border-blue-400', 'bg-blue-50');
+      input.checked = true;
+      var previewIcon = document.getElementById('cat_preview_icon');
+      previewIcon.className = icon.className.replace(/text-gray-500/g, '') + ' text-xl text-white';
+    });
+  });
+
+  // Color picker
+  var colorOptions = document.querySelectorAll('.color-option-modal');
+  colorOptions.forEach(function (option) {
+    var input   = option.querySelector('input[type="radio"]');
+    var wrapper = option.querySelector('.color-wrapper-modal');
+    var hex     = wrapper.getAttribute('data-color');
+    option.addEventListener('click', function () {
+      colorOptions.forEach(function (opt) {
+        opt.querySelector('.color-wrapper-modal').style.border = 'none';
+      });
+      wrapper.style.border = '3px solid ' + hex;
+      input.checked = true;
+      document.getElementById('cat_preview_circle').style.backgroundColor = hex;
+    });
+  });
+
+  // Nombre live preview
+  document.getElementById('cat_nombre').addEventListener('input', function () {
+    document.getElementById('cat_preview_name').textContent = this.value || 'Nueva categoría';
+  });
+
+  // AJAX submit
+  document.getElementById('categoriaCreateForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = this;
+    var btn  = document.getElementById('categoriaSubmitBtn');
+    var icon = document.getElementById('categoriaSubmitIcon');
+    var txt  = document.getElementById('categoriaSubmitText');
+
+    btn.disabled    = true;
+    icon.className  = 'fas fa-spinner fa-spin text-xs';
+    txt.textContent = 'Guardando...';
+
+    form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+
+    fetch(form.action, {
+      method:  'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body:    new FormData(form)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.status === 'ok') {
+        closeCreateModal();
+        window.location.reload();
+      } else {
+        Object.entries(data.errors).forEach(function ([field, errors]) {
+          var input = form.querySelector('[name="' + field + '"]');
+          if (input) {
+            var errEl = document.createElement('p');
+            errEl.className = 'field-error text-xs text-red-600 mt-1';
+            errEl.textContent = Array.isArray(errors) ? errors[0] : errors;
+            (input.closest('div') || input.parentNode).appendChild(errEl);
+          }
+        });
+        btn.disabled    = false;
+        icon.className  = 'fas fa-save text-xs';
+        txt.textContent = 'Guardar Categoría';
+      }
+    })
+    .catch(function () {
+      btn.disabled    = false;
+      icon.className  = 'fas fa-save text-xs';
+      txt.textContent = 'Guardar Categoría';
+    });
+  });
+});
+</script>
 {% endblock %}

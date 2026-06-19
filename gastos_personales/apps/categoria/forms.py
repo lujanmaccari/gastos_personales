@@ -62,12 +62,6 @@ class CategoriaForm(forms.ModelForm):
     
     def clean_descripcion(self):
         descripcion = self.cleaned_data.get('descripcion', '').strip()
-
         if not descripcion:
             raise forms.ValidationError("Debe especificar una descripción")
-        
-        if self.instance:
-            self.instance.descripcion = descripcion
-            self.instance.save()
-
         return descripcion

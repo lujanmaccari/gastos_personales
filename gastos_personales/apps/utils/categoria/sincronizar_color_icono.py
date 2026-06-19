@@ -81,30 +81,23 @@ def get_or_create_icono(nombre_categoria):
 
 def get_or_create_color(nombre_color):
     """
-    Obtiene o crea un Color usando la lógica de calculations.py
-    
+    Obtiene o crea un Color usando la lógica de calculations.py.
+    Usa update_or_create para auto-corregir registros con hex incorrecto.
+
     Args:
         nombre_color: str - Nombre del color (ej: 'amarillo', 'azul')
-    
+
     Returns:
         Color - Instancia del modelo Color
     """
-    # Obtener el código hex usando la función existente
     codigo_hex = get_color_hex_from_name(nombre_color)
-    
     nombre_lower = nombre_color.lower().strip()
-    
-    # Obtener o crear el color en la BD
-    color, created = Color.objects.get_or_create(
+
+    color, created = Color.objects.update_or_create(
         nombre=nombre_lower,
-        defaults={
-            'codigo_hex': codigo_hex
-        }
+        defaults={'codigo_hex': codigo_hex}
     )
-    
-    if created:
-        print(f"✅ Color creado: {color.nombre} - {color.codigo_hex}")
-    
+
     return color
 
 

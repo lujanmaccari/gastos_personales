@@ -7,141 +7,231 @@
 {% block sectionTitle %}Mis Gastos{% endblock %}
 
 {% block boton_flotante %}
-    <a href="{% url 'gastos_create' %}"
-    class="fixed bottom-6 right-6 
-          bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400 
-          text-white rounded-full w-16 h-16 
-          flex items-center justify-center 
-          shadow-[0_8px_20px_rgba(100,100,255,0.3)] 
-          backdrop-blur-md 
-          transition-transform hover:scale-110 hover:shadow-[0_10px_25px_rgba(120,120,255,0.4)]"
-    title="Nuevo Gasto">
-  
-    <!-- Ícono "+" -->
-    <svg xmlns="http://www.w3.org/2000/svg" 
-        class="h-7 w-7" 
-        fill="none" 
-        viewBox="0 0 24 24" 
-        stroke="white" 
-        stroke-width="2">
+  <button type="button"
+          onclick="openCreateModal()"
+          class="fixed bottom-6 right-6
+                 bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-400
+                 text-white rounded-full w-16 h-16
+                 flex items-center justify-center
+                 shadow-[0_8px_20px_rgba(100,100,255,0.3)]
+                 backdrop-blur-md
+                 transition-transform hover:scale-110 hover:shadow-[0_10px_25px_rgba(120,120,255,0.4)]"
+          title="Nuevo Gasto">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
     </svg>
-  </a>
+  </button>
+
+  <!-- Modal de creación de gasto -->
+  <div id="createModal" class="hidden fixed inset-0 z-40 items-center justify-center">
+    <div class="absolute inset-0 bg-black/40" onclick="closeCreateModal()"></div>
+    <div id="createModalCard"
+         class="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 z-10
+                transform transition-all duration-200 scale-95 opacity-0 max-h-[90vh] overflow-y-auto">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">Nuevo Gasto</h2>
+        <button type="button" onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600 transition">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Form -->
+      <form id="gastoCreateForm" action="{% url 'gastos_create' %}" method="post" class="p-6 space-y-4">
+        {% csrf_token %}
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha</label>
+          {{ create_form.fecha }}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Categoría</label>
+          {{ create_form.categoria }}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Monto</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none">$</span>
+            {{ create_form.monto }}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Descripción <span class="text-gray-400 font-normal">(opcional)</span></label>
+          {{ create_form.descripcion }}
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeCreateModal()"
+                  class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition text-sm">
+            Cancelar
+          </button>
+          <button type="submit" id="gastoSubmitBtn"
+                  class="flex-1 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition text-sm
+                         disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <i id="gastoSubmitIcon" class="fas fa-save text-xs"></i>
+            <span id="gastoSubmitText">Guardar Gasto</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de edición de gasto -->
+  <div id="gastoEditModal" class="hidden fixed inset-0 z-40 items-center justify-center">
+    <div class="absolute inset-0 bg-black/40" onclick="closeEditModal()"></div>
+    <div id="gastoEditModalCard"
+         class="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-4 z-10
+                transform transition-all duration-200 scale-95 opacity-0 max-h-[90vh] overflow-y-auto">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">Editar Gasto</h2>
+        <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="gastoEditForm" action="" method="post" class="p-6 space-y-4">
+        {% csrf_token %}
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha</label>
+          <input type="date" name="fecha" id="edit_gasto_fecha"
+                 class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Categoría</label>
+          <select name="categoria" id="edit_gasto_categoria"
+                  class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+            {% for cat in categorias_disponibles %}
+            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Monto</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none">$</span>
+            <input type="number" name="monto" id="edit_gasto_monto" step="0.01"
+                   class="w-full pl-8 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Descripción <span class="text-gray-400 font-normal">(opcional)</span></label>
+          <textarea name="descripcion" id="edit_gasto_descripcion" rows="3"
+                    class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"></textarea>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeEditModal()"
+                  class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition text-sm">
+            Cancelar
+          </button>
+          <button type="submit" id="gastoEditSubmitBtn"
+                  class="flex-1 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition text-sm
+                         disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            <i id="gastoEditSubmitIcon" class="fas fa-save text-xs"></i>
+            <span id="gastoEditSubmitText">Guardar Cambios</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 {% endblock %}
 
 {% block contenido_tabla %}
 
 <div class="w-full space-y-4">
 
-  <!-- SECCIÓN: BÚSQUEDA Y FILTROS -->
-  <div class="flex flex-col lg:flex-row gap-4">
-    
-    <!-- Barra de Búsqueda -->
-    <div class="flex-grow">
-      <form method="get" action="{% url 'gastos' %}" class="w-full">
-        <label class="flex flex-col h-12 w-full">
-          <div class="flex w-full flex-1 items-stretch rounded-xl h-full">
-            <div class="flex bg-gray-100 items-center justify-center pl-4 rounded-l-xl border-r-0">
-              <i class="fas fa-search text-gray-500"></i>
-            </div>
-            <input 
-              type="text"
-              name="search"
-              value="{{ search_query }}"
-              class="form-input flex w-full min-w-0 flex-1 rounded-r-xl focus:outline-0 focus:ring-2 focus:ring-blue-500 border-none bg-gray-100 h-full placeholder:text-gray-500 px-4 text-base"
-              placeholder="Buscar gastos..."/>
-          </div>
-        </label>
-      </form>
-    </div>
+  <!-- BÚSQUEDA + FILTROS (un solo form) -->
+  <form method="get" action="{% url 'gastos' %}" id="gastoFilterForm">
 
-    <!-- Botones de Filtros -->
-    <div class="flex gap-3 flex-wrap">
-      <button 
-        onclick="toggleFiltros()"
-        class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-gray-100 hover:bg-gray-200 px-4 transition">
-        <i class="fas fa-filter text-gray-700"></i>
-        <p class="text-gray-900 text-sm font-medium">Filtros</p>
-      </button>
-      
-    </div>
-  </div>
-
-  <!-- Panel de Filtros Colapsable -->
-  <div id="filtrosPanel" class="hidden">
-    <form method="get" action="{% url 'gastos' %}" class="p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        
-        <!-- Filtro: Categoría -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
-          <select 
-            name="categoria"
-            class="input w-full bg-gray-50 border-gray-300 rounded-xl">
-            <option value="">Todas</option>
-            {% for categoria in categorias_disponibles %}
-            <option value="{{ categoria.id }}" 
-              {% if filtro_categoria == categoria.id|stringformat:"s" %}selected{% endif %}>
-              {{ categoria.nombre }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <!-- Filtro: Fecha -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
-          <input 
-            type="date"
-            name="fecha"
-            value="{{ filtro_fecha }}"
-            class="input w-full bg-gray-50 border-gray-300 rounded-xl"/>
-        </div>
-
-        <!-- Filtro: Monto Mínimo -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Monto mín.</label>
-          <input 
-            type="number"
-            step="0.01"
-            name="monto_min"
-            value="{{ filtro_monto_min }}"
-            placeholder="Ej: 10"
-            class="input w-full bg-gray-50 border-gray-300 rounded-xl"/>
-        </div>
-
-        <!-- Filtro: Monto Máximo -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Monto máx.</label>
-          <input 
-            type="number"
-            step="0.01"
-            name="monto_max"
-            value="{{ filtro_monto_max }}"
-            placeholder="Ej: 100"
-            class="input w-full bg-gray-50 border-gray-300 rounded-xl"/>
-        </div>
-
-      </div>
-
-      <!-- Boton del formulario -->
-      <div class="flex gap-3 mt-4 justify-end">
-        <button 
-          type="submit"
-          class="btn bg-blue-500 hover:bg-blue-600 text-white px-6">
-          <i class="fas fa-search mr-2"></i> Aplicar
+    <!-- Fila: buscador + toggle de filtros -->
+    <div class="flex gap-3">
+      <div class="flex-1 flex items-center h-11 bg-gray-100 rounded-xl px-4 gap-3">
+        <i class="fas fa-search text-gray-400 text-sm shrink-0"></i>
+        <input type="text" name="search" id="gastoSearchInput" value="{{ search_query }}"
+               autocomplete="off"
+               class="flex-1 bg-transparent outline-none text-sm text-gray-800 placeholder-gray-400"
+               placeholder="Buscar gastos por descripción o categoría...">
+        {% if search_query %}
+        <button type="button" onclick="clearSearch('gastoFilterForm','gastoSearchInput')"
+                class="text-gray-400 hover:text-gray-600 transition shrink-0">
+          <i class="fas fa-times text-xs"></i>
         </button>
-        
-        {% if search_query or filtro_categoria or filtro_fecha or filtro_monto_min or filtro_monto_max %}
-        <a 
-          href="{% url 'gastos' %}"
-          class="btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-6">
-          <i class="fas fa-times mr-2"></i> Limpiar
-        </a>
         {% endif %}
       </div>
-    </form>
-  </div>
+      <button type="button" onclick="toggleFiltros()"
+              class="flex items-center gap-2 h-11 px-4 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm text-gray-700 font-medium transition shrink-0">
+        <i class="fas fa-sliders-h text-sm text-gray-500"></i>
+        Filtros
+        {% if tiene_filtros_activos %}
+        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+        {% endif %}
+      </button>
+    </div>
+
+    <!-- Panel de filtros (colapsable, abierto si hay filtros activos) -->
+    <div id="filtrosPanel" class="{% if not tiene_filtros_activos %}hidden {% endif %}mt-2">
+      <div class="bg-white border border-gray-200 rounded-xl p-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">Categoría</label>
+            <select name="categoria"
+                    class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Todas</option>
+              {% for cat in categorias_disponibles %}
+              <option value="{{ cat.id }}" {% if filtro_categoria == cat.id|stringformat:"s" %}selected{% endif %}>
+                {{ cat.nombre }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">Fecha</label>
+            <input type="date" name="fecha" value="{{ filtro_fecha }}"
+                   class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">Monto mín.</label>
+            <input type="number" step="0.01" name="monto_min" value="{{ filtro_monto_min }}"
+                   placeholder="Ej: 10"
+                   class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">Monto máx.</label>
+            <input type="number" step="0.01" name="monto_max" value="{{ filtro_monto_max }}"
+                   placeholder="Ej: 1000"
+                   class="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+        </div>
+        <div class="flex items-center justify-end gap-3 mt-4 pt-3 border-t border-gray-100">
+          {% if tiene_filtros_activos or search_query %}
+          <a href="{% url 'gastos' %}"
+             class="text-sm text-gray-500 hover:text-gray-800 transition flex items-center gap-1.5">
+            <i class="fas fa-times text-xs"></i>Limpiar todo
+          </a>
+          {% endif %}
+          <button type="submit"
+                  class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition">
+            Aplicar filtros
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </form>
 
   <!-- SECCIÓN: TABLA Y GRÁFICO -->
   <div class="flex flex-col lg:flex-row gap-6">
@@ -216,16 +306,52 @@
               <!-- Acciones -->
               <td class="px-4 py-3">
                 <div class="flex justify-center gap-3">
-                  <a href="{% url 'gastos_update' gasto.id %}" 
-                    class="text-blue-500 hover:text-blue-700 transition"
-                    title="Editar">
+                  <button type="button"
+                          class="text-blue-500 hover:text-blue-700 transition gasto-edit-btn"
+                          title="Editar"
+                          data-edit-url="{% url 'gastos_update' gasto.id %}"
+                          data-fecha="{{ gasto.fecha|date:'Y-m-d' }}"
+                          data-categoria="{{ gasto.categoria.id|default:'' }}"
+                          data-monto="{{ gasto.monto }}"
+                          data-descripcion="{{ gasto.descripcion|default:'' }}">
                     <i class="fas fa-edit"></i>
-                  </a>
-                  <a href="{% url 'gastos_delete' gasto.id %}" 
-                    class="text-red-500 hover:text-red-700 transition"
-                    title="Eliminar">
-                    <i class="fas fa-trash"></i>
-                  </a>
+                  </button>
+
+                  <!-- Detalles ocultos inyectados en el modal -->
+                  <div id="gasto-detail-{{ gasto.id }}" class="hidden">
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-2 text-sm">
+                      <p class="text-gray-500 text-xs mb-2">Estás a punto de eliminar el siguiente gasto:</p>
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-500"><i class="fas fa-dollar-sign text-gray-400 mr-2"></i>Monto:</span>
+                        <span class="font-bold text-gray-900 text-base">${{ gasto.monto|floatformat:2 }}</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-500"><i class="fas fa-calendar text-gray-400 mr-2"></i>Fecha:</span>
+                        <span class="font-semibold text-gray-900">{{ gasto.fecha|date:"d/m/Y" }}</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-gray-500"><i class="fas fa-tag text-gray-400 mr-2"></i>Categoría:</span>
+                        <span class="font-semibold text-gray-900">{{ gasto.categoria.nombre|default:"Sin categoría" }}</span>
+                      </div>
+                      {% if gasto.descripcion %}
+                      <div class="pt-2 border-t border-gray-200">
+                        <span class="text-gray-500 block mb-1"><i class="fas fa-align-left text-gray-400 mr-2"></i>Descripción:</span>
+                        <p class="text-gray-700 italic text-xs">&ldquo;{{ gasto.descripcion|truncatewords:15 }}&rdquo;</p>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <form method="post" action="{% url 'gastos_delete' gasto.id %}"
+                        data-confirm-delete
+                        data-title="¿Eliminar este gasto?"
+                        data-subtitle="Esta acción no podrá deshacerse."
+                        data-details-id="gasto-detail-{{ gasto.id }}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-red-400 hover:text-red-600 transition" title="Eliminar">
+                      <i class="fas fa-trash text-sm"></i>
+                    </button>
+                  </form>
                 </div>
               </td>
 
@@ -265,11 +391,11 @@
       <div class="text-center py-16 bg-white border border-gray-200 rounded-xl">
         <i class="fas fa-receipt text-gray-300 text-6xl mb-4"></i>
         <p class="text-gray-500 text-lg mb-4">No hay gastos registrados</p>
-        <a href="{% url 'gastos_create' %}" 
-          class="btn bg-blue-500 hover:bg-blue-600 text-white px-6 inline-flex items-center gap-2">
+        <button type="button" onclick="openCreateModal()"
+                class="btn bg-blue-500 hover:bg-blue-600 text-white px-6 inline-flex items-center gap-2">
           <i class="fas fa-plus"></i>
           <span>Registrar primer gasto</span>
-        </a>
+        </button>
       </div>
       {% endif %}
     </div>
@@ -321,46 +447,234 @@
       </div>
     </div>
 
-      <!-- Paginación -->
-      {% if is_paginated %}
-      <div class="mt-4 flex justify-center">
-        <div class="flex gap-2">
-          {% if page_obj.has_previous %}
-          <a href="?page={{ page_obj.previous_page_number }}" 
-            class="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 transition">
-            Anterior
-          </a>
-          {% endif %}
-          
-          <span class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium">
-            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-          </span>
-          
-          {% if page_obj.has_next %}
-          <a href="?page={{ page_obj.next_page_number }}" 
-            class="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-gray-700 transition">
-            Siguiente
-          </a>
-          {% endif %}
-        </div>
-      </div>
-      {% endif %}
-
     </div>
 
   </div>
 
 </div>
 
+<!-- Modal de creación: open/close/submit -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var modal = document.getElementById('createModal');
+  var card  = document.getElementById('createModalCard');
+  if (!modal || !card) return;
+
+  window.openCreateModal = function () {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+      });
+    });
+  };
+
+  window.closeCreateModal = function () {
+    card.classList.remove('scale-100', 'opacity-100');
+    card.classList.add('scale-95', 'opacity-0');
+    setTimeout(function () {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('gastoCreateForm').reset();
+      document.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+    }, 150);
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (!modal.classList.contains('hidden')) closeCreateModal();
+      var em = document.getElementById('gastoEditModal');
+      if (em && !em.classList.contains('hidden')) closeEditModal();
+    }
+  });
+
+  // === EDIT MODAL ===
+  var editModal = document.getElementById('gastoEditModal');
+  var editCard  = document.getElementById('gastoEditModalCard');
+
+  window.openEditModal = function (btn) {
+    if (!editModal || !editCard) return;
+    var form = document.getElementById('gastoEditForm');
+    form.action = btn.dataset.editUrl;
+    document.getElementById('edit_gasto_fecha').value      = btn.dataset.fecha      || '';
+    document.getElementById('edit_gasto_categoria').value  = btn.dataset.categoria  || '';
+    document.getElementById('edit_gasto_monto').value      = btn.dataset.monto      || '';
+    document.getElementById('edit_gasto_descripcion').value = btn.dataset.descripcion || '';
+    form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+    var submitBtn = document.getElementById('gastoEditSubmitBtn');
+    var submitIcon = document.getElementById('gastoEditSubmitIcon');
+    var submitTxt  = document.getElementById('gastoEditSubmitText');
+    submitBtn.disabled   = false;
+    submitIcon.className = 'fas fa-save text-xs';
+    submitTxt.textContent = 'Guardar Cambios';
+    editModal.classList.remove('hidden');
+    editModal.classList.add('flex');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        editCard.classList.remove('scale-95', 'opacity-0');
+        editCard.classList.add('scale-100', 'opacity-100');
+      });
+    });
+  };
+
+  window.closeEditModal = function () {
+    if (!editModal || !editCard) return;
+    editCard.classList.remove('scale-100', 'opacity-100');
+    editCard.classList.add('scale-95', 'opacity-0');
+    setTimeout(function () {
+      editModal.classList.add('hidden');
+      editModal.classList.remove('flex');
+    }, 150);
+  };
+
+  document.querySelectorAll('.gasto-edit-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () { openEditModal(this); });
+  });
+
+  if (document.getElementById('gastoEditForm')) {
+    document.getElementById('gastoEditForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var form = this;
+      var btn  = document.getElementById('gastoEditSubmitBtn');
+      var icon = document.getElementById('gastoEditSubmitIcon');
+      var txt  = document.getElementById('gastoEditSubmitText');
+      btn.disabled    = true;
+      icon.className  = 'fas fa-spinner fa-spin text-xs';
+      txt.textContent = 'Guardando...';
+      form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+      fetch(form.action, {
+        method:  'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body:    new FormData(form)
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.status === 'ok') {
+          closeEditModal();
+          window.location.reload();
+        } else {
+          Object.entries(data.errors).forEach(function ([field, errors]) {
+            var input = form.querySelector('[name="' + field + '"]');
+            if (input) {
+              var errEl = document.createElement('p');
+              errEl.className = 'field-error text-xs text-red-600 mt-1';
+              errEl.textContent = Array.isArray(errors) ? errors[0] : errors;
+              input.closest('div').appendChild(errEl);
+            }
+          });
+          btn.disabled    = false;
+          icon.className  = 'fas fa-save text-xs';
+          txt.textContent = 'Guardar Cambios';
+        }
+      })
+      .catch(function () {
+        btn.disabled    = false;
+        icon.className  = 'fas fa-save text-xs';
+        txt.textContent = 'Guardar Cambios';
+      });
+    });
+  }
+
+  document.getElementById('gastoCreateForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form    = this;
+    var btn     = document.getElementById('gastoSubmitBtn');
+    var icon    = document.getElementById('gastoSubmitIcon');
+    var txt     = document.getElementById('gastoSubmitText');
+
+    btn.disabled   = true;
+    icon.className = 'fas fa-spinner fa-spin text-xs';
+    txt.textContent = 'Guardando...';
+
+    form.querySelectorAll('.field-error').forEach(function (el) { el.remove(); });
+
+    fetch(form.action, {
+      method:  'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body:    new FormData(form)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.status === 'ok') {
+        closeCreateModal();
+        window.location.reload();
+      } else if (data.status === 'duplicate') {
+        btn.disabled    = false;
+        icon.className  = 'fas fa-save text-xs';
+        txt.textContent = 'Guardar Gasto';
+        window.openDuplicateModal(data.message, function () {
+          btn.disabled    = true;
+          icon.className  = 'fas fa-spinner fa-spin text-xs';
+          txt.textContent = 'Guardando...';
+          var fd = new FormData(form);
+          fd.append('force_create', 'true');
+          fetch(form.action, {
+            method:  'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body:    fd
+          })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (d.status === 'ok') { closeCreateModal(); window.location.reload(); }
+          })
+          .catch(function () {
+            btn.disabled    = false;
+            icon.className  = 'fas fa-save text-xs';
+            txt.textContent = 'Guardar Gasto';
+          });
+        });
+      } else {
+        Object.entries(data.errors).forEach(function ([field, errors]) {
+          var input = form.querySelector('[name="' + field + '"]');
+          if (input) {
+            var errEl = document.createElement('p');
+            errEl.className = 'field-error text-xs text-red-600 mt-1';
+            errEl.textContent = Array.isArray(errors) ? errors[0] : errors;
+            input.closest('div').appendChild(errEl);
+          }
+        });
+        btn.disabled    = false;
+        icon.className  = 'fas fa-save text-xs';
+        txt.textContent = 'Guardar Gasto';
+      }
+    })
+    .catch(function () {
+      btn.disabled    = false;
+      icon.className  = 'fas fa-save text-xs';
+      txt.textContent = 'Guardar Gasto';
+    });
+  });
+});
+</script>
+
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-  // Toggle de filtros
   function toggleFiltros() {
-    const panel = document.getElementById('filtrosPanel');
+    var panel = document.getElementById('filtrosPanel');
     panel.classList.toggle('hidden');
   }
+
+  function clearSearch(formId, inputId) {
+    document.getElementById(inputId).value = '';
+    document.getElementById(formId).submit();
+  }
+
+  // Debounce: submit automático al escribir (400 ms)
+  (function () {
+    var input = document.getElementById('gastoSearchInput');
+    if (!input) return;
+    var timer;
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        document.getElementById('gastoFilterForm').submit();
+      }, 400);
+    });
+  })();
 
   // Configurar gráfico de dona
   document.addEventListener('DOMContentLoaded', function() {

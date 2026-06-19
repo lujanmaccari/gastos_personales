@@ -1,6 +1,8 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.shortcuts import redirect
 from apps.ingreso.models import Ingreso, Fuente
 from apps.usuario.models import Moneda
 from datetime import datetime
@@ -9,7 +11,7 @@ from .forms import IngresoForm
 
 # Importar utilidades
 from apps.utils.calculations import calcular_variacion_mensual, asignar_iconos_y_colores_fuentes_ingresos
-from apps.utils.filters import aplicar_filtros_basicos, obtener_valores_filtros
+from apps.utils.filters import aplicar_filtros_basicos, aplicar_busqueda, obtener_valores_filtros
 from apps.utils.currency_mixins import ListViewCurrencyMixin
 
 class UserIngresoQuerysetMixin:
@@ -30,18 +32,18 @@ class IngresoListView(LoginRequiredMixin, UserIngresoQuerysetMixin, ListViewCurr
 
     def get_queryset(self):
         queryset = super().get_queryset().select_related('fuente', 'moneda', 'usuario')
-        
-        # Aplicar todos los filtros de una vez
+
+        queryset = aplicar_busqueda(queryset, self.request, ['descripcion', 'fuente__nombre'])
         queryset = aplicar_filtros_basicos(queryset, self.request)
-        
+
         fuente_id = self.request.GET.get('fuente')
         if fuente_id:
             queryset = queryset.filter(fuente_id=fuente_id)
-        
+
         moneda = self.request.GET.get('moneda')
-        if moneda: 
+        if moneda:
             queryset = queryset.filter(moneda__abreviatura=moneda)
-        
+
         return queryset.order_by('-fecha')
     
     def get_context_data(self, **kwargs):
@@ -112,10 +114,11 @@ class IngresoListView(LoginRequiredMixin, UserIngresoQuerysetMixin, ListViewCurr
             'mes_nombre': hoy.strftime('%B'),
             'ingresos_por_fuente': ingresos_por_fuente_list,
             'total_general': total_ingresos_convertido,
-            'fuentes_disponibles': Fuente.objects.all(),
-            'monedas_disponibles': Moneda.objects.all(),
+            'fuentes_disponibles': Fuente.objects.filter(usuario=self.request.user),
+            'monedas_disponibles': Moneda.objects.filter(usuario=self.request.user),
             'moneda': moneda_usuario,
             'user_currency': user_currency,
+            'create_form': IngresoForm(user=self.request.user),
             **valores_filtros
         })
 
@@ -135,9 +138,35 @@ class IngresoCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
+        force_create = self.request.POST.get('force_create') == 'true'
+
+        if not force_create:
+            fecha  = form.cleaned_data.get('fecha')
+            fuente = form.cleaned_data.get('fuente')
+            monto  = form.cleaned_data.get('monto')
+            ya_existe = Ingreso.objects.filter(
+                usuario=self.request.user,
+                fecha=fecha,
+                fuente=fuente,
+                monto=monto
+            ).exists()
+            if ya_existe and self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'duplicate',
+                    'message': 'Ya tenés un ingreso idéntico registrado para esa fecha, fuente y monto. ¿Querés cargarlo igualmente?'
+                })
+
         form.instance.usuario = self.request.user
         form.instance.moneda = self.request.user.moneda
-        return super().form_valid(form)
+        self.object = form.save()
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'ok'})
+        return redirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+        return super().form_invalid(form)
 
     def get_success_url(self):
         return reverse_lazy('ingresos')
@@ -153,13 +182,26 @@ class IngresoUpdateView(LoginRequiredMixin, UserIngresoQuerysetMixin, UpdateView
         kwargs['user'] = self.request.user
         return kwargs
 
+    def form_valid(self, form):
+        self.object = form.save()
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'ok'})
+        return redirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+        return super().form_invalid(form)
+
     def get_success_url(self):
         return reverse_lazy('ingresos')
 
+
 class IngresoDeleteView(LoginRequiredMixin, UserIngresoQuerysetMixin, DeleteView):
-    """Permite eliminar un ingreso existente del usuario logueado."""
     model = Ingreso
-    template_name = 'ingreso/ingreso_confirm_delete.html'
+
+    def get(self, request, *args, **kwargs):
+        return redirect('ingresos')
 
     def get_success_url(self):
         return reverse_lazy('ingresos')

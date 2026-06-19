@@ -364,9 +364,11 @@ def procesar_categorias(items):
             'usuario_id': cat.usuario_id,
             'color_id': cat.color_id,
             'icono_id': cat.icono_id,
-            'total': getattr(cat, 'total', None),  # Para top_categorias
-            # Estilos procesados
+            'total': getattr(cat, 'total', None),
+            # Valores crudos para pickers de edición
             'icono': icon_class,
+            'color_nombre': cat.color.nombre if cat.color else '',
+            # Estilos procesados para render en listado
             'color_icono': f"color: {base};",
             'color_bg': f"background-color: {bg};",
             'color_texto': f"color: {darker};",

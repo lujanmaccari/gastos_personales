@@ -27,7 +27,7 @@
           <p class="text-gray-700">Ingresos Mensuales</p>
           <p id="ingresosValue" class="font-semibold">$3500</p>
         </div>
-        <input id="ingresosInput" type="range" min="100" max="1000000" value="3500" class="w-full h-2 rounded-full accent-[#4BA3E3]" />
+        <input id="ingresosInput" type="range" min="100" max="1000000" value="3500" class="w-full h-2 rounded-full accent-[#47b4eb]" />
       </div>
 
       <!-- Gastos -->
@@ -36,7 +36,7 @@
           <p class="text-gray-700">Gastos Mensuales</p>
           <p id="gastosValue" class="font-semibold">$2000</p>
         </div>
-        <input id="gastosInput" type="range" min="100" max="1000000" value="2000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#4BA3E3]" />
+        <input id="gastosInput" type="range" min="100" max="1000000" value="2000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#47b4eb]" />
       </div>
 
       <!-- Meta -->
@@ -45,7 +45,7 @@
           <p class="text-gray-700">Meta de Ahorro</p>
           <p id="metaValue" class="font-semibold">$10000</p>
         </div>
-        <input id="metaInput" type="range" min="100" max="1000000" value="10000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#4BA3E3]" />
+        <input id="metaInput" type="range" min="100" max="1000000" value="10000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#47b4eb]" />
       </div>
     </div>
 
@@ -57,13 +57,13 @@
   </div>
 
   <!-- Insights -->
-  <div class="mt-10 bg-[#DDF1FF] border border-[#B7E2FF] rounded-2xl p-6 flex items-start gap-4">
-    <div class="text-[#4BA3E3] text-2xl">💡</div>
+  <div class="mt-10 bg-blue-50 border border-blue-200 rounded-2xl p-6 flex items-start gap-4">
+    <div class="text-blue-500 text-2xl">💡</div>
     <div>
-      <p class="font-semibold text-[#0E171B]">Insights de Ahorro</p>
+      <p class="font-semibold text-gray-900">Insights de Ahorro</p>
       <p class="text-gray-700 mt-1">
-        En <span id="mesesMeta" class="font-semibold text-[#4BA3E3]">0</span> meses podrías ahorrar
-        <span id="ahorroMeta" class="font-semibold text-[#4BA3E3]">0</span> si mantienes tus ingresos y gastos.
+        En <span id="mesesMeta" class="font-semibold text-blue-500">0</span> meses podrías ahorrar
+        <span id="ahorroMeta" class="font-semibold text-blue-500">0</span> si mantienes tus ingresos y gastos.
       </p>
     </div>
   </div>
@@ -92,12 +92,12 @@
       datasets: [{
         label: 'Saldo acumulado',
         data: Array(12).fill(0),
-        borderColor: '#4BA3E3',
+        borderColor: '#47b4eb',
         backgroundColor: 'rgba(75,163,227,0.25)',
         borderWidth: 3,
         tension: 0.35,
         pointBackgroundColor: '#FFFFFF',
-        pointBorderColor: '#4BA3E3',
+        pointBorderColor: '#47b4eb',
         pointBorderWidth: 2,
         pointRadius: 4
       }]

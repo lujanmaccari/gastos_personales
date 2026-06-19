@@ -4,6 +4,7 @@ from django.views.generic import TemplateView, DeleteView, View
 from django.urls import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
+from django.db.models import Count
 
 from .forms import PerfilForm
 from apps.usuario.models import Moneda
@@ -25,7 +26,7 @@ class PerfilDetailView(LoginRequiredMixin, TemplateView):
             "perfil": perfil,
             "form": PerfilForm(),
             "monedas": Moneda.objects.filter(usuario=self.request.user),
-            "fuentes": Fuente.objects.filter(usuario=self.request.user),
+            "fuentes": Fuente.objects.filter(usuario=self.request.user).annotate(num_ingresos=Count("ingreso")),
         })
         return ctx
 
@@ -77,11 +78,13 @@ class PerfilUpdateView(LoginRequiredMixin, View):
     
 class PerfilDeleteView(LoginRequiredMixin, DeleteView):
     model = User
-    template_name = "perfil/perfil_confirm_delete.html"
     success_url = reverse_lazy("login")
 
     def get_object(self, queryset=None):
         return self.request.user
+
+    def get(self, request, *args, **kwargs):
+        return redirect("perfil_detail")
 
     def delete(self, request, *args, **kwargs):
         logout(request)
@@ -92,13 +95,17 @@ class PerfilDeleteView(LoginRequiredMixin, DeleteView):
 class MonedaCreateView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         nombre = request.POST.get("moneda", "").strip()
-        abrev = request.POST.get("abreviatura", "").strip()
+        abrev  = request.POST.get("abreviatura", "").strip().upper()
 
         if not nombre or not abrev:
             messages.error(request, "Completá nombre y abreviatura.")
             return redirect("perfil_detail")
 
-        Moneda.objects.create(usuario=request.user, moneda=nombre, abreviatura=abrev )
+        if Moneda.objects.filter(usuario=request.user, abreviatura__iexact=abrev).exists():
+            messages.error(request, f"Ya tenés una moneda con la abreviatura «{abrev}».")
+            return redirect("perfil_detail")
+
+        Moneda.objects.create(usuario=request.user, moneda=nombre, abreviatura=abrev)
         messages.success(request, "Moneda creada.")
         return redirect("perfil_detail")
 
@@ -129,6 +136,10 @@ class FuenteCreateView(LoginRequiredMixin, View):
             messages.error(request, "Ingresá un nombre.")
             return redirect("perfil_detail")
 
+        if Fuente.objects.filter(usuario=request.user, nombre__iexact=nombre).exists():
+            messages.error(request, f"Ya tenés una fuente de ingreso llamada «{nombre}».")
+            return redirect("perfil_detail")
+
         Fuente.objects.create(nombre=nombre, usuario=request.user)
         messages.success(request, "Fuente creada.")
         return redirect("perfil_detail")
@@ -137,6 +148,9 @@ class FuenteCreateView(LoginRequiredMixin, View):
 class FuenteDeleteView(LoginRequiredMixin, DeleteView):
     model = Fuente
     success_url = reverse_lazy("perfil_detail")
+
+    def get_queryset(self):
+        return Fuente.objects.filter(usuario=self.request.user)
 
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
