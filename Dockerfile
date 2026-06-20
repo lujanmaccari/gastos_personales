@@ -19,7 +19,7 @@ COPY package*.json ./
 RUN npm install && npm install --no-save @tailwindcss/cli
 
 # entrypoint fuera de /app para que el volume mount no lo pise
-COPY entrypoint.sh /entrypoint.sh
+#COPY entrypoint.sh /entrypoint.sh
 
 EXPOSE 8000
 
