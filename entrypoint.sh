@@ -4,6 +4,7 @@ set -e
 # Build Tailwind CSS con el CLI v4 (@tailwindcss/cli procesa "@import tailwindcss" correctamente)
 # Corre desde /app donde esta tailwind.config.js y package.json
 cd /app
+echo "test"
 #npx @tailwindcss/cli \
 #    -i gastos_personales/static/css/src/input.css \
 #    -o gastos_personales/static/css/src/output.css \
