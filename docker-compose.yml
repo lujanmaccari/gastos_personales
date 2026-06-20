@@ -1,0 +1,20 @@
+services:
+  web:
+    build: .
+    volumes:
+      # /app = gastos_personales/ (nivel con package.json y tailwind.config.js)
+      # /app/gastos_personales/ = Django project (manage.py, apps, templates)
+      - .:/app
+      # Protege node_modules del bind mount (binarios Linux != Windows)
+      - node_modules:/app/node_modules
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      # DB separada para Docker para no chocar con db.sqlite3 del host
+      # El host usa db.sqlite3 con su propio estado de migraciones
+      - DATABASE_URL=sqlite:////app/gastos_personales/db_docker.sqlite3
+
+volumes:
+  node_modules:
