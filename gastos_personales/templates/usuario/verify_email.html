@@ -1,0 +1,198 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" class="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verificar cuenta - SpendWise</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#47b4eb',
+              'violet-start': '#a8b5e5',
+              'celeste-end': '#d4e6f1'
+            },
+            fontFamily: {
+              display: ['Manrope', 'sans-serif']
+            },
+            borderRadius: {
+              DEFAULT: '0.5rem',
+              lg: '1rem',
+              xl: '1.5rem',
+              full: '9999px'
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+
+  <body class="font-display bg-gradient-to-br from-violet-start to-celeste-end min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md bg-white/80 rounded-2xl shadow-xl p-8 md:p-10">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-3 mb-8">
+        <div class="size-8 text-primary shrink-0">
+          <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"></path>
+          </svg>
+        </div>
+        <span class="text-xl font-bold text-slate-800">SpendWise</span>
+      </div>
+
+      <!-- Ícono de email -->
+      <div class="flex justify-center mb-6">
+        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+          <i class="fas fa-envelope text-2xl text-primary"></i>
+        </div>
+      </div>
+
+      <h1 class="text-2xl font-bold text-slate-900 text-center mb-1">Verificá tu cuenta</h1>
+      <p class="text-sm text-slate-500 text-center mb-2">
+        Ingresá el código de 6 dígitos que enviamos a
+      </p>
+      <p class="text-sm font-semibold text-slate-700 text-center mb-7 break-all">{{ email }}</p>
+
+      <!-- Mensajes Django -->
+      {% if messages %}
+        <div class="space-y-2 mb-5">
+          {% for message in messages %}
+            <div class="px-4 py-3 rounded-xl text-sm font-medium
+              {% if message.tags == 'success' %}bg-green-50 text-green-700 border border-green-200
+              {% elif message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200
+              {% elif message.tags == 'warning' %}bg-amber-50 text-amber-700 border border-amber-200
+              {% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Error inline -->
+      {% if error %}
+        <div class="mb-5 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+          {{ error }}
+        </div>
+      {% endif %}
+
+      <!-- Formulario de código -->
+      <form method="post" id="verify-form" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="uid" value="{{ uid }}">
+        <input type="hidden" name="code" id="code-value">
+
+        <!-- 6 inputs individuales -->
+        <div class="flex gap-2 sm:gap-3 justify-center mb-7" id="digit-inputs">
+          {% for i in "123456" %}
+            <input type="text"
+                   maxlength="1"
+                   inputmode="numeric"
+                   pattern="\d"
+                   data-digit
+                   autocomplete="one-time-code"
+                   class="w-11 h-14 sm:w-12 sm:h-14 text-center text-2xl font-bold border border-slate-200 rounded-xl
+                          focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-40 focus:border-primary
+                          transition select-none
+                          {% if error %}border-red-300{% endif %}">
+          {% endfor %}
+        </div>
+
+        <button type="submit"
+                id="submit-btn"
+                disabled
+                class="w-full h-11 px-4 bg-primary text-white text-sm font-bold rounded-xl
+                       hover:bg-sky-500 active:bg-sky-600 transition
+                       focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+                       disabled:opacity-40 disabled:cursor-not-allowed">
+          Verificar cuenta
+        </button>
+      </form>
+
+      <!-- Reenviar código -->
+      <div class="mt-6 text-center">
+        <p class="text-sm text-slate-500 mb-3">¿No recibiste el email?</p>
+        <form method="post" action="{% url 'resend_verification' %}">
+          {% csrf_token %}
+          <input type="hidden" name="uid" value="{{ uid }}">
+          <button type="submit"
+                  class="text-sm font-semibold text-primary hover:text-sky-600 transition">
+            <i class="fas fa-rotate-right mr-1 text-xs"></i>Reenviar código
+          </button>
+        </form>
+      </div>
+
+      <!-- Volver al login -->
+      <div class="mt-4 text-center">
+        <a href="{% url 'login' %}" class="text-sm text-slate-400 hover:text-slate-600 transition">
+          Volver al inicio de sesión
+        </a>
+      </div>
+    </div>
+
+    <script>
+    (function () {
+      var digits = document.querySelectorAll('[data-digit]');
+      var codeInput = document.getElementById('code-value');
+      var submitBtn = document.getElementById('submit-btn');
+
+      function syncCode() {
+        var code = Array.from(digits).map(function (d) { return d.value; }).join('');
+        codeInput.value = code;
+        submitBtn.disabled = code.length < 6;
+      }
+
+      digits.forEach(function (input, i) {
+        input.addEventListener('input', function () {
+          // Keep only digits
+          input.value = input.value.replace(/\D/g, '').slice(-1);
+          if (input.value && i < digits.length - 1) digits[i + 1].focus();
+          syncCode();
+        });
+
+        input.addEventListener('keydown', function (e) {
+          if (e.key === 'Backspace' && !input.value && i > 0) {
+            digits[i - 1].focus();
+          }
+          if (e.key === 'ArrowLeft' && i > 0) digits[i - 1].focus();
+          if (e.key === 'ArrowRight' && i < digits.length - 1) digits[i + 1].focus();
+        });
+
+        input.addEventListener('paste', function (e) {
+          e.preventDefault();
+          var text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+          Array.from(text.slice(0, 6)).forEach(function (ch, j) {
+            if (digits[j]) digits[j].value = ch;
+          });
+          var nextIdx = Math.min(text.length, digits.length - 1);
+          digits[nextIdx].focus();
+          syncCode();
+        });
+
+        // Select all on focus for easier re-entry
+        input.addEventListener('focus', function () { input.select(); });
+      });
+
+      // Auto-focus first input on load
+      digits[0].focus();
+
+      // Pre-fill if there's an error (code was already submitted)
+      {% if code %}
+        var prevCode = "{{ code }}";
+        Array.from(prevCode.slice(0, 6)).forEach(function (ch, j) {
+          if (digits[j]) digits[j].value = ch;
+        });
+        syncCode();
+      {% endif %}
+    })();
+    </script>
+  </body>
+</html>

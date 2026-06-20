@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificá tu cuenta en SpendWise</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width:480px;" cellpadding="0" cellspacing="0">
+
+          <!-- Card -->
+          <tr>
+            <td style="background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+              <!-- Header con gradiente -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#a8b5e5 0%,#d4e6f1 100%);padding:36px 32px;text-align:center;">
+                    <div style="display:inline-block;width:52px;height:52px;background:rgba(255,255,255,0.9);border-radius:50%;line-height:52px;margin-bottom:14px;text-align:center;">
+                      <span style="font-size:24px;line-height:52px;">💰</span>
+                    </div>
+                    <div>
+                      <span style="font-size:22px;font-weight:800;color:#1e293b;letter-spacing:-0.5px;">SpendWise</span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Cuerpo -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding:40px 36px 32px;">
+
+                    <p style="margin:0 0 6px;font-size:14px;color:#64748b;">
+                      Hola <strong>{{ user.first_name|default:user.username }}</strong>,
+                    </p>
+                    <h1 style="margin:0 0 16px;font-size:22px;font-weight:800;color:#0f172a;line-height:1.3;">
+                      Verificá tu cuenta
+                    </h1>
+                    <p style="margin:0 0 28px;font-size:15px;color:#475569;line-height:1.7;">
+                      Para completar tu registro en SpendWise, ingresá el siguiente código de verificación.
+                      Expira en <strong style="color:#0f172a;">{{ expiry_minutes }} minutos</strong>.
+                    </p>
+
+                    <!-- Código destacado -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                      <tr>
+                        <td style="background:#f8fafc;border:2px solid #e2e8f0;border-radius:16px;padding:28px 20px;text-align:center;">
+                          <span style="display:block;font-size:42px;font-weight:800;letter-spacing:14px;color:#47b4eb;font-family:monospace;">{{ code }}</span>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.6;">
+                      Si no creaste esta cuenta en SpendWise, podés ignorar este email de forma segura.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Footer -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 36px;text-align:center;">
+                    <p style="margin:0;font-size:12px;color:#94a3b8;">
+                      SpendWise &mdash; Gestioná tus finanzas fácilmente
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
