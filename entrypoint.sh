@@ -5,9 +5,9 @@ set -e
 # Corre desde /app donde esta tailwind.config.js y package.json
 cd /app
 #npx @tailwindcss/cli \
-    -i gastos_personales/static/css/src/input.css \
-    -o gastos_personales/static/css/src/output.css \
-    || echo "Warning: CSS build fallido, la app carga igual via CDN"
+#    -i gastos_personales/static/css/src/input.css \
+#    -o gastos_personales/static/css/src/output.css \
+#    || echo "Warning: CSS build fallido, la app carga igual via CDN"
 
 # Django desde su directorio para que manage.py resuelva paths correctamente
 #cd /app/gastos_personales
