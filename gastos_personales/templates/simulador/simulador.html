@@ -1,167 +1,377 @@
 {% extends 'layout/frame.html' %}
-
-{% block title %}Simulador de ahorro{% endblock %}
-
-{% block sectionTitle %}Simulador de ahorro{% endblock %}
-
 {% load static %}
+
+{% block title %}Simulador de Ahorro{% endblock %}
+{% block sectionTitle %}Simulador de Ahorro{% endblock %}
+
 {% block contenido_tabla %}
-<div class="w-full">
-  <!-- Header -->
-  <div class="flex items-center justify-between mb-10">
-    <button id="resetBtn" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-sm text-gray-700 shadow-sm border border-gray-200 hover:bg-gray-50 transition">
-      Reiniciar simulación
-      <span class="text-lg">↻</span>
-    </button>
+<div class="w-full space-y-5">
+
+  <!-- ── KPI CARDS ── -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Ahorro mensual</p>
+      <p id="kpiAhorro" class="text-2xl font-bold text-slate-800">—</p>
+      <p id="kpiAhorroSub" class="text-xs text-slate-400 mt-1">Ingresos menos gastos</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Tasa de ahorro</p>
+      <p id="kpiTasa" class="text-2xl font-bold text-slate-800">—</p>
+      <p class="text-xs text-slate-400 mt-1">Del ingreso mensual</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs font-medium text-slate-400 uppercase tracking-wide mb-2">Tiempo a la meta</p>
+      <p id="kpiTiempo" class="text-2xl font-bold text-slate-800">—</p>
+      <p class="text-xs text-slate-400 mt-1">Con el ahorro actual</p>
+    </div>
+
   </div>
 
-  <!-- Grid principal -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- Panel izquierdo -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-      <h2 class="text-xl font-semibold mb-6">Ajusta tus variables</h2>
+  <!-- ── MAIN GRID: inputs + gráfico ── -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+    <!-- Panel izquierdo: Variables -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-7">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Variables</h2>
+        <button id="resetBtn"
+                class="flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#47b4eb] transition
+                       px-3 py-1.5 rounded-lg hover:bg-slate-50 border border-slate-200">
+          <i class="fas fa-rotate-right text-xs"></i> Reiniciar
+        </button>
+      </div>
 
       <!-- Ingresos -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-gray-700">Ingresos Mensuales</p>
-          <p id="ingresosValue" class="font-semibold">$3500</p>
+      <div>
+        <div class="flex items-center justify-between mb-2.5">
+          <label class="text-sm font-medium text-slate-700">Ingresos mensuales</label>
+          <div class="flex items-center gap-1">
+            <span class="text-sm text-slate-400">$</span>
+            <input id="ingresosNum" type="number" min="0" max="10000000" step="100" value="3500"
+                   class="w-28 text-right text-sm font-semibold border border-slate-200 rounded-lg px-2 py-1.5
+                          focus:outline-none focus:ring-2 focus:ring-[#47b4eb]/30 focus:border-[#47b4eb] transition">
+          </div>
         </div>
-        <input id="ingresosInput" type="range" min="100" max="1000000" value="3500" class="w-full h-2 rounded-full accent-[#47b4eb]" />
+        <input id="ingresosSlider" type="range" min="0" max="1000000" step="100" value="3500"
+               class="w-full h-1.5 rounded-full accent-[#47b4eb] cursor-pointer">
+        <div class="flex justify-between text-xs text-slate-300 mt-1.5">
+          <span>$0</span><span>$1.000.000</span>
+        </div>
       </div>
 
       <!-- Gastos -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-gray-700">Gastos Mensuales</p>
-          <p id="gastosValue" class="font-semibold">$2000</p>
+      <div>
+        <div class="flex items-center justify-between mb-2.5">
+          <label class="text-sm font-medium text-slate-700">Gastos mensuales</label>
+          <div class="flex items-center gap-1">
+            <span class="text-sm text-slate-400">$</span>
+            <input id="gastosNum" type="number" min="0" max="10000000" step="100" value="2000"
+                   class="w-28 text-right text-sm font-semibold border border-slate-200 rounded-lg px-2 py-1.5
+                          focus:outline-none focus:ring-2 focus:ring-[#47b4eb]/30 focus:border-[#47b4eb] transition">
+          </div>
         </div>
-        <input id="gastosInput" type="range" min="100" max="1000000" value="2000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#47b4eb]" />
+        <input id="gastosSlider" type="range" min="0" max="1000000" step="100" value="2000"
+               class="w-full h-1.5 rounded-full accent-[#47b4eb] cursor-pointer">
+        <div class="flex justify-between text-xs text-slate-300 mt-1.5">
+          <span>$0</span><span>$1.000.000</span>
+        </div>
       </div>
 
       <!-- Meta -->
       <div>
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-gray-700">Meta de Ahorro</p>
-          <p id="metaValue" class="font-semibold">$10000</p>
+        <div class="flex items-center justify-between mb-2.5">
+          <label class="text-sm font-medium text-slate-700">Meta de ahorro</label>
+          <div class="flex items-center gap-1">
+            <span class="text-sm text-slate-400">$</span>
+            <input id="metaNum" type="number" min="0" max="100000000" step="1000" value="10000"
+                   class="w-28 text-right text-sm font-semibold border border-slate-200 rounded-lg px-2 py-1.5
+                          focus:outline-none focus:ring-2 focus:ring-[#47b4eb]/30 focus:border-[#47b4eb] transition">
+          </div>
         </div>
-        <input id="metaInput" type="range" min="100" max="1000000" value="10000" class="w-full h-2 rounded-full bg-[#E1E9F0] accent-[#47b4eb]" />
+        <input id="metaSlider" type="range" min="0" max="5000000" step="1000" value="10000"
+               class="w-full h-1.5 rounded-full accent-[#47b4eb] cursor-pointer">
+        <div class="flex justify-between text-xs text-slate-300 mt-1.5">
+          <span>$0</span><span>$5.000.000</span>
+        </div>
       </div>
     </div>
 
-    <!-- Panel derecho -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-      <h2 class="text-xl font-semibold mb-6">Proyección de Saldo Futuro</h2>
-      <canvas id="chart" height="180"></canvas>
+    <!-- Panel derecho: Gráfico -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col min-h-[320px]">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Proyección acumulada</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Evolución mensual hacia la meta</p>
+        </div>
+        <span id="metaBadge"
+              class="hidden text-xs font-semibold bg-[#47b4eb]/10 text-[#47b4eb] px-2.5 py-1 rounded-full whitespace-nowrap">
+          Meta: <span id="metaBadgeVal">$0</span>
+        </span>
+      </div>
+
+      <!-- Gráfico -->
+      <div id="chartWrap" class="flex-1">
+        <canvas id="chart"></canvas>
+      </div>
+
+      <!-- Estado: déficit -->
+      <div id="deficitState" class="hidden flex-1 flex-col items-center justify-center py-10 gap-3 text-center">
+        <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+          <i class="fas fa-triangle-exclamation text-red-400 text-xl"></i>
+        </div>
+        <p class="text-sm font-semibold text-slate-700">Sin margen de ahorro</p>
+        <p id="deficitChartMsg" class="text-xs text-slate-400 max-w-[220px] leading-relaxed"></p>
+      </div>
+
+      <!-- Estado: sin meta -->
+      <div id="sinMetaState" class="hidden flex-1 flex-col items-center justify-center py-10 gap-3 text-center">
+        <div class="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center">
+          <i class="fas fa-flag text-slate-300 text-xl"></i>
+        </div>
+        <p class="text-xs text-slate-400">Definí una meta para ver la proyección</p>
+      </div>
     </div>
   </div>
 
-  <!-- Insights -->
-  <div class="mt-10 bg-blue-50 border border-blue-200 rounded-2xl p-6 flex items-start gap-4">
-    <div class="text-blue-500 text-2xl">💡</div>
+  <!-- ── INSIGHT ── -->
+  <div id="insightOk"
+       class="hidden bg-blue-50 border border-blue-100 rounded-xl p-5 items-start gap-4">
+    <div class="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
+      <i class="fas fa-lightbulb text-blue-500 text-sm"></i>
+    </div>
     <div>
-      <p class="font-semibold text-gray-900">Insights de Ahorro</p>
-      <p class="text-gray-700 mt-1">
-        En <span id="mesesMeta" class="font-semibold text-blue-500">0</span> meses podrías ahorrar
-        <span id="ahorroMeta" class="font-semibold text-blue-500">0</span> si mantienes tus ingresos y gastos.
-      </p>
+      <p id="insightMain" class="text-sm font-semibold text-slate-800"></p>
+      <p id="insightSub" class="text-xs text-slate-500 mt-1 leading-relaxed"></p>
     </div>
   </div>
+
+  <div id="insightDeficit"
+       class="hidden bg-red-50 border border-red-100 rounded-xl p-5 items-start gap-4">
+    <div class="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+      <i class="fas fa-circle-xmark text-red-500 text-sm"></i>
+    </div>
+    <div>
+      <p class="text-sm font-semibold text-red-800">Gastos superiores a ingresos</p>
+      <p id="deficitInsightMsg" class="text-xs text-red-600 mt-1 leading-relaxed"></p>
+    </div>
+  </div>
+
 </div>
 
-<!-- Chart.js -->
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-  const ingresosInput = document.getElementById("ingresosInput");
-  const gastosInput = document.getElementById("gastosInput");
-  const metaInput = document.getElementById("metaInput");
+(function () {
+  const ingresosSlider  = document.getElementById('ingresosSlider');
+  const gastosSlider    = document.getElementById('gastosSlider');
+  const metaSlider      = document.getElementById('metaSlider');
+  const ingresosNum     = document.getElementById('ingresosNum');
+  const gastosNum       = document.getElementById('gastosNum');
+  const metaNum         = document.getElementById('metaNum');
 
-  const ingresosValue = document.getElementById("ingresosValue");
-  const gastosValue = document.getElementById("gastosValue");
-  const metaValue = document.getElementById("metaValue");
+  const kpiAhorro       = document.getElementById('kpiAhorro');
+  const kpiAhorroSub    = document.getElementById('kpiAhorroSub');
+  const kpiTasa         = document.getElementById('kpiTasa');
+  const kpiTiempo       = document.getElementById('kpiTiempo');
 
-  const mesesMetaEl = document.getElementById("mesesMeta");
-  const ahorroMetaEl = document.getElementById("ahorroMeta");
+  const metaBadge       = document.getElementById('metaBadge');
+  const metaBadgeVal    = document.getElementById('metaBadgeVal');
+  const chartWrap       = document.getElementById('chartWrap');
+  const deficitState    = document.getElementById('deficitState');
+  const sinMetaState    = document.getElementById('sinMetaState');
+  const deficitChartMsg = document.getElementById('deficitChartMsg');
+  const insightOk       = document.getElementById('insightOk');
+  const insightDeficit  = document.getElementById('insightDeficit');
+  const insightMain     = document.getElementById('insightMain');
+  const insightSub      = document.getElementById('insightSub');
+  const deficitInsightMsg = document.getElementById('deficitInsightMsg');
 
-  // Chart.js inicial
-  const ctx = document.getElementById('chart');
-  const chart = new Chart(ctx, {
+  const fmt = n => '$' + Math.abs(n).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+
+  // ── Chart.js ──
+  const chart = new Chart(document.getElementById('chart'), {
     type: 'line',
     data: {
-      labels: Array.from({length:12}, (_,i)=>`Mes ${i+1}`),
-      datasets: [{
-        label: 'Saldo acumulado',
-        data: Array(12).fill(0),
-        borderColor: '#47b4eb',
-        backgroundColor: 'rgba(75,163,227,0.25)',
-        borderWidth: 3,
-        tension: 0.35,
-        pointBackgroundColor: '#FFFFFF',
-        pointBorderColor: '#47b4eb',
-        pointBorderWidth: 2,
-        pointRadius: 4
-      }]
+      labels: [],
+      datasets: [
+        {
+          label: 'Ahorro acumulado',
+          data: [],
+          borderColor: '#47b4eb',
+          backgroundColor: 'rgba(71,180,235,0.10)',
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#47b4eb',
+          pointBorderWidth: 2,
+        },
+        {
+          label: 'Meta',
+          data: [],
+          borderColor: '#a8b5e5',
+          borderWidth: 1.5,
+          borderDash: [6, 4],
+          backgroundColor: 'transparent',
+          pointRadius: 0,
+          tension: 0,
+        }
+      ]
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false } },
+      animation: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: { boxWidth: 12, font: { size: 11 }, color: '#94a3b8', padding: 16 }
+        },
+        tooltip: {
+          callbacks: {
+            label: c => ' ' + c.dataset.label + ': ' + fmt(c.parsed.y)
+          }
+        }
+      },
       scales: {
-        y: { beginAtZero: true, grid: { color: '#E5EAF0' }, ticks: { color: '#6B7280' } },
-        x: { grid: { display: false }, ticks: { color: '#6B7280' } }
+        y: {
+          beginAtZero: true,
+          grid: { color: '#f1f5f9' },
+          ticks: { color: '#94a3b8', font: { size: 11 }, callback: v => fmt(v) }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#94a3b8', font: { size: 11 }, maxTicksLimit: 12, maxRotation: 0 }
+        }
       }
     }
   });
 
-  function actualizarLabels(){
-    ingresosValue.textContent = "$" + ingresosInput.value;
-    gastosValue.textContent = "$" + gastosInput.value;
-    metaValue.textContent = "$" + metaInput.value;
-  }
-
-  async function calcular() {
-    actualizarLabels();
-
-    const formData = new FormData();
-    formData.append("ingresos", ingresosInput.value);
-    formData.append("gastos", gastosInput.value);
-    formData.append("meta", metaInput.value);
-
-    const response = await fetch("{% url 'simulador-calcular' %}", {
-      method: "POST",
-      headers: { "X-CSRFToken": "{{ csrf_token }}" },
-      body: formData
+  // ── Sync slider ↔ número ──
+  function bindPair(slider, num) {
+    slider.addEventListener('input', () => { num.value = slider.value; calcularDebounced(); });
+    num.addEventListener('input', () => {
+      slider.value = Math.min(+slider.max, Math.max(0, +num.value || 0));
+      calcularDebounced();
     });
-
-    const data = await response.json();
-
-    if(data.error){
-      alert(data.error);
-      return;
-    }
-
-    // actualizar insight
-    mesesMetaEl.textContent = data.meses_objetivo;
-    ahorroMetaEl.textContent = data.proyeccion[data.proyeccion.length - 1];
-
-    // actualizar chart
-    chart.data.datasets[0].data = data.proyeccion.slice(0,12); // solo 12 meses
-    chart.update();
   }
+  bindPair(ingresosSlider, ingresosNum);
+  bindPair(gastosSlider, gastosNum);
+  bindPair(metaSlider, metaNum);
 
-  // recalcular al cambiar cualquier slider
-  ingresosInput.addEventListener('input', calcular);
-  gastosInput.addEventListener('input', calcular);
-  metaInput.addEventListener('input', calcular);
-
-  // resetear valores
-  document.getElementById("resetBtn").addEventListener('click', () => {
-    ingresosInput.value = 3500;
-    gastosInput.value = 2000;
-    metaInput.value = 10000;
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    ingresosSlider.value = ingresosNum.value = 3500;
+    gastosSlider.value   = gastosNum.value   = 2000;
+    metaSlider.value     = metaNum.value     = 10000;
     calcular();
   });
 
-  // calcular al cargar la página
-  window.addEventListener('DOMContentLoaded', calcular);
+  // ── Helpers de estado ──
+  function toggleFlex(el, show) {
+    el.classList.toggle('hidden', !show);
+    el.classList.toggle('flex', show);
+  }
+  function showPanel(showChart, showDeficit, showSinMeta) {
+    chartWrap.classList.toggle('hidden', !showChart);
+    toggleFlex(deficitState, showDeficit);
+    toggleFlex(sinMetaState, showSinMeta);
+    if (!showChart) metaBadge.classList.add('hidden');
+  }
+
+  // ── Calcular ──
+  async function calcular() {
+    const body = new FormData();
+    body.append('ingresos', ingresosNum.value);
+    body.append('gastos',   gastosNum.value);
+    body.append('meta',     metaNum.value);
+
+    let data;
+    try {
+      const res = await fetch("{% url 'simulador-calcular' %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body,
+      });
+      data = await res.json();
+    } catch { return; }
+
+    // KPI: ahorro mensual
+    if (data.ahorro_mensual > 0) {
+      kpiAhorro.textContent = fmt(data.ahorro_mensual);
+      kpiAhorro.className   = 'text-2xl font-bold text-green-600';
+      kpiAhorroSub.textContent = 'Margen positivo';
+    } else {
+      kpiAhorro.textContent = '−' + fmt(Math.abs(data.ahorro_mensual));
+      kpiAhorro.className   = 'text-2xl font-bold text-red-500';
+      kpiAhorroSub.textContent = 'Sin margen de ahorro';
+    }
+
+    // KPI: tasa
+    const tasa = data.tasa_ahorro || 0;
+    kpiTasa.textContent = tasa > 0 ? tasa + '%' : '0%';
+    kpiTasa.className   = tasa >= 20 ? 'text-2xl font-bold text-green-600'
+                        : tasa >  0  ? 'text-2xl font-bold text-amber-500'
+                        :              'text-2xl font-bold text-red-500';
+
+    // ── Caso DÉFICIT ──
+    if (data.tipo === 'deficit') {
+      kpiTiempo.textContent = '—';
+      kpiTiempo.className = 'text-2xl font-bold text-slate-400';
+      const msg = `Reducí tus gastos ${fmt(data.deficit)} para comenzar a ahorrar.`;
+      showPanel(false, true, false);
+      deficitChartMsg.textContent = msg;
+      toggleFlex(insightOk, false);
+      toggleFlex(insightDeficit, true);
+      deficitInsightMsg.textContent = msg;
+      return;
+    }
+
+    toggleFlex(insightDeficit, false);
+
+    // ── Caso SIN META ──
+    if (data.tipo === 'sin_meta') {
+      kpiTiempo.textContent = '—';
+      kpiTiempo.className = 'text-2xl font-bold text-slate-400';
+      showPanel(false, false, true);
+      toggleFlex(insightOk, false);
+      return;
+    }
+
+    // ── Caso OK ──
+    kpiTiempo.textContent = data.tiempo_texto;
+    kpiTiempo.className = 'text-2xl font-bold text-slate-800';
+
+    showPanel(true, false, false);
+    metaBadge.classList.remove('hidden');
+    metaBadgeVal.textContent = fmt(data.meta);
+
+    chart.data.labels            = data.labels;
+    chart.data.datasets[0].data  = data.proyeccion;
+    chart.data.datasets[1].data  = Array(data.labels.length).fill(data.meta);
+    chart.update();
+
+    toggleFlex(insightOk, true);
+    insightMain.textContent = `En ${data.tiempo_texto} alcanzás tu meta de ${fmt(data.meta)}.`;
+    if (data.extra_mensual > 0) {
+      const menos = data.meses_objetivo - data.meses_acelerado;
+      insightSub.textContent =
+        `Si ahorrás ${fmt(data.extra_mensual)} más por mes, llegás ${menos} mes${menos !== 1 ? 'es' : ''} antes.`;
+    } else {
+      insightSub.textContent = '';
+    }
+  }
+
+  let debounceTimer;
+  function calcularDebounced() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(calcular, 180);
+  }
+
+  calcular();
+})();
 </script>
 {% endblock %}
