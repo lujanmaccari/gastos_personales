@@ -10,6 +10,7 @@ WORKDIR /app
 
 # Python deps (requirements.txt esta en el nivel gastos_personales/gastos_personales/)
 COPY gastos_personales/ ./gastos_personales
+COPY .env ./gastos_personales/.env
 COPY gastos_personales/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
